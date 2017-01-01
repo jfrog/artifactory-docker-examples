@@ -1,6 +1,6 @@
 # Artifactory Docker Compose Examples
 This repository provides various examples for running Artifactory with Docker Compose.  
-For the **Artifactory in Docker** documentation, go to the official [Artifactory on Docker][1] page.
+For the **Artifactory in Docker** documentation, go to the official [Artifactory in Docker][1] page.
 
 ## Docker and Docker Compose
 See the official [Docker][2] and [Docker Compose][3] documentation on what Docker is and how to set it up.  
@@ -10,13 +10,13 @@ Artifactory in Docker is released as two Docker images
 - Artifactory OSS
 - Artifactory Pro
 
-You can find the images in [JFrog's][4] [Bintray][5] page.
+You can find the images in [JFrog's Bintray][5] page.
  
 ## Docker Compose examples
 To run any of the examples, you should execute:  
 `$ docker-compose -f <compose-file> <options>`
 
-### Control commands
+### Docker Compose control commands
 - Start  
 `$ docker-compose -f <compose-file> -d up`
 - Stop  
