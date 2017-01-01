@@ -1,0 +1,12 @@
+version: '2'
+services:
+  artifactory:
+    image: jfrog/artifactory-oss:5.x-SNAPSHOT
+    ports:
+     - 80:8081
+    volumes:
+     - /data/artifactory:/var/opt/jfrog/artifactory
+#    environment:
+     # Add extra Java options by uncommenting the following line
+     #- EXTRA_JAVA_OPTIONS=-Xmx4g
+    restart: always

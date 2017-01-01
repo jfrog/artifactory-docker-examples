@@ -1,0 +1,95 @@
+version: '2'
+services:
+  postgresql-ha:
+    image: postgres:9.5.2
+    ports:
+     - 5432:5432
+    environment:
+     - POSTGRES_DB=artifactory
+     # The following must match the DB_USER and DB_PASSWORD values passed to Artifactory
+     - POSTGRES_USER=artifactory
+     - POSTGRES_PASSWORD=password
+    volumes:
+     - /date/postgresql:/var/lib/postgresql/data
+    restart: always
+  artifactory-primary:
+    image: jfrog/artifactory-pro:5.x-SNAPSHOT
+    ports:
+     - 8081:8081
+    depends_on:
+     - postgresql-ha
+    links:
+     - postgresql-ha:postgresql
+    volumes:
+     - /data/artifactory/primary:/var/opt/jfrog/artifactory
+     - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
+     - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
+     - files/communication.key:/var/opt/jfrog/artifactory/communication.key
+     - files/access:/var/opt/jfrog/artifactory/access
+    # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
+     - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
+    environment:
+     - HA_NODE_ID=art-primary
+     - HA_IS_PRIMARY=true
+     - HA_DATA_DIR=/var/opt/jfrog/artifactory-ha
+     - HA_BACKUP_DIR=/var/opt/jfrog/artifactory-backup
+     - HA_MEMBERSHIP_PORT=10017
+     - DB_TYPE=postgresql
+     # The following must match the POSTGRES_USER and POSTGRES_PASSWORD values passed to PostgreSQL
+     - DB_USER=artifactory
+     - DB_PASSWORD=password
+     # Add extra Java options by uncommenting the following line
+     #- EXTRA_JAVA_OPTIONS=-Xmx4g
+    restart: always
+  artifactory-node:
+    image: jfrog/artifactory-pro:5.x-SNAPSHOT
+    ports:
+     - 8082:8081
+    depends_on:
+     - postgresql-ha
+     - artifactory-primary
+    links:
+     - postgresql-ha:postgresql
+    # Must pass this to non primary so it can wait for primary to be up
+     - artifactory-primary
+    volumes:
+     - /data/artifactory/node:/var/opt/jfrog/artifactory
+     - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
+     - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
+     - files/communication.key:/var/opt/jfrog/artifactory/communication.key
+     - files/access:/var/opt/jfrog/artifactory/access
+    # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
+     - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
+    environment:
+     - HA_NODE_ID=art-node
+     - HA_IS_PRIMARY=false
+     - HA_DATA_DIR=/var/opt/jfrog/artifactory-ha
+     - HA_BACKUP_DIR=/var/opt/jfrog/artifactory-backup
+     - HA_MEMBERSHIP_PORT=10017
+     - DB_TYPE=postgresql
+     # The following must match the POSTGRES_USER and POSTGRES_PASSWORD values passed to PostgreSQL
+     - DB_USER=artifactory
+     - DB_PASSWORD=password
+     # Add extra Java options by uncommenting the following line
+     #- EXTRA_JAVA_OPTIONS=-Xmx4g
+    restart: always
+  nginx-ha:
+    image: jfrog/nginx-artifactory-pro:5.x-SNAPSHOT
+    ports:
+     - 80:80
+     - 443:443
+    depends_on:
+     - artifactory-primary
+     - artifactory-node
+    links:
+     - artifactory-primary
+     - artifactory-node
+    volumes:
+     - /data/nginx/log:/var/log/nginx
+     - files/nginx/conf.d/artifactory-ha.conf:/etc/nginx/conf.d/artifactory.conf
+    # To use your own certificate, just put your .key and .pem files in /data/nginx/ssl before starting docker-compose
+     - /data/nginx/ssl:/etc/nginx/ssl
+    environment:
+     - ART_BASE_URL=http://artifactory-primary:8081/artifactory
+     - SSL=true
+    restart: always
