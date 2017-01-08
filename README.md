@@ -116,7 +116,7 @@ This example starts the following containers
 
 
 
-[1]: https://www.jfrog.com/confluence/display/RTF/Running+with+Docker+-+5.0
+[1]: https://www.jfrog.com/confluence/display/RTF/Running+with+Docker
 [2]: https://docs.docker.com/
 [3]: https://docs.docker.com/compose/overview/
 [4]: https://www.jfrog.com
