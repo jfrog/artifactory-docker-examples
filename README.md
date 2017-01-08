@@ -93,7 +93,7 @@ This example starts the following containers
 
 - Nginx exposed on ports 80 and 443
   - You can disable port 80 in Nginx's configuration files
-  - Nginx comes with self signed SSL certificates that can be overwritten
+  - Nginx comes with self signed SSL certificates [that can be overwritten][9]
   - Nginx is configured to load balance the two Artifactory instances
 - Artifactory primary exposed on port 8081
 - Artifactory node exposed on port 8082
@@ -106,7 +106,7 @@ This example starts the following containers
 
 - Nginx exposed on ports 80 and 443
   - You can disable port 80 in Nginx's configuration files
-  - Nginx comes with self signed SSL certificates that can be overwritten
+  - Nginx comes with self signed SSL certificates [that can be overwritten][9]
   - Nginx is configured to load balance the two Artifactory instances
 - Artifactory primary exposed on port 8081 using its own data storage
 - Artifactory node exposed on port 8082 using its own data storage
@@ -124,3 +124,4 @@ This example starts the following containers
 [6]: https://jdbc.postgresql.org/download.html
 [7]: https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar
 [8]: https://www.jfrog.com/confluence/display/RTF/Welcome+to+Artifactory
+[9]: NginxSSL.md
