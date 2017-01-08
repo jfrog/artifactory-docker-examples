@@ -13,7 +13,7 @@ services:
      - /date/postgresql:/var/lib/postgresql/data
     restart: always
   artifactory-pro:
-    image: jfrog/artifactory-pro:5.x-SNAPSHOT
+    image: docker.bintray.io/jfrog/artifactory-pro:latest
     ports:
      - 8081:8081
     depends_on:
@@ -33,7 +33,7 @@ services:
      #- EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always
   nginx-pro:
-    image: jfrog/nginx-artifactory-pro:5.x-SNAPSHOT
+    image: docker.bintray.io/jfrog/nginx-artifactory-pro:latest
     ports:
      - 80:80
      - 443:443
