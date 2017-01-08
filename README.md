@@ -82,7 +82,7 @@ This example starts the following containers
 
 - Nginx exposed on ports 80 and 443
   - You can disable port 80 in Nginx's configuration files
-  - Nginx comes with self signed SSL certificates that can be overwritten
+  - Nginx comes with self signed SSL certificates [that can be overwritten][9]
 - Artifactory Pro exposed on port 8081
 - PostgreSQL database serving Artifactory   
 
