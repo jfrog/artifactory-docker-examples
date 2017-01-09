@@ -1,6 +1,6 @@
 version: '2'
 services:
-  postgresql-ha:
+  postgresql:
     image: postgres:9.5.2
     ports:
      - 5432:5432
@@ -17,9 +17,9 @@ services:
     ports:
      - 8081:8081
     depends_on:
-     - postgresql-ha
+     - postgresql
     links:
-     - postgresql-ha:postgresql
+     - postgresql:postgresql
     volumes:
      - /data/artifactory/primary:/var/opt/jfrog/artifactory
      - files/communication.key:/var/opt/jfrog/artifactory/communication.key
@@ -42,10 +42,10 @@ services:
     ports:
      - 8082:8081
     depends_on:
-     - postgresql-ha
+     - postgresql
      - artifactory-primary
     links:
-     - postgresql-ha:postgresql
+     - postgresql:postgresql
     # Must pass this to non primary so it can wait for primary to be up
      - artifactory-primary
     volumes:

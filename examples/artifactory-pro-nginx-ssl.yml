@@ -1,6 +1,6 @@
 version: '2'
 services:
-  postgresql-pro:
+  postgresql:
     image: postgres:9.5.2
     ports:
      - 5432:5432
@@ -17,9 +17,9 @@ services:
     ports:
      - 8081:8081
     depends_on:
-     - postgresql-pro
+     - postgresql
     links:
-     - postgresql-pro:postgresql
+     - postgresql:postgresql
     volumes:
      - /data/artifactory:/var/opt/jfrog/artifactory
     # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
