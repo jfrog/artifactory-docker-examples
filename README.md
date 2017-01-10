@@ -48,7 +48,7 @@ In all examples using PostgreSQL, the file is mounted like this:
 `~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar`
 
 #### Using Different Databases
-Artifactory can run with other databases. For more details on supported databases and how to set them up for use with Artifactory, please refer to [Changing the Database][8].
+Artifactory can run with other databases. For more details on supported databases and how to set them up for use with Artifactory, please refer to [Changing the Database][8] in the JFrog Artifactory Use Guide.
 
 ### Examples
 Here is a list of the included examples in this project. You are welcome to contribute.
