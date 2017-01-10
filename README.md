@@ -1,22 +1,22 @@
 # Artifactory Docker Compose Examples
-This repository provides various examples for running Artifactory with Docker Compose.  
-For the **Artifactory in Docker** documentation, go to the official [Artifactory in Docker][1] page.
+This repository provides some examples that show different ways to run Artifactory with Docker Compose.  
+For more detailed documentation on runing Artifactory with Docker, please refer to [Running with Docker][1] in the JFrog Artifactory User Guide
 
 ## Docker and Docker Compose
-See the official [Docker][2] and [Docker Compose][3] documentation on what Docker is and how to set it up.  
+TO learn more about Docker and how to set it up, please refer to the [Docker][2] and [Docker Compose][3] documentation.  
  
-## Artifactory Docker images
-Artifactory in Docker is released as two Docker images
+## Artifactory Docker Images
+Artifactory is available as different Docker images for:
 - Artifactory OSS
 - Artifactory Pro
 
-You can find the images in [JFrog's Bintray][5] page.
+These images are available for download from [JFrog Bintray][5].
  
-## Docker Compose examples
+## Docker Compose Examples
 To run any of the examples, you should execute:  
 `$ docker-compose -f <compose-file> <options>`
 
-### Docker Compose control commands
+### Docker Compose Control Commands
 - Start  
 `$ docker-compose -f <compose-file> -d up`
 - Stop  
@@ -39,16 +39,16 @@ All examples default to **/data/...**
 - PostgreSQL storage is in **/data/postgresql**
 - NginX configuration is in **/data/nginx**
 
-### Database driver
-The database used in these examples is PostgreSQL. In order for Artifactory to communicate with the database, it needs the
+### Database Driver
+The database used in these examples is PostgreSQL. For Artifactory to communicate with the database, it needs the
 database driver mounted into its Tomcat's lib directory.  
 You need to download the PostgreSQL driver (jar file) from [PostgreSQL download page][6] to your home directory.  
 Direct link to driver: [https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar][7]  
 In all examples using PostgreSQL, the file is mounted like this:  
 `~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar`
 
-#### Other databases
-Artifactory can run with other databases. You can get more information on this in JFrog's [Artifactory Wiki pages][8]
+#### Using Different Databases
+Artifactory can run with other databases. For more details on supported databases and how to set them up for use with Artifactory, please refer to [Changing the Database][8]
 
 ### Examples
 Here is a list of the included examples in this project. You are welcome to contribute.
@@ -123,5 +123,5 @@ This example starts the following containers
 [5]: https://bintray.com/jfrog
 [6]: https://jdbc.postgresql.org/download.html
 [7]: https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar
-[8]: https://www.jfrog.com/confluence/display/RTF/Welcome+to+Artifactory
+[8]: https://www.jfrog.com/confluence/display/RTF/Changing+the+Database
 [9]: NginxSSL.md
