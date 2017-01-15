@@ -2,9 +2,11 @@
 This repository provides some examples that show different ways to run Artifactory with Docker Compose.  
 For more detailed documentation on running Artifactory with Docker, please refer to [Running with Docker][1] in the JFrog Artifactory User Guide
 
+
 ## Docker and Docker Compose
 To learn more about Docker and how to set it up, please refer to the [Docker][2] and [Docker Compose][3] documentation.  
  
+
 ## Artifactory Docker Images
 Artifactory is available as different Docker images for:
 - [Artifactory Pro](#artifactory-pro-and-ha)
@@ -12,13 +14,16 @@ Artifactory is available as different Docker images for:
 
 These images are available for download from [JFrog Bintray][5].
 
+
 ## Artifactory as Docker registry
 To use Artifactory as a Docker registry, you should use one of the Artifactory Pro or HA examples that use **Nginx**.  
 For more details on using Artifactory as a Docker registry, please refer to [using Artifactory as a Docker registry][10].
  
+
 ## Docker Compose Examples
 To run any of the examples, you should execute:  
 `$ docker-compose -f <compose-file> <options>`
+
 
 ### Docker Compose Control Commands
 - Start  
@@ -34,7 +39,7 @@ To run any of the examples, you should execute:
 - Remove  
 `$ docker-compose -f <compose-file> rm`
  
- 
+--- 
 ### Storage
 For persistent storage, all volumes are mounted from the host.  
 All examples default to the host's **/data** directory  
@@ -43,6 +48,7 @@ All examples default to the host's **/data** directory
 - PostgreSQL storage is in **/data/postgresql**
 - NginX configuration is in **/data/nginx**
 
+---
 ### Database Driver
 The database used in these examples is PostgreSQL. For Artifactory to communicate with the database, it needs the
 database driver mounted into its Tomcat's lib directory.  
@@ -54,10 +60,13 @@ In all examples using PostgreSQL, the file is mounted like this:
 #### Using Different Databases
 Artifactory can run with other databases. For more details on supported databases and how to set them up for use with Artifactory, please refer to [Changing the Database][8] in the JFrog Artifactory Use Guide.
 
+---
 ### Examples
-Here is a list of the included examples in this project. You are welcome to contribute.
+Below is a list of included examples. You are welcome to contribute.
 
+---
 #### Artifactory Pro and HA
+
 
 ##### Artifactory Pro with PostgreSQL 
 `examples/artifactory-pro-postgresql.yml`  
@@ -67,6 +76,7 @@ This example starts the following containers
 - PostgreSQL database serving Artifactory   
 
 Artifactory uses the PostgreSQL database running in another container.
+
 
 ##### Artifactory Pro with PostgreSQL and Nginx for https support
 `examples/artifactory-pro-nginx-ssl.yml`  
@@ -108,6 +118,7 @@ This example starts the following containers
 
 Artifactory data is stored on a binary store provider and no shared NFS is needed.
 
+---
 #### Artifactory OSS
 
 ##### Artifactory OSS standalone with built in Derby database
