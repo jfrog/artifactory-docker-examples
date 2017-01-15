@@ -7,8 +7,8 @@ To learn more about Docker and how to set it up, please refer to the [Docker][2]
  
 ## Artifactory Docker Images
 Artifactory is available as different Docker images for:
-- [Artifactory Pro](#Artifactory-Pro-and-HA)
-- [Artifactory OSS](#Artifactory-OSS)
+- [Artifactory Pro](#artifactory-pro-and-ha)
+- [Artifactory OSS](#artifactory-oss)
 
 These images are available for download from [JFrog Bintray][5].
 
