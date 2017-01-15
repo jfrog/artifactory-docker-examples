@@ -1,16 +1,20 @@
 # Artifactory Docker Compose Examples
 This repository provides some examples that show different ways to run Artifactory with Docker Compose.  
-For more detailed documentation on runing Artifactory with Docker, please refer to [Running with Docker][1] in the JFrog Artifactory User Guide
+For more detailed documentation on running Artifactory with Docker, please refer to [Running with Docker][1] in the JFrog Artifactory User Guide
 
 ## Docker and Docker Compose
-TO learn more about Docker and how to set it up, please refer to the [Docker][2] and [Docker Compose][3] documentation.  
+To learn more about Docker and how to set it up, please refer to the [Docker][2] and [Docker Compose][3] documentation.  
  
 ## Artifactory Docker Images
 Artifactory is available as different Docker images for:
-- Artifactory OSS
-- Artifactory Pro
+- [Artifactory Pro](#Artifactory-Pro-and-HA)
+- [Artifactory OSS](#Artifactory-OSS)
 
 These images are available for download from [JFrog Bintray][5].
+
+## Artifactory as Docker registry
+To use Artifactory as a Docker registry, you should use one of the Artifactory Pro or HA examples that use **Nginx**.  
+For more details on using Artifactory as a Docker registry, please refer to [using Artifactory as a Docker registry][10].
  
 ## Docker Compose Examples
 To run any of the examples, you should execute:  
@@ -33,7 +37,7 @@ To run any of the examples, you should execute:
  
 ### Storage
 For persistent storage, all volumes are mounted from the host.  
-All examples default to **/data/...**  
+All examples default to the host's **/data** directory  
 **IMPORTANT:** You should create the directories on the host before running `docker-compose`.
 - Artifactory data is in **/data/artifactory**
 - PostgreSQL storage is in **/data/postgresql**
@@ -53,31 +57,19 @@ Artifactory can run with other databases. For more details on supported database
 ### Examples
 Here is a list of the included examples in this project. You are welcome to contribute.
 
-#### Artifactory OSS standalone with built in Derby database
-Compose file: `examples/artifactory-oss-standalone.yml`  
-This example starts the following containers
+#### Artifactory Pro and HA
 
-- Artifactory OSS exposed on port 80  
-
-
-#### Artifactory OSS with PostgreSQL
-Compose file: `examples/artifactory-oss-postgresql.yml`  
-This example starts the following containers
-
-- Artifactory OSS exposed on port 80
-- PostgreSQL database serving Artifactory   
-
-
-#### Artifactory Pro with PostgreSQL 
-Compose file: `examples/artifactory-pro-postgresql.yml`  
+##### Artifactory Pro with PostgreSQL 
+`examples/artifactory-pro-postgresql.yml`  
 This example starts the following containers
 
 - Artifactory Pro exposed on port 80
 - PostgreSQL database serving Artifactory   
 
+Artifactory uses the PostgreSQL database running in another container.
 
-#### Artifactory Pro with PostgreSQL and Nginx for https support
-Compose file: `examples/artifactory-pro-nginx-ssl.yml`  
+##### Artifactory Pro with PostgreSQL and Nginx for https support
+`examples/artifactory-pro-nginx-ssl.yml`  
 This example starts the following containers
 
 - Nginx exposed on ports 80 and 443
@@ -87,8 +79,8 @@ This example starts the following containers
 - PostgreSQL database serving Artifactory   
 
 
-#### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
-Compose file: `examples/artifactory-ha-nginx-ssl.yml`  
+##### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
+`examples/artifactory-ha-shared-data.yml`  
 This example starts the following containers
 
 - Nginx exposed on ports 80 and 443
@@ -97,11 +89,13 @@ This example starts the following containers
   - Nginx is configured to load balance the two Artifactory instances
 - Artifactory primary exposed on port 8081
 - Artifactory node exposed on port 8082
-- PostgreSQL database serving Artifactory   
+- PostgreSQL database serving Artifactory
+
+Artifactory data is shared on a common NFS mount.
 
 
-#### Artifactory HA with PostgreSQL and Nginx for load balancing and https support without shared data storage
-Compose file: `examples/artifactory-ha-nginx-ssl-without-shared-data.yml`  
+##### Artifactory HA with PostgreSQL and Nginx for load balancing and https support without shared data storage
+`examples/artifactory-ha.yml`  
 This example starts the following containers
 
 - Nginx exposed on ports 80 and 443
@@ -112,6 +106,27 @@ This example starts the following containers
 - Artifactory node exposed on port 8082 using its own data storage
 - PostgreSQL database serving Artifactory  
 
+Artifactory data is stored on a binary store provider and no shared NFS is needed.
+
+#### Artifactory OSS
+
+##### Artifactory OSS standalone with built in Derby database
+`examples/artifactory-oss.yml`  
+This example starts the following containers
+
+- Artifactory OSS exposed on port 80  
+
+Artifactory uses the embedded DerbyDB database.
+
+
+##### Artifactory OSS with PostgreSQL
+`examples/artifactory-oss-postgresql.yml`  
+This example starts the following containers
+
+- Artifactory OSS exposed on port 80
+- PostgreSQL database serving Artifactory   
+
+Artifactory uses the PostgreSQL database running in another container.
 
 
 
@@ -125,3 +140,4 @@ This example starts the following containers
 [7]: https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar
 [8]: https://www.jfrog.com/confluence/display/RTF/Changing+the+Database
 [9]: NginxSSL.md
+[10]: https://www.jfrog.com/confluence/display/RTF/Docker+Registry

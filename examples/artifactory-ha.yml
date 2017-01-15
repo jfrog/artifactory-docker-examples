@@ -19,11 +19,9 @@ services:
     depends_on:
      - postgresql
     links:
-     - postgresql:postgresql
+     - postgresql
     volumes:
      - /data/artifactory/primary:/var/opt/jfrog/artifactory
-     - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
-     - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
      - files/communication.key:/var/opt/jfrog/artifactory/communication.key
      - files/access:/var/opt/jfrog/artifactory/access
     # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
@@ -31,8 +29,6 @@ services:
     environment:
      - HA_NODE_ID=art-primary
      - HA_IS_PRIMARY=true
-     - HA_DATA_DIR=/var/opt/jfrog/artifactory-ha
-     - HA_BACKUP_DIR=/var/opt/jfrog/artifactory-backup
      - HA_MEMBERSHIP_PORT=10017
      - DB_TYPE=postgresql
      # The following must match the POSTGRES_USER and POSTGRES_PASSWORD values passed to PostgreSQL
@@ -49,13 +45,11 @@ services:
      - postgresql
      - artifactory-primary
     links:
-     - postgresql:postgresql
+     - postgresql
     # Must pass this to non primary so it can wait for primary to be up
      - artifactory-primary
     volumes:
      - /data/artifactory/node:/var/opt/jfrog/artifactory
-     - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
-     - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
      - files/communication.key:/var/opt/jfrog/artifactory/communication.key
      - files/access:/var/opt/jfrog/artifactory/access
     # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
@@ -63,8 +57,6 @@ services:
     environment:
      - HA_NODE_ID=art-node
      - HA_IS_PRIMARY=false
-     - HA_DATA_DIR=/var/opt/jfrog/artifactory-ha
-     - HA_BACKUP_DIR=/var/opt/jfrog/artifactory-backup
      - HA_MEMBERSHIP_PORT=10017
      - DB_TYPE=postgresql
      # The following must match the POSTGRES_USER and POSTGRES_PASSWORD values passed to PostgreSQL
