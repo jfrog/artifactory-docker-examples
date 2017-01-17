@@ -2,6 +2,7 @@ version: '2'
 services:
   artifactory:
     image: docker.bintray.io/jfrog/artifactory-oss:latest
+    container_name: artifactory
     ports:
      - 80:8081
     volumes:

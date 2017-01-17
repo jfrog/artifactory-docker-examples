@@ -2,6 +2,7 @@ version: '2'
 services:
   postgresql:
     image: postgres:9.5.2
+    container_name: postgresql
     ports:
      - 5432:5432
     environment:
@@ -14,6 +15,7 @@ services:
     restart: always
   artifactory:
     image: docker.bintray.io/jfrog/artifactory-pro:latest
+    container_name: artifactory
     ports:
      - 80:8081
     depends_on:

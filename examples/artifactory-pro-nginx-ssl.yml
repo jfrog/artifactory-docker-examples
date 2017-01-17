@@ -2,6 +2,7 @@ version: '2'
 services:
   postgresql:
     image: postgres:9.5.2
+    container_name: postgresql
     ports:
      - 5432:5432
     environment:
@@ -12,14 +13,15 @@ services:
     volumes:
      - /date/postgresql:/var/lib/postgresql/data
     restart: always
-  artifactory-pro:
+  artifactory-node1:
     image: docker.bintray.io/jfrog/artifactory-pro:latest
+    container_name: artifactory-node1
     ports:
      - 8081:8081
     depends_on:
      - postgresql
     links:
-     - postgresql:postgresql
+     - postgresql
     volumes:
      - /data/artifactory:/var/opt/jfrog/artifactory
     # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
@@ -32,21 +34,22 @@ services:
      # Add extra Java options by uncommenting the following line
      #- EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always
-  nginx-pro:
+  nginx:
     image: docker.bintray.io/jfrog/nginx-artifactory-pro:latest
+    container_name: nginx
     ports:
      - 80:80
      - 443:443
     depends_on:
-     - artifactory-pro
+     - artifactory
     links:
-     - artifactory-pro
+     - artifactory
     volumes:
      - /data/nginx/log:/var/log/nginx
      - files/artifactory-pro.conf:/etc/nginx/conf.d/artifactory.conf
     # To use your own certificate, just put your .key and .pem files in /data/nginx/ssl before starting docker-compose
      - /data/nginx/ssl:/etc/nginx/ssl
     environment:
-     - ART_BASE_URL=http://artifactory-pro:8081/artifactory
+     - ART_BASE_URL=http://artifactory:8081/artifactory
      - SSL=true
     restart: always

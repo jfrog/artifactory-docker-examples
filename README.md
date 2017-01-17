@@ -40,13 +40,17 @@ To run any of the examples, you should execute:
 `$ docker-compose -f <compose-file> rm`
  
 --- 
-### Storage
+### Persistent Storage
 For persistent storage, all volumes are mounted from the host.  
 All examples default to the host's **/data** directory  
 **IMPORTANT:** You should create the directories on the host before running `docker-compose`.
-- Artifactory data is in **/data/artifactory**
-- PostgreSQL storage is in **/data/postgresql**
-- NginX configuration is in **/data/nginx**
+- Artifactory data: **/data/artifactory**
+  - In the case of HA, you need to create a data directory for each node: **/data/artifactory/node1** and **/data/artifactory/node2**
+  - In the case of HA with shared data storage, you need to create the shared data and backup directories: **/data/artifactory/ha** and **/data/artifactory/backup**
+- PostgreSQL data: **/data/postgresql**
+- NginX
+  - Logs: **/data/nginx/log**
+  - SSL: **/data/nginx/ssl**
 
 ---
 ### Database Driver
@@ -70,6 +74,8 @@ Below is a list of included examples. You are welcome to contribute.
 
 ##### Artifactory Pro with PostgreSQL 
 `examples/artifactory-pro-postgresql.yml`  
+**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
+
 This example starts the following containers
 
 - Artifactory Pro exposed on port 80
@@ -80,6 +86,8 @@ Artifactory uses the PostgreSQL database running in another container.
 
 ##### Artifactory Pro with PostgreSQL and Nginx for https support
 `examples/artifactory-pro-nginx-ssl.yml`  
+**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
+
 This example starts the following containers
 
 - Nginx exposed on ports 80 and 443
@@ -91,6 +99,8 @@ This example starts the following containers
 
 ##### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
 `examples/artifactory-ha-shared-data.yml`  
+**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
+
 This example starts the following containers
 
 - Nginx exposed on ports 80 and 443
@@ -106,6 +116,8 @@ Artifactory data is shared on a common NFS mount.
 
 ##### Artifactory HA with PostgreSQL and Nginx for load balancing and https support without shared data storage
 `examples/artifactory-ha.yml`  
+**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
+
 This example starts the following containers
 
 - Nginx exposed on ports 80 and 443
@@ -123,6 +135,8 @@ Artifactory data is stored on a binary store provider and no shared NFS is neede
 
 ##### Artifactory OSS standalone with built in Derby database
 `examples/artifactory-oss.yml`  
+**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
+
 This example starts the following containers
 
 - Artifactory OSS exposed on port 80  
@@ -132,6 +146,8 @@ Artifactory uses the embedded DerbyDB database.
 
 ##### Artifactory OSS with PostgreSQL
 `examples/artifactory-oss-postgresql.yml`  
+**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
+
 This example starts the following containers
 
 - Artifactory OSS exposed on port 80
