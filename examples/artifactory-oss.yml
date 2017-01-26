@@ -7,7 +7,7 @@ services:
      - 80:8081
     volumes:
      - /data/artifactory:/var/opt/jfrog/artifactory
+#    Add extra Java options by uncommenting the following lines
 #    environment:
-     # Add extra Java options by uncommenting the following line
-     #- EXTRA_JAVA_OPTIONS=-Xmx4g
+#     - EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always

@@ -11,7 +11,7 @@ services:
      - POSTGRES_USER=artifactory
      - POSTGRES_PASSWORD=password
     volumes:
-     - /date/postgresql:/var/lib/postgresql/data
+     - /data/postgresql:/var/lib/postgresql/data
     restart: always
   artifactory-node1:
     image: docker.bintray.io/jfrog/artifactory-pro:latest
