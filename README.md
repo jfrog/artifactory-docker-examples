@@ -22,22 +22,36 @@ For more details on using Artifactory as a Docker registry, please refer to [usi
 
 ## Docker Compose Examples
 To run any of the examples, you should execute:  
-`$ docker-compose -f <compose-file> <options>`
+```bash
+$ docker-compose -f <compose-file> <options>
+```
 
 
 ### Docker Compose Control Commands
 - Start  
-`$ docker-compose -f <compose-file> -d up`
+```bash
+$ sudo docker-compose -f <compose-file> -d up
+```
 - Stop  
-`$ docker-compose -f <compose-file> stop`
+```bash
+$ sudo docker-compose -f <compose-file> stop
+```
 - Restart  
-`$ docker-compose -f <compose-file> restart`
+```bash
+$ sudo docker-compose -f <compose-file> restart
+```
 - Status  
-`$ docker-compose -f <compose-file> ps`
+```bash
+$ sudo docker-compose -f <compose-file> ps
+```
 - Logs  
-`$ docker-compose -f <compose-file> logs`
+```bash
+$ sudo docker-compose -f <compose-file> logs
+```
 - Remove  
-`$ docker-compose -f <compose-file> rm`
+```bash
+$ sudo docker-compose -f <compose-file> rm
+```
  
 --- 
 ### Persistent Storage
@@ -51,6 +65,13 @@ All examples default to the host's **/data** directory
 - NginX
   - Logs: **/data/nginx/log**
   - SSL: **/data/nginx/ssl**
+
+To help with setting up of directories and files for Artifactory Pro and HA, there is a helper script [prepareHostEnv.sh][11] you should run.  
+This script prepares the needed directories on the host and populates them with example files.
+Get the usage by running it with `-h`
+```bash
+sudo ./prepareHostEnv.sh -h
+```
 
 ---
 ### Database Driver
@@ -68,12 +89,18 @@ Artifactory can run with other databases. For more details on supported database
 ### Examples
 Below is a list of included examples. You are welcome to contribute.
 
+**IMPORTANT:** The files under the `files` directory included in this repository are for example purposes only and should NOT be used for any production deployments!  
+
 ---
 #### Artifactory Pro and HA
+Artifactory Pro and HA require some more setup due to the built in support for simple and complex configurations.  
 
 
 ##### Artifactory Pro with PostgreSQL 
-`examples/artifactory-pro-postgresql.yml`  
+```bash
+$ sudo ./prepareHostEnv.sh -t pro -c
+$ sudo docker-compose -f examples/artifactory-pro-postgresql.yml up -d
+```  
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
 
 This example starts the following containers
@@ -85,7 +112,10 @@ Artifactory uses the PostgreSQL database running in another container.
 
 
 ##### Artifactory Pro with PostgreSQL and Nginx for https support
-`examples/artifactory-pro-nginx-ssl.yml`  
+```bash
+$ sudo ./prepareHostEnv.sh -t pro -c
+$ sudo docker-compose -f examples/artifactory-pro-nginx-ssl.yml up -d
+```  
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
 
 This example starts the following containers
@@ -98,7 +128,31 @@ This example starts the following containers
 
 
 ##### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
-`examples/artifactory-ha-shared-data.yml`  
+```bash
+$ sudo ./prepareHostEnv.sh -t ha -c
+$ sudo docker-compose -f examples/artifactory-ha.yml up -d
+```  
+**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
+
+This example starts the following containers
+
+- Nginx exposed on ports 80 and 443
+  - You can disable port 80 in Nginx's configuration files
+  - Nginx comes with self signed SSL certificates [that can be overwritten][9]
+  - Nginx is configured to load balance the two Artifactory instances
+- Artifactory primary exposed on port 8081 using its own data storage
+- Artifactory node exposed on port 8082 using its own data storage
+- PostgreSQL database serving Artifactory  
+
+Artifactory data is stored on a binary store provider and no shared NFS is needed.  
+I this example, the HA nodes use their local storage and sync data between the nodes. 
+
+
+##### Artifactory HA with PostgreSQL and Nginx for load balancing and https support with shared data storage (NFS)
+```bash
+$ sudo ./prepareHostEnv.sh -t ha-shared-data -c
+$ sudo docker-compose -f examples/artifactory-ha-shared-data.yml up -d
+```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
 
 This example starts the following containers
@@ -114,27 +168,13 @@ This example starts the following containers
 Artifactory data is shared on a common NFS mount.
 
 
-##### Artifactory HA with PostgreSQL and Nginx for load balancing and https support without shared data storage
-`examples/artifactory-ha.yml`  
-**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
-
-This example starts the following containers
-
-- Nginx exposed on ports 80 and 443
-  - You can disable port 80 in Nginx's configuration files
-  - Nginx comes with self signed SSL certificates [that can be overwritten][9]
-  - Nginx is configured to load balance the two Artifactory instances
-- Artifactory primary exposed on port 8081 using its own data storage
-- Artifactory node exposed on port 8082 using its own data storage
-- PostgreSQL database serving Artifactory  
-
-Artifactory data is stored on a binary store provider and no shared NFS is needed.
-
 ---
 #### Artifactory OSS
 
 ##### Artifactory OSS standalone with built in Derby database
-`examples/artifactory-oss.yml`  
+```bash
+$ sudo docker-compose -f examples/artifactory-oss.yml up -d
+```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
 
 This example starts the following containers
@@ -145,7 +185,9 @@ Artifactory uses the embedded DerbyDB database.
 
 
 ##### Artifactory OSS with PostgreSQL
-`examples/artifactory-oss-postgresql.yml`  
+```bash
+$ sudo docker-compose -f examples/artifactory-oss-postgresql.yml up -d
+```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
 
 This example starts the following containers
@@ -168,3 +210,4 @@ Artifactory uses the PostgreSQL database running in another container.
 [8]: https://www.jfrog.com/confluence/display/RTF/Changing+the+Database
 [9]: NginxSSL.md
 [10]: https://www.jfrog.com/confluence/display/RTF/Docker+Registry
+[11]: prepareHostEnv.sh

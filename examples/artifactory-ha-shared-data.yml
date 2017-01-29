@@ -26,8 +26,6 @@ services:
      - /data/artifactory/node1:/var/opt/jfrog/artifactory
      - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
      - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
-     - files/communication.key:/var/opt/jfrog/artifactory/communication.key
-     - files/access:/var/opt/jfrog/artifactory/access
     # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
      - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
     environment:
@@ -58,8 +56,6 @@ services:
      - /data/artifactory/node2:/var/opt/jfrog/artifactory
      - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
      - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
-     - files/communication.key:/var/opt/jfrog/artifactory/communication.key
-     - files/access:/var/opt/jfrog/artifactory/access
     # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
      - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
     environment:
@@ -88,8 +84,8 @@ services:
      - artifactory-node2
     volumes:
      - /data/nginx/log:/var/log/nginx
-     - files/nginx/conf.d/artifactory-ha.conf:/etc/nginx/conf.d/artifactory.conf
-    # To use your own certificate, just put your .key and .pem files in /data/nginx/ssl before starting docker-compose
+     - /data/nginx/conf.d/ha:/etc/nginx/conf.d
+    # To use your own certificate, just put your .key and .pem files in /data/nginx/ssl before running
      - /data/nginx/ssl:/etc/nginx/ssl
     environment:
      - ART_BASE_URL=http://artifactory-node1:8081/artifactory

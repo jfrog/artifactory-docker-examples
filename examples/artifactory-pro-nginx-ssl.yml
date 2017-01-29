@@ -13,9 +13,9 @@ services:
     volumes:
      - /data/postgresql:/var/lib/postgresql/data
     restart: always
-  artifactory-node1:
+  artifactory:
     image: docker.bintray.io/jfrog/artifactory-pro:latest
-    container_name: artifactory-node1
+    container_name: artifactory
     ports:
      - 8081:8081
     depends_on:
@@ -46,7 +46,7 @@ services:
      - artifactory
     volumes:
      - /data/nginx/log:/var/log/nginx
-     - files/artifactory-pro.conf:/etc/nginx/conf.d/artifactory.conf
+     - /data/nginx/conf.d/pro:/etc/nginx/conf.d
     # To use your own certificate, just put your .key and .pem files in /data/nginx/ssl before starting docker-compose
      - /data/nginx/ssl:/etc/nginx/ssl
     environment:
