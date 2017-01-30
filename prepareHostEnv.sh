@@ -5,6 +5,8 @@
 
 SCRIPT_DIR=$(dirname $0)
 DEFAULT_ROOT_DATA_DIR=/data
+LINUX_ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
+MAC_DEFAULT_ROOT_DATA_DIR=~/.artifactory
 
 errorExit () {
     echo; echo "ERROR: $1"; echo
@@ -48,8 +50,8 @@ setOS () {
 
     # On Mac, set DEFAULT_ROOT_DATA_DIR to ~/.artifactory
     if [ "$OS_TYPE" == "Darwin" ]; then
-        echo "On Mac. Setting DEFAULT_ROOT_DATA_DIR to ~/.artifactory"
-        DEFAULT_ROOT_DATA_DIR=~/.artifactory
+        echo "On Mac. Setting DEFAULT_ROOT_DATA_DIR to $MAC_DEFAULT_ROOT_DATA_DIR"
+        DEFAULT_ROOT_DATA_DIR=${MAC_DEFAULT_ROOT_DATA_DIR}
     fi
 }
 
@@ -72,6 +74,7 @@ processOptions() {
             ;;
             d)  # Data dir
                 ROOT_DATA_DIR=$OPTARG
+                echo "Using a custom root data dir: $ROOT_DATA_DIR"
             ;;
             c)  # Clean
                 CLEAN=true
@@ -151,24 +154,27 @@ copyFiles () {
     fi
 
     echo "Nginx Artifactory configuration"
-    cp -fr ${SCRIPT_DIR}/files/nginx/conf.d/ ${ROOT_DATA_DIR}/nginx/
+    cp -fr ${SCRIPT_DIR}/files/nginx/conf.d ${ROOT_DATA_DIR}/nginx/
 }
 
 showNotes () {
     cat << END_NOTES1
 
 ======================================
-NOTES
-1. Before starting, it is recommended to place the license file(s) (artifactory.lic) in the Artifactory etc directory
+IMPORTANT
+* Before starting, it is recommended to place the license file(s) (artifactory.lic) in the Artifactory etc directory
   - Artifactory pro:   ${ROOT_DATA_DIR}/artifactory/etc
   - Artifactory HA :   ${ROOT_DATA_DIR}/artifactory/node1/etc
                        ${ROOT_DATA_DIR}/artifactory/node2/etc
-2. The communication and access keys used in these examples SHOULD NOT be used for production!
+* The communication and access keys used in these examples SHOULD NOT be used for production!
 END_NOTES1
 
     local extra_msg=""
     if [ "$DEFAULT_ROOT_DATA_DIR" != "$ROOT_DATA_DIR" ]; then
-        extra_msg="3. Since you changed the default root data directory to $ROOT_DATA_DIR, you should update the docker-compose yaml file (replace $DEFAULT_ROOT_DATA_DIR with $ROOT_DATA_DIR)."
+        extra_msg="* You changed the default root data directory to $ROOT_DATA_DIR, you have to update the docker-compose yaml file (replace $LINUX_ROOT_DATA_DIR with $ROOT_DATA_DIR)."$'\n'
+    fi
+    if [ "$OS_TYPE" == "Darwin" ]; then
+        extra_msg="$extra_msg* Since you are running on Mac, you have to update the docker-compose yaml file (replace $LINUX_ROOT_DATA_DIR with $ROOT_DATA_DIR)."
     fi
     cat << END_NOTES2
 $extra_msg
