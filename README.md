@@ -101,7 +101,6 @@ Artifactory Pro and HA require some more setup due to the built in support for s
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f examples/artifactory-pro-postgresql.yml up -d
 ```  
-**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
 
 This example starts the following containers
 
@@ -116,7 +115,6 @@ Artifactory uses the PostgreSQL database running in another container.
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f examples/artifactory-pro-nginx-ssl.yml up -d
 ```  
-**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
 
 This example starts the following containers
 
@@ -132,7 +130,6 @@ This example starts the following containers
 $ sudo ./prepareHostEnv.sh -t ha -c
 $ sudo docker-compose -f examples/artifactory-ha.yml up -d
 ```  
-**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
 
 This example starts the following containers
 
@@ -153,7 +150,6 @@ I this example, the HA nodes use their local storage and sync data between the n
 $ sudo ./prepareHostEnv.sh -t ha-shared-data -c
 $ sudo docker-compose -f examples/artifactory-ha-shared-data.yml up -d
 ```
-**IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
 
 This example starts the following containers
 
