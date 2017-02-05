@@ -1,0 +1,27 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pvart1
+  labels:
+    type: artifactory-local
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/art"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: artifactory-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  selector:
+      matchLabels:
+        type: "artifactory-local"
