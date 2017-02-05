@@ -11,8 +11,8 @@ spec:
     spec:
       containers:
       - name: artifactory-pro-k8s
-        image: eldadatheking-doc1.jfrog.io/jfrog/artifactory-pro-pg:latest
-#        image: docker.bintray.io/jfrog/artifactory-pro-pg:latest
+        # Set your actual artifactory-pro image
+        image: <your-docker-reg>/jfrog/artifactory-pro-postgresql:latest
         env:
         - name: DB_TYPE
           value: postgresql

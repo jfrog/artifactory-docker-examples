@@ -106,4 +106,4 @@ postgresql-k8s-service   10.0.172.76    <none>        5432/TCP         33m
 ```
 
 You can see the Nginx is exposed with a public IP of `59.156.13.6` on ports 80 and 443.  
-Now just point your browser to http://59.156.13.6/artifactory and enjoy!
+Now just point your browser to **http://59.156.13.6/artifactory** or **https://59.156.13.6/artifactory** and enjoy!
