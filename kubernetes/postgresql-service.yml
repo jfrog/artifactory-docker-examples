@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: postgresql-k8s-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgresql-k8s
+    spec:
+      containers:
+      - name: postgresql-k8s
+        image: postgres:9.5.2
+        env:
+        - name: POSTGRES_DB
+          value: artifactory
+        - name: POSTGRES_USER
+          value: artifactory
+        - name: POSTGRES_PASSWORD
+          value: password
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - mountPath: "/var/lib/postgresql/data"
+          name: postgresql-volume
+      volumes:
+      - name: postgresql-volume
+        persistentVolumeClaim:
+          claimName: postgresql-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-k8s-service
+  labels:
+    app: postgresql-k8s-service
+spec:
+  ports:
+  - port: 5432
+    protocol: TCP
+  selector:
+    app: postgresql-k8s

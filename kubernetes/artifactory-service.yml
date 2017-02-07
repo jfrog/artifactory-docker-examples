@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: artifactory-k8s-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: artifactory-pro-k8s
+    spec:
+      containers:
+      - name: artifactory-pro-k8s
+        # Set your actual artifactory-pro image
+        image: <your-docker-reg>/jfrog/artifactory-pro-postgresql:latest
+        env:
+        - name: DB_TYPE
+          value: postgresql
+        - name: DB_USER
+          value: artifactory
+        - name: DB_PASSWORD
+          value: password
+        - name: DB_HOST
+          value: postgresql-k8s-service
+        ports:
+        - containerPort: 8081
+        volumeMounts:
+        - mountPath: "/var/opt/jfrog/artifactory"
+          name: artifactory-pro-volume
+      volumes:
+      - name: artifactory-pro-volume
+        persistentVolumeClaim:
+          claimName: artifactory-claim
+      imagePullSecrets:
+      - name: docker-reg-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: artifactory
+  labels:
+    app: artifactory
+spec:
+  type: NodePort
+  ports:
+  - port: 8081
+    protocol: TCP
+  selector:
+    app: artifactory-pro-k8s

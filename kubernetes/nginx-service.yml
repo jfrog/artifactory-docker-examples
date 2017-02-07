@@ -1,0 +1,61 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-k8s-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-k8s-deployment
+    spec:
+      containers:
+      - name: nginx-k8s
+        image: docker.bintray.io/jfrog/nginx-artifactory-pro:latest
+        env:
+        - name: ART_BASE_URL
+          value: "http://artifactory-pro:8081/artifactory"
+        - name: SSL
+          value: "true"
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - mountPath: "/var/log/nginx"
+          name: nginx-pro-volume
+          subPath: log
+        - mountPath: "/etc/nginx/conf.d"
+          name: configmap-volume
+        - mountPath: "/etc/nginx/ssl"
+          name: ssl-secret-volume
+          subPath: ssl
+      volumes:
+      - name: configmap-volume
+        configMap:
+          name: nginx-art-pro
+      - name: nginx-pro-volume
+        persistentVolumeClaim:
+          claimName: nginx-claim
+      - name: ssl-secret-volume
+        secret:
+          secretName: art-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-k8s-service
+  labels:
+    app: nginx-k8s-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    name: port-1
+    protocol: TCP
+    targetPort: 80
+  - port: 443
+    name: port-2
+    protocol: TCP
+    targetPort: 443
+  selector:
+    app: nginx-k8s-deployment
