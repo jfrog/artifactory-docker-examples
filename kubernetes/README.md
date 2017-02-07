@@ -63,7 +63,7 @@ $ kubectl create secret tls art-tls --cert=../files/nginx/ssl/demo.pem --key=../
 ```
 
 #### Artifactory Nginx configuration
-Create a Kubernetes ConfigMap from artifactory.cond
+Create a Kubernetes ConfigMap from artifactory.conf
 ```bash
 $ kubectl create configmap nginx-art-pro --from-file=../files/nginx/conf.d/pro/artifactory.conf
 ```
