@@ -139,22 +139,22 @@ copyFiles () {
 
     echo "Artifactory configuration files"
     if [ "$TYPE" == "pro" ]; then
-        cp -f ${SCRIPT_DIR}/files/security/communication.key ${ROOT_DATA_DIR}/artifactory/etc
-        cp -fr ${SCRIPT_DIR}/files/access ${ROOT_DATA_DIR}/artifactory/
+        cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/etc
+        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/
     else
-        cp -f ${SCRIPT_DIR}/files/security/communication.key ${ROOT_DATA_DIR}/artifactory/node1
-        cp -fr ${SCRIPT_DIR}/files/access ${ROOT_DATA_DIR}/artifactory/node1/
-        cp -f ${SCRIPT_DIR}/files/security/communication.key ${ROOT_DATA_DIR}/artifactory/node2
-        cp -fr ${SCRIPT_DIR}/files/access ${ROOT_DATA_DIR}/artifactory/node2/
+        cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/node1
+        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node1/
+        cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/node2
+        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node2/
 
         # Copy the binarystore.xml which has configuration for no-shared storage
         if [ "$TYPE" == "ha" ]; then
-            cp -f ${SCRIPT_DIR}/files/binarystore.xml ${ROOT_DATA_DIR}/artifactory/node1/etc
+            cp -f ${SCRIPT_DIR}/../files/binarystore.xml ${ROOT_DATA_DIR}/artifactory/node1/etc
         fi
     fi
 
     echo "Nginx Artifactory configuration"
-    cp -fr ${SCRIPT_DIR}/files/nginx/conf.d ${ROOT_DATA_DIR}/nginx/
+    cp -fr ${SCRIPT_DIR}/../files/nginx/conf.d ${ROOT_DATA_DIR}/nginx/
 }
 
 showNotes () {

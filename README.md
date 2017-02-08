@@ -11,10 +11,4 @@ To learn more about Docker and how to set it up, please refer to the [Docker](ht
 The following examples are available
 - [Docker compose](https://github.com/JFrogDev/artifactory-docker-examples/tree/master/docker-compose)
 - [Kubernetes](https://github.com/JFrogDev/artifactory-docker-examples/tree/master/kubernetes)
-
-
-## Artifactory as Docker registry
-To use Artifactory as a Docker registry, you should use one of the Artifactory Pro or HA examples that use **Nginx**.  
-For more details on using Artifactory as a Docker registry, please refer to [using Artifactory as a Docker registry](https://www.jfrog.com/confluence/display/RTF/Docker+Registry).
  
-

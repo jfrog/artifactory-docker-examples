@@ -91,6 +91,23 @@ Below is a list of included examples. You are welcome to contribute.
 #### Artifactory Pro and HA
 Artifactory Pro and HA require some more setup due to the built in support for simple and complex configurations.  
 
+##### Artifactory Pro as Docker registry
+A simple setup of Artifactroy Pro, pre-configured as a Docker registry,
+
+
+**IMPORTANT:** Edit `artifactory-docker-registry.yml` and add a valid Artifactory license with the ART_LICENSE passed to the **artifactory** service 
+
+```bash
+$ sudo docker-compose -f artifactory-docker-registry.yml up -d
+```  
+
+This example starts the following containers
+
+- Artifactory Pro exposed on port 80
+- Nginx exposed on ports 80 and 443   
+
+Once started, to use Artifactory as a Docker registry go to [using Artifactory as a Docker registry](https://www.jfrog.com/confluence/display/RTF/Docker+Registry).
+
 
 ##### Artifactory Pro with PostgreSQL 
 ```bash
