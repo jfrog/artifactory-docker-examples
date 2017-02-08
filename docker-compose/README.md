@@ -88,10 +88,10 @@ Below is a list of included examples. You are welcome to contribute.
 **IMPORTANT:** The files under the `files` directory included in this repository are for example purposes only and should NOT be used for any production deployments!  
 
 ---
-#### Artifactory Pro and HA
+### Artifactory Pro and HA
 Artifactory Pro and HA require some more setup due to the built in support for simple and complex configurations.  
 
-##### Artifactory Pro as Docker registry
+### Artifactory Pro as Docker registry
 A simple setup of Artifactroy Pro, pre-configured as a Docker registry,
 
 
@@ -103,13 +103,16 @@ $ sudo docker-compose -f artifactory-docker-registry.yml up -d
 
 This example starts the following containers
 
-- Artifactory Pro exposed on port 80
+- Artifactory Pro exposed on port 80 already configured with 3 default docker registries
+  - docker-local - store local images
+  - docker-remote - proxy remote https://registry-1.docker.io/
+  - docker - virtual repository to join docker-local and docker-remote under a single repository
 - Nginx exposed on ports 80 and 443   
 
 Once started, to use Artifactory as a Docker registry go to [using Artifactory as a Docker registry](https://www.jfrog.com/confluence/display/RTF/Docker+Registry).
 
 
-##### Artifactory Pro with PostgreSQL 
+### Artifactory Pro with PostgreSQL 
 ```bash
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-postgresql.yml up -d
@@ -123,7 +126,7 @@ This example starts the following containers
 Artifactory uses the PostgreSQL database running in another container.
 
 
-##### Artifactory Pro with PostgreSQL and Nginx for https support
+### Artifactory Pro with PostgreSQL and Nginx for https support
 ```bash
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-nginx-ssl.yml up -d
@@ -138,7 +141,7 @@ This example starts the following containers
 - PostgreSQL database serving Artifactory   
 
 
-##### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
+### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
 ```bash
 $ sudo ./prepareHostEnv.sh -t ha -c
 $ sudo docker-compose -f artifactory-ha.yml up -d
@@ -158,7 +161,7 @@ Artifactory data is stored on a binary store provider and no shared NFS is neede
 I this example, the HA nodes use their local storage and sync data between the nodes. 
 
 
-##### Artifactory HA with PostgreSQL and Nginx for load balancing and https support with shared data storage (NFS)
+### Artifactory HA with PostgreSQL and Nginx for load balancing and https support with shared data storage (NFS)
 ```bash
 $ sudo ./prepareHostEnv.sh -t ha-shared-data -c
 $ sudo docker-compose -f artifactory-ha-shared-data.yml up -d
@@ -178,9 +181,9 @@ Artifactory data is shared on a common NFS mount.
 
 
 ---
-#### Artifactory OSS
+### Artifactory OSS
 
-##### Artifactory OSS standalone with built in Derby database
+### Artifactory OSS standalone with built in Derby database
 ```bash
 $ sudo docker-compose -f artifactory-oss.yml up -d
 ```
@@ -193,7 +196,7 @@ This example starts the following containers
 Artifactory uses the embedded DerbyDB database.
 
 
-##### Artifactory OSS with PostgreSQL
+### Artifactory OSS with PostgreSQL
 ```bash
 $ sudo docker-compose -f artifactory-oss-postgresql.yml up -d
 ```
