@@ -228,19 +228,19 @@ validateActions () {
     case ${ACTION} in
         start)
             if [ "$(isDeployedAndCleanSet)" == "true" ]; then
-                errorExit "You cannot start and clean while system is already running. Stop first."
+                errorExit "You cannot start and clean while system is already deployed. Stop and remove first."
             fi
         ;;
         status)
             if [ "$(isDeployedAndCleanSet)" == "true" ]; then
-                errorExit "You cannot check status and clean while system is already running. Stop first."
+                errorExit "You cannot check status and clean while system is already deployed."
             fi
         ;;
         stop)
         ;;
         restart)
             if [ "$(isDeployedAndCleanSet)" == "true" ]; then
-                errorExit "You cannot restart and clean while system is already running. Stop first."
+                errorExit "You cannot restart and clean while system is already deployed."
             fi
         ;;
         restart)
@@ -249,7 +249,7 @@ validateActions () {
         ;;
         logs)
             if [ "$(isDeployedAndCleanSet)" == "true" ]; then
-                errorExit "You cannot check docker logs and clean while system is already running. Stop first."
+                errorExit "You cannot check docker logs and clean while system is already deployed."
             fi
         ;;
     esac
