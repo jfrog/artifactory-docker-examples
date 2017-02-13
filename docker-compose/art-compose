@@ -1,0 +1,337 @@
+#!/bin/bash
+
+######################################################
+#
+# This script is for starting up Artifactory with docker-compose.
+# The file will create needed directories for data persistence
+# and start Artifactory with PostgreSQL as DB and Nginx.
+#
+######################################################
+
+SCRIPT_DIR=$(dirname $0)
+DEFAULT_ROOT_DATA_DIR=/data
+LINUX_ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
+MAC_DEFAULT_ROOT_DATA_DIR=~/.jfrog/artifactory
+DB_DRIVER=postgresql-9.4.1212.jar
+DB_DRIVER_URL=https://jdbc.postgresql.org/download/${DB_DRIVER}
+ARTIFACTORY_VERSION=5.0.1
+ART_COMPOSE_YML=https://jfrog.bintray.com/run/artifactory-pro/${ARTIFACTORY_VERSION}/compose/artifactory-pro.yml
+COMPOSE_FILE=artifactory-pro.yml
+DB_PASSWORD_FILE=.dbpassword
+
+errorExit () {
+    echo; echo "ERROR: $1"; echo
+    exit 1
+}
+
+usage () {
+
+    cat << END_USAGE
+
+$0 - script for starting up an Artifactory Pro with Docker compose
+
+Usage: $0 <options>
+Supported options
+-a   : (Required) Action to run. start, stop, restart, status, remove, logs
+-d   : Custom root data directory (defaults to $DEFAULT_ROOT_DATA_DIR on Linux and $MAC_DEFAULT_ROOT_DATA_DIR on Mac)
+-c   : Clean local data directory. Delete the data directory on the host before creating the new ones
+-f   : Force removal if -c is passed (do not prompt)
+-h   : Show this usage
+
+Examples
+Prepare directories for Artifactory pro with default data directory
+Start : sudo $0 -a start -c
+Stop  : sudo $0 -a stop
+
+END_USAGE
+
+    exit 1
+}
+
+setOS () {
+    OS_TYPE=$(uname)
+    if [[ ! $OS_TYPE =~ Darwin|Linux ]]; then
+        errorExit "This script can run on Mac or Linux only!"
+    fi
+
+    # On Mac, set DEFAULT_ROOT_DATA_DIR to ~/.jfrog
+    if [ "$OS_TYPE" == "Darwin" ]; then
+        DEFAULT_ROOT_DATA_DIR=${MAC_DEFAULT_ROOT_DATA_DIR}
+    fi
+}
+
+validateSudo () {
+    if [ "$OS_TYPE" == "Linux" ] && [ $EUID -ne 0 ]; then
+        errorExit "This script must be run as root or with sudo"
+    fi
+}
+
+# Process command line options. See usage above for supported options
+processOptions() {
+    while getopts ":a:d:cfh" opt; do
+        case $opt in
+            a)  # Action
+                ACTION=$OPTARG
+                [[ "$ACTION" =~ ^(start|stop|restart|status|remove|logs)$ ]] || usage
+            ;;
+            d)  # Data dir
+                ROOT_DATA_DIR=$OPTARG
+                echo "Using a custom root data dir: $ROOT_DATA_DIR"
+            ;;
+            c)  # Clean
+                CLEAN=true
+            ;;
+            f)  # Force
+                FORCE=true
+            ;;
+            h)  # Usage
+                usage
+            ;;
+            \?) # Unsupported
+                echo "ERROR: Option $OPTARG is not supported!"
+                usage
+            ;;
+        esac
+    done
+
+    # Make sure mandatory parameters are set
+    if [ -z "$ACTION" ]; then
+        echo "No action passed. Defaulting to start clean"
+        ACTION=start
+        CLEAN=true
+    fi
+
+    # Set ROOT_DATA_DIR
+    if [ -z "$ROOT_DATA_DIR" ]; then
+        ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
+    fi
+}
+
+clean () {
+    if [ "$CLEAN" == "true" ] && [ -d ${ROOT_DATA_DIR} ]; then
+        local sure='n'
+
+        if [ "$FORCE" == "true" ]; then
+            sure='y'
+        else
+            read -p "Are you sure you want to remove existing ${ROOT_DATA_DIR} [y/n]: " sure
+        fi
+        if [ "$sure" == "y" ]; then
+            echo "Removing existing ${ROOT_DATA_DIR}"
+            rm -rf ${ROOT_DATA_DIR}
+            if [ "$ACTION" == "start" ]; then
+                rm -f ${COMPOSE_FILE}
+            fi
+        fi
+    fi
+}
+
+createDirectories () {
+    if [ "$ACTION" == "start" ]; then
+        echo "Creating ${ROOT_DATA_DIR}"
+        mkdir -p ${ROOT_DATA_DIR}/postgresql
+        mkdir -p ${ROOT_DATA_DIR}/artifactory/etc
+        mkdir -p ${ROOT_DATA_DIR}/nginx/{conf.d,log,ssl}
+    fi
+}
+
+getDbDriver () {
+    if [ "$ACTION" == "start" ]; then
+        if [ ! -f ${ROOT_DATA_DIR}/${DB_DRIVER} ]; then
+            echo "Downloading the DB driver"
+            curl -# -o ${ROOT_DATA_DIR}/${DB_DRIVER} ${DB_DRIVER_URL} || errorExit "Getting ${DB_DRIVER} failed"
+        else
+            echo "DB driver already exists"
+        fi
+    fi
+}
+
+setDbPassword () {
+    if [ "$ACTION" == "start" ] && [ ! -f ${ROOT_DATA_DIR}/.dbpasswordcreated ] ; then
+        echo "Creating a new DB password"
+        TEMP_DB_PASSWORD=$(date +%s%N | sha1sum)
+        TEMP_DB_PASSWORD=${TEMP_DB_PASSWORD:0:12}
+        echo "Writing DB password to ${ROOT_DATA_DIR}/${DB_PASSWORD_FILE}"
+        echo -n "$TEMP_DB_PASSWORD" > ${ROOT_DATA_DIR}/${DB_PASSWORD_FILE}
+        touch ${ROOT_DATA_DIR}/.dbpasswordcreated
+        EXTRA_MSG="$EXTRA_MSG\nA password has been generated for the DB and saved in ${ROOT_DATA_DIR}/${DB_PASSWORD_FILE}"
+    fi
+}
+
+getArtifactoryComposeYaml () {
+    if [ ! -f ${COMPOSE_FILE} ]; then
+        echo "Preparing ${COMPOSE_FILE}"
+        curl -# -o ${COMPOSE_FILE} ${ART_COMPOSE_YML} || errorExit "Getting ${DB_DRIVER} failed"
+
+        # Do some editing
+        sed -i.bkp -e "s,~/${DB_DRIVER},${ROOT_DATA_DIR}/${DB_DRIVER},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
+
+        if [ "$ROOT_DATA_DIR" != "$LINUX_ROOT_DATA_DIR" ]; then
+            echo "Setting host data dir"
+            sed -i.bkp -e "s,- ${LINUX_ROOT_DATA_DIR},- ${ROOT_DATA_DIR},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
+        fi
+
+        sed -i.bkp -e "s,nginx/conf.d/pro,nginx/conf.d,g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
+
+        if [ -n "$TEMP_DB_PASSWORD" ]; then
+            echo "Setting generated DB password"
+            sed -i.bkp -e "s,=password,=${TEMP_DB_PASSWORD},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
+        fi
+    fi
+}
+
+createDefaultArtifactoryConf () {
+    if [ "$ACTION" == "start" ] && [ ! -f ${ROOT_DATA_DIR}/nginx/conf.d/artifactory.conf ]; then
+        echo "Creating a default artifactory.conf"
+        cat << 'END_CONF' > ${ROOT_DATA_DIR}/nginx/conf.d/artifactory.conf
+## add ssl entries when https has been set in config
+ssl_certificate      /etc/nginx/ssl/example.pem;
+ssl_certificate_key  /etc/nginx/ssl/example.key;
+ssl_session_cache shared:SSL:1m;
+ssl_prefer_server_ciphers   on;
+## server configuration
+server {
+  listen 443 ssl;
+  listen 80 ;
+  server_name ~(?<repo>.+)\.artifactory artifactory;
+
+  if ($http_x_forwarded_proto = '') {
+    set $http_x_forwarded_proto  $scheme;
+  }
+  ## Application specific logs
+  ## access_log /var/log/nginx/artifactory-access.log timing;
+  ## error_log /var/log/nginx/artifactory-error.log;
+  rewrite ^/$ /artifactory/webapp/ redirect;
+  rewrite ^/artifactory/?(/webapp)?$ /artifactory/webapp/ redirect;
+  rewrite ^/(v1|v2)/(.*) /artifactory/api/docker/$repo/$1/$2;
+  chunked_transfer_encoding on;
+  client_max_body_size 0;
+  location /artifactory/ {
+    proxy_read_timeout  900;
+    proxy_pass_header   Server;
+    proxy_cookie_path   ~*^/.* /;
+    proxy_pass          http://artifactory:8081/artifactory/;
+    proxy_set_header    X-Artifactory-Override-Base-Url $http_x_forwarded_proto://$host:$server_port/artifactory;
+    proxy_set_header    X-Forwarded-Port  $server_port;
+    proxy_set_header    X-Forwarded-Proto $http_x_forwarded_proto;
+    proxy_set_header    Host              $http_host;
+    proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
+  }
+}
+
+END_CONF
+
+    fi
+}
+
+validateActions () {
+    case ${ACTION} in
+        start)
+            if [ "$(isDeployedAndCleanSet)" == "true" ]; then
+                errorExit "You cannot start and clean while system is already running. Stop first."
+            fi
+        ;;
+        status)
+            if [ "$(isDeployedAndCleanSet)" == "true" ]; then
+                errorExit "You cannot check status and clean while system is already running. Stop first."
+            fi
+        ;;
+        stop)
+        ;;
+        restart)
+            if [ "$(isDeployedAndCleanSet)" == "true" ]; then
+                errorExit "You cannot restart and clean while system is already running. Stop first."
+            fi
+        ;;
+        restart)
+        ;;
+        remove)
+        ;;
+        logs)
+            if [ "$(isDeployedAndCleanSet)" == "true" ]; then
+                errorExit "You cannot check docker logs and clean while system is already running. Stop first."
+            fi
+        ;;
+    esac
+}
+
+# Check if current setup is deployed. Return 1 for running
+isDeployed () {
+    [ -f ${COMPOSE_FILE} ] || errorExit "Cannot check if system is deployed. ${COMPOSE_FILE} is missing"
+
+    local is_deployed=$(docker-compose -f ${COMPOSE_FILE} ps -q)
+    if [ -n "$is_deployed" ]; then
+        echo -n "true"
+    else
+        echo -n "false"
+    fi
+}
+
+isDeployedAndCleanSet () {
+    if [ "$(isDeployed)" == "true" ] && [ "$CLEAN" == "true" ] ; then
+        echo -n "true"
+    else
+        echo -n "false"
+    fi
+}
+
+start () {
+    echo "Starting Containers"
+    docker-compose -f ${COMPOSE_FILE} up -d --remove-orphans
+}
+
+status () {
+    echo "Containers status"
+    docker-compose -f ${COMPOSE_FILE} ps
+}
+
+stop () {
+    echo "Stopping Containers"
+    docker-compose -f ${COMPOSE_FILE} stop
+}
+
+restart () {
+    echo "Restarting Containers"
+    docker-compose -f ${COMPOSE_FILE} restart
+}
+
+remove () {
+    stop
+    echo "Removing Containers"
+    docker-compose -f ${COMPOSE_FILE} rm --force
+}
+
+logs () {
+    echo "Getting container logs"
+    docker-compose -f ${COMPOSE_FILE} logs -t
+}
+
+showMsg () {
+    if [ "$ACTION" == "start" ]; then
+        echo
+        echo "########################################################################################################"
+        echo "Setup is complete."
+        echo "Local directory $ROOT_DATA_DIR holds Artifactory, PostgreSQL and Nginx data and configurations."
+        echo -e "$EXTRA_MSG"
+        echo "Point your browser to https://localhost/artifactory/ or http://localhost/artifactory/"
+        echo "########################################################################################################"
+        echo
+    fi
+}
+
+############ Main #############
+
+setOS
+validateSudo
+processOptions $*
+validateActions
+clean
+createDirectories
+getDbDriver
+setDbPassword
+getArtifactoryComposeYaml
+createDefaultArtifactoryConf
+
+eval ${ACTION}
+
+showMsg

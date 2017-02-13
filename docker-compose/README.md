@@ -92,7 +92,22 @@ Below is a list of included examples. You are welcome to contribute.
 Artifactory Pro and HA require some more setup due to the built in support for simple and complex configurations.  
 
 
-### Artifactory Pro with PostgreSQL 
+### Artifactory Pro with PostgreSQL and Nginx for https support
+```bash
+$ sudo ./prepareHostEnv.sh -t pro -c
+$ sudo docker-compose -f artifactory-pro.yml up -d
+```  
+
+This example starts the following containers
+
+- Nginx exposed on ports 80 and 443
+  - You can disable port 80 in Nginx's configuration files
+  - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
+- Artifactory Pro exposed on port 8081
+- PostgreSQL database serving Artifactory   
+
+
+### Artifactory Pro with PostgreSQL only 
 ```bash
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-postgresql.yml up -d
@@ -104,21 +119,6 @@ This example starts the following containers
 - PostgreSQL database serving Artifactory   
 
 Artifactory uses the PostgreSQL database running in another container.
-
-
-### Artifactory Pro with PostgreSQL and Nginx for https support
-```bash
-$ sudo ./prepareHostEnv.sh -t pro -c
-$ sudo docker-compose -f artifactory-pro-nginx-ssl.yml up -d
-```  
-
-This example starts the following containers
-
-- Nginx exposed on ports 80 and 443
-  - You can disable port 80 in Nginx's configuration files
-  - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
-- Artifactory Pro exposed on port 8081
-- PostgreSQL database serving Artifactory   
 
 
 ### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
