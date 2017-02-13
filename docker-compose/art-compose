@@ -32,7 +32,7 @@ $0 - script for starting up an Artifactory Pro with Docker compose
 
 Usage: $0 <options>
 Supported options
--a   : (Required) Action to run. start, stop, restart, status, remove, logs
+-a   : Action to run. start, stop, restart, status, remove, logs (defaults to start)
 -d   : Custom root data directory (defaults to $DEFAULT_ROOT_DATA_DIR on Linux and $MAC_DEFAULT_ROOT_DATA_DIR on Mac)
 -c   : Clean local data directory. Delete the data directory on the host before creating the new ones
 -f   : Force removal if -c is passed (do not prompt)
@@ -40,8 +40,9 @@ Supported options
 
 Examples
 Prepare directories for Artifactory pro with default data directory
-Start : sudo $0 -a start -c
-Stop  : sudo $0 -a stop
+Start  : sudo $0 -a start -c
+Stop   : sudo $0 -a stop
+Status : sudo $0 -a status
 
 END_USAGE
 
@@ -242,8 +243,6 @@ validateActions () {
             if [ "$(isDeployedAndCleanSet)" == "true" ]; then
                 errorExit "You cannot restart and clean while system is already deployed."
             fi
-        ;;
-        restart)
         ;;
         remove)
         ;;
