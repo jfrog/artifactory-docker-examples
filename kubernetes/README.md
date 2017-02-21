@@ -61,6 +61,10 @@ Create the SSL secret that will be used by Nginx's container
 ```bash
 $ kubectl create secret tls art-tls --cert=../files/nginx/ssl/demo.pem --key=../files/nginx/ssl/demo.key
 ```
+You can replace the key and certificate with your own files
+```bash
+$ kubectl create secret tls art-tls --cert=<path_to>/myssl.pem --key=<path_to>/myssl.key
+```
 
 #### Artifactory Nginx configuration
 Create a Kubernetes ConfigMap from artifactory.conf

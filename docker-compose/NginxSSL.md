@@ -3,8 +3,9 @@ This page explains how to override the default, built it, self signed SSL certif
 Nginx for Artifactory Docker image.
 
 ## Overriding built in SSL certificate
-When the Nginx container start, the host's `/data/nginx/ssl` is mounted to its `/etc/nginx/ssl`, has the pre-loaded SSL 
-certificate files `example.pem` and `example.key`. These keys were generated at the time the Docker image was built by the following command:  
+When the Nginx container start, the host's `/data/nginx` is mounted to the container's `/var/opt/jfrog/nginx`.  
+The `/var/opt/jfrog/nginx/ssl` directory has has the pre-loaded SSL certificate files `example.pem` and `example.key`.  
+These keys were generated at the time the Docker image was built by the following command:  
 ```bash
 openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.key \
         -out /etc/pki/tls/certs/example.pem -days 356 \

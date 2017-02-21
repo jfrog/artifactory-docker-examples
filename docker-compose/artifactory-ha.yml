@@ -75,10 +75,7 @@ services:
      - artifactory-node1
      - artifactory-node2
     volumes:
-     - /data/nginx/log:/var/log/nginx
-     - /data/nginx/conf.d/ha:/etc/nginx/conf.d
-    # To use your own certificate, just put your .key and .pem files in /data/nginx/ssl before running
-     - /data/nginx/ssl:/etc/nginx/ssl
+     - /data/nginx:/var/opt/jfrog/nginx
     environment:
      - ART_BASE_URL=http://artifactory-node1:8081/artifactory
      - SSL=true
