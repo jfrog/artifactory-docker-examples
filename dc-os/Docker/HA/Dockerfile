@@ -1,0 +1,26 @@
+FROM docker.bintray.io/jfrog/artifactory-pro:5.0.1
+
+MAINTAINER jainishs@jfrog.com
+
+# We download all the usual JDBC drivers available so we can configure them at runtime
+RUN curl -L -o  /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar https://bintray.com/artifact/download/bintray/jcenter/mysql/mysql-connector-java/5.1.38/mysql-connector-java-5.1.38.jar
+RUN apt-get update && apt-get install -y dnsutils
+
+COPY run.sh /runArtifactory.sh
+
+#dynamic configuration
+COPY internalUser.groovy /tmp/internalUser.groovy
+COPY server.xml /opt/jfrog/artifactory/tomcat/conf/server.xml
+COPY binarystore.xml /opt/jfrog/artifactory/etc/binarystore.xml
+COPY artifactory.config.xml /tmp/artifactory.config.xml
+COPY entrypoint-artifactory.sh /entrypoint-artifactory.sh
+
+RUN chmod 777 /entrypoint-artifactory.sh
+# Pre-Populated keys
+RUN mkdir -p /var/opt/jfrog/artifactory/access/etc/keys/
+RUN mkdir -p /var/opt/jfrog/artifactory/etc/security/
+ADD files/keys/private.key /var/opt/jfrog/artifactory/access/etc/keys/private.key
+ADD files/keys/root.crt /var/opt/jfrog/artifactory/access/etc/keys/root.crt
+ADD files/communication.key /var/opt/jfrog/artifactory/communication.key
+
+ENTRYPOINT /runArtifactory.sh

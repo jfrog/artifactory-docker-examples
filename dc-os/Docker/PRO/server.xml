@@ -1,0 +1,19 @@
+<Server port="-1" shutdown="SHUTDOWN">
+
+    <Service name="Catalina">
+        <Connector port="8081" protocol="HTTP/1.1"
+                   maxThreads="500" minSpareThreads="20"
+                   enableLookups="false" disableUploadTimeout="true"
+                   backlog="100"
+                />
+
+        <Engine name="Catalina" defaultHost="localhost">
+            <Host name="localhost" appBase="webapps"/>
+            <Valve className="org.apache.catalina.valves.RemoteIpValve"
+                   remoteIpHeader="x-forwarded-for"
+                   protocolHeader="x-forwarded-proto"
+                   portHeader="x-forwarded-port" />
+        </Engine>
+
+    </Service>
+</Server>
