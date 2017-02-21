@@ -21,14 +21,12 @@ spec:
         - containerPort: 80
         - containerPort: 443
         volumeMounts:
-        - mountPath: "/var/log/nginx"
+        - mountPath: "/var/opt/jfrog/nginx"
           name: nginx-pro-volume
-          subPath: log
-        - mountPath: "/etc/nginx/conf.d"
+        - mountPath: "/var/opt/jfrog/nginx/conf.d"
           name: configmap-volume
-        - mountPath: "/etc/nginx/ssl"
+        - mountPath: "/var/opt/jfrog/nginx/ssl"
           name: ssl-secret-volume
-          subPath: ssl
       volumes:
       - name: configmap-volume
         configMap:
