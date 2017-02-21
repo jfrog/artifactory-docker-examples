@@ -109,6 +109,11 @@ processOptions() {
     fi
 }
 
+checkDocker () {
+    docker --version || errorExit "Unable to run docker"
+    docker-compose --version || errorExit "Unable to run docker-compose"
+}
+
 clean () {
     if [ "$CLEAN" == "true" ] && [ -d ${ROOT_DATA_DIR} ]; then
         local sure='n'
@@ -385,6 +390,7 @@ showMsg () {
 setOS
 validateSudo
 processOptions $*
+checkDocker
 validateActions
 clean
 createDirectories
