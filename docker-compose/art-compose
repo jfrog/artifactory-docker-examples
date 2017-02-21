@@ -8,7 +8,7 @@
 #
 ######################################################
 
-SCRIPT_DIR=$(dirname $0)
+SCRIPT_NAME=$(basename $0)
 DEFAULT_ROOT_DATA_DIR=/data
 LINUX_ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
 MAC_DEFAULT_ROOT_DATA_DIR=~/.jfrog/artifactory
@@ -28,11 +28,11 @@ usage () {
 
     cat << END_USAGE
 
-$0 - script for starting up an Artifactory Pro with Docker compose
+$SCRIPT_NAME - script for starting and controlling an Artifactory Pro instance with Docker compose
 
-Usage: $0 <options>
+Usage: ./$SCRIPT_NAME <options>
 Supported options
--a   : Action to run. start, stop, restart, status, remove, logs (defaults to start)
+-a   : Action to run. start, stop, restart, status, upgrade, remove, logs (defaults to start)
 -d   : Custom root data directory (defaults to $DEFAULT_ROOT_DATA_DIR on Linux and $MAC_DEFAULT_ROOT_DATA_DIR on Mac)
 -c   : Clean local data directory. Delete the data directory on the host before creating the new ones
 -f   : Force removal if -c is passed (do not prompt)
@@ -40,9 +40,10 @@ Supported options
 
 Examples
 Prepare directories for Artifactory pro with default data directory
-Start  : sudo $0 -a start -c
-Stop   : sudo $0 -a stop
-Status : sudo $0 -a status
+Start   : sudo ./$SCRIPT_NAME -a start -c
+Stop    : sudo ./$SCRIPT_NAME -a stop
+Status  : sudo ./$SCRIPT_NAME -a status
+Upgrade : sudo ./$SCRIPT_NAME -a upgrade
 
 END_USAGE
 
@@ -73,7 +74,7 @@ processOptions() {
         case $opt in
             a)  # Action
                 ACTION=$OPTARG
-                [[ "$ACTION" =~ ^(start|stop|restart|status|remove|logs)$ ]] || usage
+                [[ "$ACTION" =~ ^(start|stop|restart|status|upgrade|remove|logs)$ ]] || usage
             ;;
             d)  # Data dir
                 ROOT_DATA_DIR=$OPTARG
@@ -108,6 +109,11 @@ processOptions() {
     fi
 }
 
+checkDocker () {
+    docker --version || errorExit "Unable to run docker"
+    docker-compose --version || errorExit "Unable to run docker-compose"
+}
+
 clean () {
     if [ "$CLEAN" == "true" ] && [ -d ${ROOT_DATA_DIR} ]; then
         local sure='n'
@@ -129,7 +135,7 @@ clean () {
 
 createDirectories () {
     if [ "$ACTION" == "start" ]; then
-        echo "Creating ${ROOT_DATA_DIR}"
+        echo "Preparing ${ROOT_DATA_DIR}"
         mkdir -p ${ROOT_DATA_DIR}/postgresql
         mkdir -p ${ROOT_DATA_DIR}/artifactory/etc
         mkdir -p ${ROOT_DATA_DIR}/nginx/{conf.d,log,ssl}
@@ -160,10 +166,15 @@ setDbPassword () {
 }
 
 getArtifactoryComposeYaml () {
-    if [ ! -f ${COMPOSE_FILE} ]; then
-        echo "Preparing ${COMPOSE_FILE}"
+    if [ ! -f ${COMPOSE_FILE} ] || [ "$FORCE_DOWNLOAD" == "true" ]; then
+        if [ -f ${COMPOSE_FILE} ] && [ "$FORCE_DOWNLOAD" == "true" ]; then
+            echo "Removing existing ${COMPOSE_FILE} before getting a new one"
+        fi
+
+        echo "Getting ${COMPOSE_FILE}"
         curl -# -o ${COMPOSE_FILE} ${ART_COMPOSE_YML} || errorExit "Getting ${DB_DRIVER} failed"
 
+        echo "Preparing ${COMPOSE_FILE}"
         # Do some editing
         sed -i.bkp -e "s,~/${DB_DRIVER},${ROOT_DATA_DIR}/${DB_DRIVER},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
 
@@ -229,7 +240,7 @@ validateActions () {
     case ${ACTION} in
         start)
             if [ "$(isDeployedAndCleanSet)" == "true" ]; then
-                errorExit "You cannot start and clean while system is already deployed. Stop and remove first."
+                errorExit "You cannot start and clean while system is already deployed. Stop and remove first ($SCRIPT_NAME -a remove -c)."
             fi
         ;;
         status)
@@ -238,17 +249,25 @@ validateActions () {
             fi
         ;;
         stop)
+            if [ "$(isDeployedAndCleanSet)" == "true" ]; then
+                errorExit "You cannot stop and clean while system is deployed. Remove it first ($SCRIPT_NAME -a remove -c)."
+            fi
         ;;
         restart)
             if [ "$(isDeployedAndCleanSet)" == "true" ]; then
                 errorExit "You cannot restart and clean while system is already deployed."
             fi
         ;;
+        upgrade)
+            if [ "$(isDeployedAndCleanSet)" == "true" ]; then
+                errorExit "You cannot upgrade and clean while system is already deployed."
+            fi
+        ;;
         remove)
         ;;
         logs)
             if [ "$(isDeployedAndCleanSet)" == "true" ]; then
-                errorExit "You cannot check docker logs and clean while system is already deployed."
+                errorExit "You cannot check logs and clean while system is already deployed."
             fi
         ;;
     esac
@@ -267,14 +286,41 @@ isDeployed () {
 }
 
 isDeployedAndCleanSet () {
-    if [ "$(isDeployed)" == "true" ] && [ "$CLEAN" == "true" ] ; then
+    if [ "$(isDeployed)" == "true" ] && [ "$CLEAN" == "true" ]; then
         echo -n "true"
     else
         echo -n "false"
     fi
 }
 
+optionalUpgrade () {
+    echo "Artifactory is already deployed"
+
+    local sure='n'
+
+    if [ "$FORCE" == "true" ]; then
+        sure='y'
+    else
+        read -p "Do you want to upgrade to the new version (${ARTIFACTORY_VERSION})? This will stop your Artifactory for the upgrade process [y/n]: " sure
+    fi
+
+    if [ "$sure" == "y" ]; then
+        FORCE_DOWNLOAD="true"
+        getArtifactoryComposeYaml
+        remove
+        start
+    else
+        echo "Aborting"
+        exit 1
+    fi
+}
+
 start () {
+    # If already deployed, this might be an upgrade
+    if [ "$(isDeployed)" == "true" ]; then
+        optionalUpgrade
+    fi
+
     echo "Starting Containers"
     docker-compose -f ${COMPOSE_FILE} up -d --remove-orphans
 }
@@ -295,9 +341,30 @@ restart () {
 }
 
 remove () {
-    stop
-    echo "Removing Containers"
-    docker-compose -f ${COMPOSE_FILE} rm --force
+    local sure='n'
+
+    if [ "$FORCE" == "true" ]; then
+        sure='y'
+    else
+        read -p "Are you sure you want to stop and remove Artifactory [y/n]: " sure
+    fi
+
+    if [ "$sure" == "y" ]; then
+        stop
+        echo "Removing Containers"
+        docker-compose -f ${COMPOSE_FILE} rm --force
+    else
+        echo "Aborting"
+        exit 1
+    fi
+}
+
+upgrade () {
+    if [ "$(isDeployed)" == "true" ]; then
+        optionalUpgrade
+    else
+        errorExit "There is no deployed Artifactory. Nothing to upgrade."
+    fi
 }
 
 logs () {
@@ -312,7 +379,7 @@ showMsg () {
         echo "Setup is complete."
         echo "Local directory $ROOT_DATA_DIR holds Artifactory, PostgreSQL and Nginx data and configurations."
         echo -e "$EXTRA_MSG"
-        echo "Point your browser to https://localhost/artifactory/ or http://localhost/artifactory/"
+        echo "Point your browser to https://<server>/artifactory/ or http://<server>/artifactory/"
         echo "########################################################################################################"
         echo
     fi
@@ -323,6 +390,7 @@ showMsg () {
 setOS
 validateSudo
 processOptions $*
+checkDocker
 validateActions
 clean
 createDirectories
