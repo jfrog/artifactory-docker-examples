@@ -14,7 +14,7 @@ LINUX_ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
 MAC_DEFAULT_ROOT_DATA_DIR=~/.jfrog/artifactory
 DB_DRIVER=postgresql-9.4.1212.jar
 DB_DRIVER_URL=https://jdbc.postgresql.org/download/${DB_DRIVER}
-ARTIFACTORY_VERSION=5.0.1
+ARTIFACTORY_VERSION=5.1.0
 ART_COMPOSE_YML=https://jfrog.bintray.com/run/artifactory-pro/${ARTIFACTORY_VERSION}/compose/artifactory-pro.yml
 COMPOSE_FILE=artifactory-pro.yml
 DB_PASSWORD_FILE=.dbpassword
@@ -138,7 +138,7 @@ createDirectories () {
         echo "Preparing ${ROOT_DATA_DIR}"
         mkdir -p ${ROOT_DATA_DIR}/postgresql
         mkdir -p ${ROOT_DATA_DIR}/artifactory/etc
-        mkdir -p ${ROOT_DATA_DIR}/nginx/{conf.d,log,ssl}
+        mkdir -p ${ROOT_DATA_DIR}/nginx
     fi
 }
 
@@ -183,56 +183,10 @@ getArtifactoryComposeYaml () {
             sed -i.bkp -e "s,- ${LINUX_ROOT_DATA_DIR},- ${ROOT_DATA_DIR},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
         fi
 
-        sed -i.bkp -e "s,nginx/conf.d/pro,nginx/conf.d,g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
-
         if [ -n "$TEMP_DB_PASSWORD" ]; then
             echo "Setting generated DB password"
             sed -i.bkp -e "s,=password,=${TEMP_DB_PASSWORD},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
         fi
-    fi
-}
-
-createDefaultArtifactoryConf () {
-    if [ "$ACTION" == "start" ] && [ ! -f ${ROOT_DATA_DIR}/nginx/conf.d/artifactory.conf ]; then
-        echo "Creating a default artifactory.conf"
-        cat << 'END_CONF' > ${ROOT_DATA_DIR}/nginx/conf.d/artifactory.conf
-## add ssl entries when https has been set in config
-ssl_certificate      /etc/nginx/ssl/example.pem;
-ssl_certificate_key  /etc/nginx/ssl/example.key;
-ssl_session_cache shared:SSL:1m;
-ssl_prefer_server_ciphers   on;
-## server configuration
-server {
-  listen 443 ssl;
-  listen 80 ;
-  server_name ~(?<repo>.+)\.artifactory artifactory;
-
-  if ($http_x_forwarded_proto = '') {
-    set $http_x_forwarded_proto  $scheme;
-  }
-  ## Application specific logs
-  ## access_log /var/log/nginx/artifactory-access.log timing;
-  ## error_log /var/log/nginx/artifactory-error.log;
-  rewrite ^/$ /artifactory/webapp/ redirect;
-  rewrite ^/artifactory/?(/webapp)?$ /artifactory/webapp/ redirect;
-  rewrite ^/(v1|v2)/(.*) /artifactory/api/docker/$repo/$1/$2;
-  chunked_transfer_encoding on;
-  client_max_body_size 0;
-  location /artifactory/ {
-    proxy_read_timeout  900;
-    proxy_pass_header   Server;
-    proxy_cookie_path   ~*^/.* /;
-    proxy_pass          http://artifactory:8081/artifactory/;
-    proxy_set_header    X-Artifactory-Override-Base-Url $http_x_forwarded_proto://$host:$server_port/artifactory;
-    proxy_set_header    X-Forwarded-Port  $server_port;
-    proxy_set_header    X-Forwarded-Proto $http_x_forwarded_proto;
-    proxy_set_header    Host              $http_host;
-    proxy_set_header    X-Forwarded-For   $proxy_add_x_forwarded_for;
-  }
-}
-
-END_CONF
-
     fi
 }
 
@@ -397,7 +351,6 @@ createDirectories
 getDbDriver
 setDbPassword
 getArtifactoryComposeYaml
-createDefaultArtifactoryConf
 
 eval ${ACTION}
 
