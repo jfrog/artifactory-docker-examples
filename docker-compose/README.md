@@ -25,7 +25,7 @@ $ docker-compose -f <compose-file> <options>
 ### Docker Compose Control Commands
 - Start  
 ```bash
-$ sudo docker-compose -f <compose-file> -d up
+$ sudo docker-compose -f <compose-file> up -d
 ```
 - Stop  
 ```bash
