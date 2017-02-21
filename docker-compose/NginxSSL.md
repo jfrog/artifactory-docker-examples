@@ -4,7 +4,7 @@ Nginx for Artifactory Docker image.
 
 ## Overriding built in SSL certificate
 When the Nginx container start, the host's `/data/nginx` is mounted to the container's `/var/opt/jfrog/nginx`.  
-The `/var/opt/jfrog/nginx/ssl` directory has has the pre-loaded SSL certificate files `example.pem` and `example.key`.  
+The `/var/opt/jfrog/nginx/ssl` directory has the pre-loaded SSL certificate files `example.pem` and `example.key`.  
 These keys were generated at the time the Docker image was built by the following command:  
 ```bash
 openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/pki/tls/private/example.key \
