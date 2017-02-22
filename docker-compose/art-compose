@@ -156,7 +156,7 @@ getDbDriver () {
 setDbPassword () {
     if [ "$ACTION" == "start" ] && [ ! -f ${ROOT_DATA_DIR}/.dbpasswordcreated ] ; then
         echo "Creating a new DB password"
-        TEMP_DB_PASSWORD=$(date +%s%N | sha1sum)
+        TEMP_DB_PASSWORD=$(date +%s%N | shasum 2> /dev/null)
         TEMP_DB_PASSWORD=${TEMP_DB_PASSWORD:0:12}
         echo "Writing DB password to ${ROOT_DATA_DIR}/${DB_PASSWORD_FILE}"
         echo -n "$TEMP_DB_PASSWORD" > ${ROOT_DATA_DIR}/${DB_PASSWORD_FILE}
