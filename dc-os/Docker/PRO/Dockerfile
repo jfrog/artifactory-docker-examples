@@ -18,7 +18,6 @@ COPY entrypoint-artifactory.sh /
 RUN chmod +x /entrypoint-artifactory.sh
 
 # Still needed ?
-COPY nginx.ftl /tmp/nginx.ftl
 COPY server.xml /opt/jfrog/artifactory/tomcat/conf/server.xml
 COPY internalUser.groovy /tmp/internalUser.groovy
 
