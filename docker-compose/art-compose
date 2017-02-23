@@ -123,12 +123,13 @@ clean () {
         else
             read -p "Are you sure you want to remove existing ${ROOT_DATA_DIR} [y/n]: " sure
         fi
+
         if [ "$sure" == "y" ]; then
             echo "Removing existing ${ROOT_DATA_DIR}"
             rm -rf ${ROOT_DATA_DIR}
-            if [ "$ACTION" == "start" ]; then
-                rm -f ${COMPOSE_FILE}
-            fi
+        else
+            echo "Aborting"
+            exit 1
         fi
     fi
 }
@@ -166,28 +167,30 @@ setDbPassword () {
 }
 
 getArtifactoryComposeYaml () {
-    if [ ! -f ${COMPOSE_FILE} ] || [ "$FORCE_DOWNLOAD" == "true" ]; then
-        if [ -f ${COMPOSE_FILE} ] && [ "$FORCE_DOWNLOAD" == "true" ]; then
-            echo "Removing existing ${COMPOSE_FILE} before getting a new one"
-        fi
-
-        echo "Getting ${COMPOSE_FILE}"
-        curl -# -o ${COMPOSE_FILE} ${ART_COMPOSE_YML} || errorExit "Getting ${DB_DRIVER} failed"
-
-        echo "Preparing ${COMPOSE_FILE}"
-        # Do some editing
-        sed -i.bkp -e "s,~/${DB_DRIVER},${ROOT_DATA_DIR}/${DB_DRIVER},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
-
-        if [ "$ROOT_DATA_DIR" != "$LINUX_ROOT_DATA_DIR" ]; then
-            echo "Setting host data dir"
-            sed -i.bkp -e "s,- ${LINUX_ROOT_DATA_DIR},- ${ROOT_DATA_DIR},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
-        fi
-
-        if [ -n "$TEMP_DB_PASSWORD" ]; then
-            echo "Setting generated DB password"
-            sed -i.bkp -e "s,=password,=${TEMP_DB_PASSWORD},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
-        fi
+    if [ -f ${COMPOSE_FILE} ]; then
+        echo "Removing existing ${COMPOSE_FILE} before getting a new one"
+        rm -f ${COMPOSE_FILE} || errorExit "Removing ${COMPOSE_FILE} failed"
     fi
+
+    echo "Getting ${COMPOSE_FILE}"
+    curl -# -o ${COMPOSE_FILE} ${ART_COMPOSE_YML} || errorExit "Getting ${DB_DRIVER} failed"
+
+    echo "Preparing ${COMPOSE_FILE}"
+    # Do some editing
+    sed -i.bkp -e "s,~/${DB_DRIVER},${ROOT_DATA_DIR}/${DB_DRIVER},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
+
+    if [ "$ROOT_DATA_DIR" != "$LINUX_ROOT_DATA_DIR" ]; then
+        echo "Setting host data dir"
+        sed -i.bkp -e "s,- ${LINUX_ROOT_DATA_DIR},- ${ROOT_DATA_DIR},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
+    fi
+
+    if [ -n "$TEMP_DB_PASSWORD" ]; then
+        echo "Setting generated DB password"
+        sed -i.bkp -e "s,=password,=${TEMP_DB_PASSWORD},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
+    fi
+
+    # Remove sed backup file
+    [ -f ${COMPOSE_FILE}.bkp ] && rm -f ${COMPOSE_FILE}.bkp
 }
 
 validateActions () {
