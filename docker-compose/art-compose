@@ -154,9 +154,16 @@ clean () {
 createDirectories () {
     if [ "$ACTION" == "start" ]; then
         echo "Preparing ${ROOT_DATA_DIR}"
+
         mkdir -p ${ROOT_DATA_DIR}/postgresql
         mkdir -p ${ROOT_DATA_DIR}/artifactory/etc
         mkdir -p ${ROOT_DATA_DIR}/nginx
+
+        # In case running on Mac with sudo, need to chown to sudo user
+        if [ -n "$SUDO_USER" ] && [ "$OS_TYPE" == "Darwin" ]; then
+            echo "Changing ownership of ${ROOT_DATA_DIR} to ${SUDO_USER}"
+            chown -R ${SUDO_USER} ${ROOT_DATA_DIR}
+        fi
     fi
 }
 
