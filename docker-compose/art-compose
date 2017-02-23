@@ -18,6 +18,8 @@ ARTIFACTORY_VERSION=5.1.0
 ART_COMPOSE_YML=https://jfrog.bintray.com/run/artifactory-pro/${ARTIFACTORY_VERSION}/compose/artifactory-pro.yml
 COMPOSE_FILE=artifactory-pro.yml
 DB_PASSWORD_FILE=.dbpassword
+FRESH_YML=false
+DATA_REMOVED=false
 
 errorExit () {
     echo; echo "ERROR: $1"; echo
@@ -42,7 +44,10 @@ Examples
 Prepare directories for Artifactory pro with default data directory
 Start   : sudo ./$SCRIPT_NAME -a start -c
 Stop    : sudo ./$SCRIPT_NAME -a stop
+Restart : sudo ./$SCRIPT_NAME -a restart
 Status  : sudo ./$SCRIPT_NAME -a status
+Remove  : sudo ./$SCRIPT_NAME -a remove -c
+Logs    : sudo ./$SCRIPT_NAME -a logs
 Upgrade : sudo ./$SCRIPT_NAME -a upgrade
 
 END_USAGE
@@ -116,17 +121,29 @@ checkDocker () {
 
 clean () {
     if [ "$CLEAN" == "true" ] && [ -d ${ROOT_DATA_DIR} ]; then
-        local sure='n'
+        local keep='n'
 
         if [ "$FORCE" == "true" ]; then
-            sure='y'
+            keep='n'
         else
-            read -p "Are you sure you want to remove existing ${ROOT_DATA_DIR} [y/n]: " sure
+            echo
+            echo "An existing ${ROOT_DATA_DIR} was found. Do you want to keep it?"
+            echo "y (yes)   : Keep existing ${ROOT_DATA_DIR}"
+            echo "n (no)    : Remove it"
+            echo "a (abort) : Abort and exit"
+            echo -n "Select [y/n/a]: "
+
+            # Read from /dev/tty because of an issue when running curl | bash (does not wait for input)
+            read keep < /dev/tty
+            echo
         fi
 
-        if [ "$sure" == "y" ]; then
+        if [ "$keep" == "n" ]; then
             echo "Removing existing ${ROOT_DATA_DIR}"
             rm -rf ${ROOT_DATA_DIR}
+            DATA_REMOVED=true
+        elif [ "$keep" == "y" ]; then
+            echo "Keeping ${ROOT_DATA_DIR}"
         else
             echo "Aborting"
             exit 1
@@ -167,37 +184,43 @@ setDbPassword () {
 }
 
 getArtifactoryComposeYaml () {
-    if [ -f ${COMPOSE_FILE} ]; then
-        echo "Removing existing ${COMPOSE_FILE} before getting a new one"
-        rm -f ${COMPOSE_FILE} || errorExit "Removing ${COMPOSE_FILE} failed"
+    if [ "$FRESH_YML" != "true" ]; then
+        if [ -f ${COMPOSE_FILE} ]; then
+            echo "Removing existing ${COMPOSE_FILE} before getting a new one"
+            rm -f ${COMPOSE_FILE} || errorExit "Removing ${COMPOSE_FILE} failed"
+        fi
+
+        echo "Getting ${COMPOSE_FILE}"
+        curl -# -o ${COMPOSE_FILE} ${ART_COMPOSE_YML} || errorExit "Getting ${DB_DRIVER} failed"
+
+        echo "Preparing ${COMPOSE_FILE}"
+        # Do some editing
+        sed -i.bkp -e "s,~/${DB_DRIVER},${ROOT_DATA_DIR}/${DB_DRIVER},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
+
+        if [ "$ROOT_DATA_DIR" != "$LINUX_ROOT_DATA_DIR" ]; then
+            echo "Setting host data dir"
+            sed -i.bkp -e "s,- ${LINUX_ROOT_DATA_DIR},- ${ROOT_DATA_DIR},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
+        fi
+
+        if [ -n "$TEMP_DB_PASSWORD" ]; then
+            echo "Setting generated DB password"
+            sed -i.bkp -e "s,=password,=${TEMP_DB_PASSWORD},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
+        fi
+
+        FRESH_YML=true
+        # Remove sed backup file
+        [ -f ${COMPOSE_FILE}.bkp ] && rm -f ${COMPOSE_FILE}.bkp
+    else
+        echo "Already have a new ${COMPOSE_FILE}"
     fi
-
-    echo "Getting ${COMPOSE_FILE}"
-    curl -# -o ${COMPOSE_FILE} ${ART_COMPOSE_YML} || errorExit "Getting ${DB_DRIVER} failed"
-
-    echo "Preparing ${COMPOSE_FILE}"
-    # Do some editing
-    sed -i.bkp -e "s,~/${DB_DRIVER},${ROOT_DATA_DIR}/${DB_DRIVER},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
-
-    if [ "$ROOT_DATA_DIR" != "$LINUX_ROOT_DATA_DIR" ]; then
-        echo "Setting host data dir"
-        sed -i.bkp -e "s,- ${LINUX_ROOT_DATA_DIR},- ${ROOT_DATA_DIR},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
-    fi
-
-    if [ -n "$TEMP_DB_PASSWORD" ]; then
-        echo "Setting generated DB password"
-        sed -i.bkp -e "s,=password,=${TEMP_DB_PASSWORD},g" ${COMPOSE_FILE} || errorExit "Updating $COMPOSE_FILE failed"
-    fi
-
-    # Remove sed backup file
-    [ -f ${COMPOSE_FILE}.bkp ] && rm -f ${COMPOSE_FILE}.bkp
 }
 
 validateActions () {
     case ${ACTION} in
         start)
             if [ "$(isDeployedAndCleanSet)" == "true" ]; then
-                errorExit "You cannot start and clean while system is already deployed. Stop and remove first ($SCRIPT_NAME -a remove -c)."
+                # Potential upgrade
+                CLEAN=false
             fi
         ;;
         status)
@@ -250,21 +273,49 @@ isDeployedAndCleanSet () {
     fi
 }
 
+isNewerVersion () {
+    echo "Checking if we have a new version for upgrade"
+    local return_code=0
+    local deployed_version=$(docker ps -a --format "{{.Image}}" | grep /artifactory-pro | awk -F: '{print $2}')
+
+    echo "Deployed version is $deployed_version"
+
+    if [ "$ARTIFACTORY_VERSION" != "$deployed_version" ]; then
+        local lowest_version=$(echo -e "$deployed_version\n$ARTIFACTORY_VERSION" | sort -t. -k 1,1n -k 2,2n -k 3,3n | head -1)
+        if [ "$ARTIFACTORY_VERSION" == "$lowest_version" ]; then
+            errorExit "The current deployed version ($deployed_version) is higher than the new version ($ARTIFACTORY_VERSION)."
+        else
+            echo "The new version ($ARTIFACTORY_VERSION) is valid for upgrade"
+            return_code=1
+        fi
+    else
+        echo "Deployed version is identical to new version ($ARTIFACTORY_VERSION)."
+    fi
+
+    return ${return_code}
+}
+
 optionalUpgrade () {
     echo "Artifactory is already deployed"
+
+    isNewerVersion
+    if [ $? -eq 0 ]; then
+        echo "Nothing to upgrade!"
+        return 0
+    fi
 
     local sure='n'
 
     if [ "$FORCE" == "true" ]; then
         sure='y'
     else
-        read -p "Do you want to upgrade to the new version (${ARTIFACTORY_VERSION})? This will stop your Artifactory for the upgrade process [y/n]: " sure
+        echo -n "Do you want to upgrade to the new version (${ARTIFACTORY_VERSION})? This will stop your Artifactory for the upgrade process [y/n]: "
+        read sure < /dev/tty
     fi
 
     if [ "$sure" == "y" ]; then
-        FORCE_DOWNLOAD="true"
         getArtifactoryComposeYaml
-        remove
+        remove "true"
         start
     else
         echo "Aborting"
@@ -300,10 +351,11 @@ restart () {
 remove () {
     local sure='n'
 
-    if [ "$FORCE" == "true" ]; then
+    if [ "$DATA_REMOVED" == "true" ] || [ "$1" == "true" ] || [ "$FORCE" == "true" ]; then
         sure='y'
     else
-        read -p "Are you sure you want to stop and remove Artifactory [y/n]: " sure
+        echo -n "Are you sure you want to stop and remove Artifactory [y/n]: "
+        read sure < /dev/tty
     fi
 
     if [ "$sure" == "y" ]; then
@@ -332,12 +384,12 @@ logs () {
 showMsg () {
     if [ "$ACTION" == "start" ]; then
         echo
-        echo "########################################################################################################"
+        echo "########################################################################"
         echo "Setup is complete."
-        echo "Local directory $ROOT_DATA_DIR holds Artifactory, PostgreSQL and Nginx data and configurations."
+        echo "Host directory $ROOT_DATA_DIR has all data and configurations."
         echo -e "$EXTRA_MSG"
         echo "Point your browser to https://<server>/artifactory/ or http://<server>/artifactory/"
-        echo "########################################################################################################"
+        echo "########################################################################"
         echo
     fi
 }
