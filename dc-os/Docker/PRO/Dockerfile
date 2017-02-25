@@ -1,6 +1,6 @@
 # Dockerfile for a primary node
 #FROM jfrog-int-docker-dockerv2.bintray.io/jfrog/artifactory-pro:5.0.0-rc4
-FROM jfrog-docker-reg2.bintray.io/jfrog/artifactory-pro:5.0.1
+FROM jfrog-docker-reg2.bintray.io/jfrog/artifactory-pro:5.1.0
 
 MAINTAINER jainishs@jfrog.com
 
