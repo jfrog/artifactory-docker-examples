@@ -14,8 +14,6 @@ RUN curl -L -o /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar
 
 # Copy the run script
 COPY run.sh /runArtifactory.sh
-COPY entrypoint-artifactory.sh /
-RUN chmod +x /entrypoint-artifactory.sh
 
 # Still needed ?
 COPY server.xml /opt/jfrog/artifactory/tomcat/conf/server.xml

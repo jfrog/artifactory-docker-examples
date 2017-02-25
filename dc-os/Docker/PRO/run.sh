@@ -56,12 +56,12 @@ function setInitialConfiguration {
         mv /tmp/artifactory.config.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
     # On later runs, we'll re import the latest configuration to change the instance port
     else
-        if [ -f /var/opt/jfrog/artifactory/etc/artifactory.config.latest.xml ]; then
-            cp /var/opt/jfrog/artifactory/etc/artifactory.config.latest.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
-        else
+#        if [ -f /var/opt/jfrog/artifactory/etc/artifactory.config.latest.xml ]; then
+            cp -f /var/opt/jfrog/artifactory/etc/artifactory.config.latest.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
+#        else
         # If not we take the bootstrap one, and import it
-            cp /var/opt/jfrog/artifactory/etc/artifactory.config.bootstrap.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
-        fi
+#            cp -f  /var/opt/jfrog/artifactory/etc/artifactory.config.bootstrap.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
+#        fi
         # Changing the instance port
         sed -i -e "s,<artifactoryPort>\(.*\)</artifactoryPort>,<artifactoryPort>$INSTANCE_PORT</artifactoryPort>,g" /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
     fi
