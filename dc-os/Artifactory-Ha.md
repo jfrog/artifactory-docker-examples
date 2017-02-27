@@ -5,26 +5,18 @@
 ![HA Artifactory Architecture](images/HA_Diagram.png)
 
 ## To Set Up Artifactory HA in DCOS following are prerequisites:
-1. **NFS Storage**
-2. **Database (MySQL, Oracle,  MS SQL and PostgreSQL)**
-3. **Artifactory Pro Enterprise Value Pack**
+1. **Database (MySQL, Oracle,  MS SQL and PostgreSQL)**
+2. **Artifactory Pro Enterprise Value Pack**
 
 ## It requires min 1 Public Slave to install Artifactory Pro or Enterprise
 
 ## Steps to Set Up Artifactory HA:
 
-1. Mount NFS Storage to Each Private Node of DC/OS Cluster.<br />
-    For example: You have artifactoryha.mount.com:/artifactory as your mount point.
-    Mount it to /var/data/artha dir of your each private node of DC/OS.<br />
-    ```sudo mount artifactoryha.mount.com:/artifactory /var/artifactory/```<br />
-    All the nodes should share the same file storage, for now the only way is to use NFS. This requirement will be removed in the future.<br />
-    Note: Provide permission to write and create subdirectories to /var/data/artha.
-    
-2. Install MySQL in DC/OS.<br />
+1. Install MySQL in DC/OS.<br />
     [Here is guide to install MySQL in DC/OS](install-mysql.md)
     The database is used by all the nodes to store metadata attached to artifacts.<br />
 
-3. Install artifactory-primary using DC/OS CLI.<br />
+2. Install artifactory-primary using DC/OS CLI.<br />
     1. create `artifactory-primary-options.json` with following content:
         ``` 
         {
@@ -66,7 +58,7 @@
     
     3. Make sure artifactory-primary is running and Healthy.
     
-4. Install Artifactory-secondary:DC/OS CLI.<br />
+3. Install Artifactory-secondary:DC/OS CLI.<br />
    
    1. create `artifactory-secondary-options.json` with following content:
       ``` 
@@ -110,9 +102,9 @@
 
 #NOW you are just one step away in accessing Artifactory
 
-5. [Install Artifactory-lb by following this guide](install-artifactory-lb.md)
+4. [Install Artifactory-lb by following this guide](install-artifactory-lb.md)
 
-6. Access Artifactory on Public IP of DC/OS public slave. 
+5. Access Artifactory on Public IP of DC/OS public slave. 
 
 ### Now try to access your DC/OS Public Slave load balancer you should be able to access Artifactory.
 
