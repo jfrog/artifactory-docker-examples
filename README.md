@@ -9,6 +9,6 @@ To learn more about Docker and how to set it up, please refer to the [Docker](ht
 
 ## Examples
 The following examples are available
-- [Docker compose](https://github.com/JFrogDev/artifactory-docker-examples/tree/master/docker-compose)
-- [Kubernetes](https://github.com/JFrogDev/artifactory-docker-examples/tree/master/kubernetes)
- 
+- [Docker compose](docker-compose)
+- [Kubernetes](kubernetes)
+- [DC/OS](dc-os)
