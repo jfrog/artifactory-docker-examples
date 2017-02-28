@@ -1,6 +1,6 @@
-##MySQL Installation Guide for DC/OS
+##MySQL installation guide for DC/OS
 
-## Steps to Set Up MySQL using DC/OS CLI:
+## Steps to set up MySQL using DC/OS CLI:
 
 1. Create mysql-options.json with following values:
 ```
@@ -44,7 +44,7 @@
 
 2. run command ```dcos package install --options=mysql-options.json mysql```
 
-3. Make sure MySQL is running and is healthy by looking under the Services tab in the DC/OS UI.
+3. Make sure MySQL is running and is healthy by looking under the services tab in the DC/OS UI.
 
-Bingo! Now you can install Artifactory Pro or Artifactory Enterprise.
+Bingo! Now you can install Artifactory Pro/Enterprise.
 *[Here is guide to install Artifactory Pro in DC/OS](Artifactory-Pro.md)
