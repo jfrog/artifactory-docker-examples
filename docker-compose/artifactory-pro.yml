@@ -45,10 +45,7 @@ services:
     links:
      - artifactory
     volumes:
-     - /data/nginx/log:/var/log/nginx
-     - /data/nginx/conf.d/pro:/etc/nginx/conf.d
-    # To use your own certificate, just put your .key and .pem files in /data/nginx/ssl before starting docker-compose
-     - /data/nginx/ssl:/etc/nginx/ssl
+     - /data/nginx:/var/opt/jfrog/nginx
     environment:
      - ART_BASE_URL=http://artifactory:8081/artifactory
      - SSL=true
