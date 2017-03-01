@@ -5,6 +5,7 @@
                 <readBehavior>crossNetworkStrategy</readBehavior>
                 <writeBehavior>crossNetworkStrategy</writeBehavior>
                 <redundancy>2</redundancy>
+                <lenientLimit>1</lenientLimit>
                 <minSpareUploaderExecutor>2</minSpareUploaderExecutor>
                 <sub-provider id="state-aware" type="state-aware"/>
                 <dynamic-provider id="remote" type="remote"/>

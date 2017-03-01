@@ -4,6 +4,7 @@ metadata:
   name: pvpostgresql1
   labels:
     type: postgresql-local
+    group: artifactory-k8s-demo
 spec:
   capacity:
     storage: 10Gi
@@ -16,6 +17,8 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: postgresql-claim
+  labels:
+    group: artifactory-k8s-demo
 spec:
   accessModes:
     - ReadWriteOnce
