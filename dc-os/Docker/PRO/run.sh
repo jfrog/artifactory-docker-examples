@@ -48,9 +48,11 @@ function setInitialConfiguration {
     : ${ART_SERVER_NAME:=artifactory-cluster}
     # Artifactory's port method, default to PORTPERREPO (can be SUBDOMAIN)
     : ${ART_REVERSE_PROXY_METHOD:=portPerRepo}
+
     # This configuration doesn't exist on the first run
     if [ ! -f /var/opt/jfrog/artifactory/etc/artifactory.config.bootstrap.xml ]; then
         sed -i -e "s,\[SERVERNAME\],$ART_SERVER_NAME,g" /tmp/artifactory.config.xml
+        sed -i -e "s,\[ARTSERVICE\],${MARATHON_APP_ID:1},g" /tmp/artifactory.config.xml
         sed -i -e "s,\[RPMETHOD\],$ART_REVERSE_PROXY_METHOD,g" /tmp/artifactory.config.xml
         sed -i -e "s,\[PORT\],$INSTANCE_PORT,g" /tmp/artifactory.config.xml
         mv /tmp/artifactory.config.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
