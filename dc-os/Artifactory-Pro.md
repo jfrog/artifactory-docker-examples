@@ -51,6 +51,10 @@
 
 3. Make sure Artifactory is running and its healthy by looking at Marathon UI.
 
-##NOW you are just one step away in accessing Artifactory
+##NOW you are just one step away from accessing Artifactory
 
 4. [Install Artifactory-lb by following this guide to access artifactory](install-artifactory-lb.md)
+
+---
+
+####To learn more about DC/OS go to the [official DC/OS website](https://dcos.io/)
