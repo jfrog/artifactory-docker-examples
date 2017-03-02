@@ -157,6 +157,7 @@ postgresql-k8s-service   10.0.0.165   <none>        5432/TCP                    
 
 ```
 
+<<<<<<< HEAD
 ---
 ### Artifactory HA
 #### Database
@@ -257,6 +258,7 @@ Now just point your browser to **http://59.156.13.6/artifactory/** or **https://
 
 #### Minikube
 You need to use the Minikube's IP with the assigned port like `192.168.99.100`.  
+You can get the Minikube IP with the command `minikube ip`.  
 The assigned ports can be seen in the output of `kubectl get services` as seen above.  
 Now point your browser to **http://192.168.99.100:30002/artifactory/** or **https://192.168.99.100:32600/artifactory/**  
 **NOTE**: When using `https`, you might need to confirm trusting the certificate and that will redirect you back to 
