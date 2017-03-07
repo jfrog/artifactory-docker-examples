@@ -17,7 +17,7 @@ COPY run.sh /runArtifactory.sh
 
 # Still needed ?
 COPY server.xml /opt/jfrog/artifactory/tomcat/conf/server.xml
-COPY internalUser.groovy /tmp/internalUser.groovy
+COPY files/plugins/internalUser.groovy /tmp/internalUser.groovy
 
 # This should be mapped to a shared NFS mounted on the host
 EXPOSE 8081 10042

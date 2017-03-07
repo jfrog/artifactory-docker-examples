@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y dnsutils
 COPY run.sh /runArtifactory.sh
 
 #dynamic configuration
-COPY internalUser.groovy /tmp/internalUser.groovy
+COPY files/plugins/internalUser.groovy /tmp/internalUser.groovy
 COPY server.xml /opt/jfrog/artifactory/tomcat/conf/server.xml
 COPY binarystore.xml /tmp/binarystore.xml
 COPY artifactory.config.xml /tmp/artifactory.config.xml

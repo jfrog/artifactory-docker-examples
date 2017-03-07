@@ -91,11 +91,6 @@ function setInstanceIp {
             exit 1
         fi
     fi
-
-    if [ -z "$HA_CONTEXT_URL" ]; then
-            export HA_CONTEXT_URL=http://$HA_HOST_IP:$INSTANCE_PORT/artifactory
-            echo "HA_CONTEXT_URL is $HA_CONTEXT_URL"
-    fi
 }
 
 checkAllEnvs
