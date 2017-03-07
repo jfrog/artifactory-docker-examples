@@ -29,7 +29,7 @@ setPorts() {
         INSTANCE_PORT=$PORT0
     fi
     if [ ! -z "$PORT1" ]; then
-        HA_MEMBERSHIP_PORT=$PORT1
+        export HA_MEMBERSHIP_PORT=$PORT1
     fi
     # Change the port
     sed -i -e 's,Connector port="\(.*\)",Connector port="'"$INSTANCE_PORT"'",g' /opt/jfrog/artifactory/tomcat/conf/server.xml
@@ -56,12 +56,12 @@ function setInitialConfiguration {
         mv /tmp/artifactory.config.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
     # On later runs, we'll re import the latest configuration to change the instance port
     else
-#        if [ -f /var/opt/jfrog/artifactory/etc/artifactory.config.latest.xml ]; then
+        if [ -f /var/opt/jfrog/artifactory/etc/artifactory.config.latest.xml ]; then
             cp -f /var/opt/jfrog/artifactory/etc/artifactory.config.latest.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
-#        else
-#        # If not we take the bootstrap one, and import it
-#            cp /var/opt/jfrog/artifactory/etc/artifactory.config.bootstrap.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
-#        fi
+        else
+        # If not we take the bootstrap one, and import it
+            cp /var/opt/jfrog/artifactory/etc/artifactory.config.bootstrap.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
+        fi
         # Changing the instance port
         sed -i -e "s,<artifactoryPort>\(.*\)</artifactoryPort>,<artifactoryPort>$INSTANCE_PORT</artifactoryPort>,g" /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
     fi
@@ -71,17 +71,28 @@ function setInitialConfiguration {
 function setLicense {
     logger "Setting up license."
     echo -n "$ART_LICENSES" | cut -d, -f1 > /var/opt/jfrog/artifactory/etc/artifactory.lic
+    chmod 777 /var/opt/jfrog/artifactory/etc/artifactory.lic
+    echo "Added license"
+}
+
+#Set HA_NODE_ID
+function setNodeId {
+    if [ -z "$HA_NODE_ID" ]; then
+            echo "HA_NODE_ID not set. Generating"
+            export HA_NODE_ID=$(date +%s$RANDOM)
+            echo "HA_NODE_ID set to  **** $HA_NODE_ID"
+    fi
 }
 
 #Set instance IP
 function setInstanceIp {
     # If no network is provided we take the first ip address we found
     if [ -z "$ART_NETWORK" ]; then
-        HA_HOST_IP=$(hostname -i)
+        export HA_HOST_IP=$(hostname -i)
         echo "HA_HOST_IP is set to $HA_HOST_IP"
     # else we try to get it from the network provided
     else
-        HA_HOST_IP=$(ip route show to match $ART_NETWORK | grep -Eo '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' | tail -1)
+        export HA_HOST_IP=$(ip route show to match $ART_NETWORK | grep -Eo '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' | tail -1)
         if [ -z "$HA_HOST_IP" ]; then
             echo "[ERROR] Couldn't find a source IP routing to $ART_NETWORK, exiting" >&2
             exit 1
@@ -89,7 +100,7 @@ function setInstanceIp {
     fi
 
     if [ -z "$HA_CONTEXT_URL" ]; then
-            HA_CONTEXT_URL=http://$HA_HOST_IP:8081/artifactory
+            export HA_CONTEXT_URL=http://$HA_HOST_IP:$INSTANCE_PORT/artifactory
             echo "HA_CONTEXT_URL is $HA_CONTEXT_URL"
     fi
 }
@@ -98,6 +109,7 @@ checkAllEnvs
 setLicense
 setPorts
 setInstanceIp
+setNodeId
 setInitialConfiguration
 
 /entrypoint-artifactory.sh
