@@ -128,13 +128,15 @@ postgresql-k8s-service   10.0.0.165   <none>        5432/TCP                    
 
 ```
 
-#### Accessing your Artifactory
+### Accessing your Artifactory
 
-**Standard Kubernetes**: You can see the Nginx is exposed with a public IP of `59.156.13.6` on ports 80 and 443.  
+#### Standard Kubernetes
+You can see the Nginx is exposed with a public IP of `59.156.13.6` on ports 80 and 443.  
 Now just point your browser to **http://59.156.13.6/artifactory/** or **https://59.156.13.6/artifactory/**  
 
-
-**Minikube**: You need to use the Minikube's IP with the assigned port like `192.168.99.100`.  
+#### Minikube
+You need to use the Minikube's IP with the assigned port like `192.168.99.100`.  
+You can get the Minikube IP with the command `minikube ip`.  
 The assigned ports can be seen in the output of `kubectl get services` as seen above.  
 Now point your browser to **http://192.168.99.100:30002/artifactory/** or **https://192.168.99.100:32600/artifactory/**  
 **NOTE**: When using `https`, you might need to confirm trusting the certificate and that will redirect you back to 
