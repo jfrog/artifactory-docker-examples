@@ -14,7 +14,7 @@ services:
      - /data/postgresql:/var/lib/postgresql/data
     restart: always
   artifactory:
-    image: docker.bintray.io/jfrog/artifactory-oss:latest
+    image: docker.bintray.io/jfrog/artifactory-oss:5.1.2
     container_name: artifactory
     ports:
      - 80:8081

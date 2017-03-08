@@ -31,18 +31,18 @@ For this, you should build your own Artifactory Docker image using the Dockerfil
 To build the image
 ```bash
 # PostgreSQL
-$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-postgresql:latest -f Dockerfile.postgresql .
+$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-postgresql:<version> -f Dockerfile.postgresql .
 
 # MySQL
-$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-mysql:latest -f Dockerfile.mysql .
+$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-mysql:<version> -f Dockerfile.mysql .
 ```
 This will build an image of artifactory-pro that includes the PostgreSQL or MySQL driver in it. Make sure to push it into your registry
 ```bash
 # PostgreSQL
-$ docker push <your-docker-reg>/jfrog/artifactory-pro-postgresql:latest
+$ docker push <your-docker-reg>/jfrog/artifactory-pro-postgresql:<version>
 
 # MySQL
-$ docker push <your-docker-reg>/jfrog/artifactory-pro-mysql:latest
+$ docker push <your-docker-reg>/jfrog/artifactory-pro-mysql:<version>
 ```
 And edit the artifactory-service.yml to use this image.
 
