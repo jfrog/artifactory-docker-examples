@@ -1,0 +1,27 @@
+<config version="2">
+<chain> <!--template="cluster-file-system"-->
+    <provider id="cache-fs" type="cache-fs">
+        <provider id="sharding-cluster" type="sharding-cluster">
+            <sub-provider id="state-aware" type="state-aware"/>
+            <dynamic-provider id="remote-fs" type="remote"/>
+        </provider>
+    </provider>
+</chain>
+
+<provider id="state-aware" type="state-aware">
+    <zone>local</zone>
+</provider>
+
+<!-- Shard dynamic remote provider configuration -->
+<provider id="remote-fs" type="remote">
+    <zone>remote</zone>
+</provider>
+
+<provider id="sharding-cluster" type="sharding-cluster">
+    <readBehavior>crossNetworkStrategy</readBehavior>
+    <writeBehavior>crossNetworkStrategy</writeBehavior>
+    <fullRedundancy>true</fullRedundancy>
+    <property name="zones" value="local,remote"/>
+</provider>
+
+</config>
