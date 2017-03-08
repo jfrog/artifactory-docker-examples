@@ -1,0 +1,7 @@
+FROM docker.bintray.io/jfrog/artifactory-pro:5.1.2
+
+MAINTAINER eldada@jfrog.com
+
+# Download the DB driver into Tomcat's lib
+RUN curl -L -o /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.40.jar https://jcenter.bintray.com/mysql/mysql-connector-java/5.1.40/mysql-connector-java-5.1.40.jar
+

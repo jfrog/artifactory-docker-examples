@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-k8s-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-k8s
+        group: artifactory-k8s-demo
+    spec:
+      containers:
+      - name: db-mysql-k8s
+        image: docker.bintray.io/mysql:5.6.35
+        env:
+        - name: MYSQL_DATABASE
+          value: artdb
+        - name: MYSQL_USER
+          value: artifactory
+        - name: MYSQL_PASSWORD
+          value: password
+        - name: MYSQL_ROOT_PASSWORD
+          value: password
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - mountPath: "/var/lib/mysql"
+          name: db-volume
+      volumes:
+      - name: db-volume
+        persistentVolumeClaim:
+          claimName: mysql-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-k8s-service
+  labels:
+    app: mysql-k8s-service
+    group: artifactory-k8s-demo
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+  selector:
+    app: mysql-k8s

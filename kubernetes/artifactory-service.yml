@@ -8,11 +8,12 @@ spec:
     metadata:
       labels:
         app: artifactory-pro-k8s
+        group: artifactory-k8s-demo
     spec:
       containers:
       - name: artifactory-pro-k8s
         # Set your actual artifactory-pro image
-        image: <your-docker-reg>/jfrog/artifactory-pro-postgresql:latest
+        image: <your-docker-reg>/jfrog/artifactory-pro-postgresql:5.1.2
         env:
         - name: DB_TYPE
           value: postgresql
@@ -40,6 +41,7 @@ metadata:
   name: artifactory
   labels:
     app: artifactory
+    group: artifactory-k8s-demo
 spec:
   type: NodePort
   ports:

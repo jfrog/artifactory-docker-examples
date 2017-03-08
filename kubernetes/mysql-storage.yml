@@ -1,22 +1,22 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: pvnginx1
+  name: pvmysql1
   labels:
-    type: nginx-local
+    type: mysql-local
     group: artifactory-k8s-demo
 spec:
   capacity:
-    storage: 1Gi
+    storage: 5Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/data/nginx"
+    path: "/data/db"
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: nginx-claim
+  name: mysql-claim
   labels:
     group: artifactory-k8s-demo
 spec:
@@ -24,7 +24,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 5Gi
   selector:
       matchLabels:
-        type: "nginx-local"
+        type: "mysql-local"

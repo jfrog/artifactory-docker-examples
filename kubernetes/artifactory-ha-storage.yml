@@ -1,0 +1,92 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pvart1
+  labels:
+    type: artifactory-local1
+    group: artifactory-k8s-demo
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/art1"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pvart2
+  labels:
+    type: artifactory-local2
+    group: artifactory-k8s-demo
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data/art2"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pvartextraconf
+  labels:
+    type: artifactory-extra-conf
+    group: artifactory-k8s-demo
+spec:
+  capacity:
+    storage: 10Mi
+  accessModes:
+    - ReadOnlyMany
+  hostPath:
+    path: "/data/art-extra-conf"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: artifactory-node1-claim
+  labels:
+    group: artifactory-k8s-demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+      matchLabels:
+        type: "artifactory-local1"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: artifactory-node2-claim
+  labels:
+    group: artifactory-k8s-demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  selector:
+      matchLabels:
+        type: "artifactory-local2"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: artifactory-extra-conf-claim
+  labels:
+    group: artifactory-k8s-demo
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 10Mi
+  selector:
+      matchLabels:
+        type: "artifactory-extra-conf"
