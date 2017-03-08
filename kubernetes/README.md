@@ -157,7 +157,6 @@ postgresql-k8s-service   10.0.0.165   <none>        5432/TCP                    
 
 ```
 
-<<<<<<< HEAD
 ---
 ### Artifactory HA
 #### Database
