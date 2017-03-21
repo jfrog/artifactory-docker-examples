@@ -4,6 +4,7 @@ metadata:
   name: nginx-k8s-service
   labels:
     app: nginx-k8s-service
+    group: artifactory-k8s-demo
 spec:
   type: NodePort
   ports:

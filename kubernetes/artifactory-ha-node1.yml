@@ -1,0 +1,62 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: artifactory-ha-node1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: artifactory-ha-node1
+        group: artifactory-k8s-demo
+    spec:
+      containers:
+      - name: artifactory-ha-node1
+        # Set your actual artifactory-pro image
+        image: <your-docker-reg>/jfrog/artifactory-pro-mysql:5.1.4
+        env:
+        - name: DB_TYPE
+          value: mysql
+        - name: DB_USER
+          value: artifactory
+        - name: DB_PASSWORD
+          value: password
+        - name: DB_HOST
+          value: mysql-k8s-service
+        - name: HA_IS_PRIMARY
+          value: "true"
+        - name: HA_NODE_ID
+          value: ha-node1
+        - name: HA_MEMBERSHIP_PORT
+          value: "10117"
+        ports:
+        - containerPort: 8081
+        volumeMounts:
+        - mountPath: "/var/opt/jfrog/artifactory"
+          name: artifactory-node1-volume
+        - mountPath: "/artifactory_extra_conf"
+          name: artifactory-extra-conf
+      volumes:
+      - name: artifactory-node1-volume
+        persistentVolumeClaim:
+          claimName: artifactory-node1-claim
+      - name: artifactory-extra-conf
+        persistentVolumeClaim:
+          claimName: artifactory-extra-conf-claim
+      imagePullSecrets:
+      - name: docker-reg-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: artifactory-node1
+  labels:
+    app: artifactory-node1
+    group: artifactory-k8s-demo
+spec:
+  type: NodePort
+  ports:
+  - port: 8081
+    protocol: TCP
+  selector:
+    app: artifactory-ha-node1

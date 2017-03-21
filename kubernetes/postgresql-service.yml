@@ -8,6 +8,7 @@ spec:
     metadata:
       labels:
         app: postgresql-k8s
+        group: artifactory-k8s-demo
     spec:
       containers:
       - name: postgresql-k8s
@@ -35,6 +36,7 @@ metadata:
   name: postgresql-k8s-service
   labels:
     app: postgresql-k8s-service
+    group: artifactory-k8s-demo
 spec:
   ports:
   - port: 5432

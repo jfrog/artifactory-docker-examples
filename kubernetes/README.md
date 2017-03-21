@@ -24,17 +24,25 @@ You should find your best matching [storage solution](https://kubernetes.io/docs
  
 ---
 ## Database Driver
-The database used in these examples is PostgreSQL. For Artifactory to communicate with the database, it needs the
-database driver in its Tomcat's lib directory.  
+The databases used in these examples are PostgreSQL and MySQL.  
+For Artifactory to communicate with the database, it needs the database driver in its Tomcat's lib directory.  
 
-For this, you can build your own Artifactory Docker image using the [Dockerfile](Dockerfile) in this directory that already adds the driver.  
+For this, you should build your own Artifactory Docker image using the Dockerfiles in this directory that already adds the driver.  
 To build the image
 ```bash
-$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-postgresql:latest -f Dockerfile .
+# PostgreSQL
+$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-postgresql:<version> -f Dockerfile.postgresql .
+
+# MySQL
+$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-mysql:<version> -f Dockerfile.mysql .
 ```
-This will build an image of artifactory-pro that includes the PostgreSQL driver in it. Make sure to push it into your registry
+This will build an image of artifactory-pro that includes the PostgreSQL or MySQL driver in it. Make sure to push it into your registry
 ```bash
-$ docker push <your-docker-reg>/jfrog/artifactory-pro-postgresql:latest
+# PostgreSQL
+$ docker push <your-docker-reg>/jfrog/artifactory-pro-postgresql:<version>
+
+# MySQL
+$ docker push <your-docker-reg>/jfrog/artifactory-pro-mysql:<version>
 ```
 And edit the artifactory-service.yml to use this image.
 
@@ -68,25 +76,46 @@ $ kubectl create secret tls art-tls --cert=<path_to>/myssl.pem --key=<path_to>/m
 
 #### Artifactory Nginx configuration
 Create a Kubernetes ConfigMap from artifactory.conf
+
+**Artifactory Pro**
 ```bash
-$ kubectl create configmap nginx-art-pro --from-file=../files/nginx/conf.d/pro/artifactory.conf
+$ kubectl create configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/pro/artifactory.conf
 ```
+
+**Artifactory HA**
+```bash
+$ kubectl create configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/ha/artifactory.conf
+```
+
 
 ### Deploying the applications
 Now you are ready to create the applications in Kubernetes.  
-The following sequence deploys **PostgreSQL**, **Artifactory** and **Nginx**. Note that the resources to use are already defined in the Yaml files.
+The following sequence deploys
+- **PostgreSQL** or **MySQL** database
+- **Artifactory** Pro or HA
+- **Nginx**
+
+Note that the resources to use are already defined in the Yaml files.
 
 **NOTE:** If running on [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/), you will need to deploy a simpler service (NodePort). See the differences in the code examples below.
 
+### Artifactory Pro
+#### Database
 ```bash
 # PostgreSQL storage, pods and service
 $ kubectl create -f postgresql-storage.yml
 $ kubectl create -f postgresql-service.yml
+```
 
+#### Artifactory Pro
+```bash
 # Artifactory storage, pods and service
 $ kubectl create -f artifactory-storage.yml
 $ kubectl create -f artifactory-service.yml
+```
 
+#### Nginx
+```bash
 # Nginx storage and deployment
 $ kubectl create -f nginx-storage.yml
 $ kubectl create -f nginx-deployment.yml
@@ -128,7 +157,99 @@ postgresql-k8s-service   10.0.0.165   <none>        5432/TCP                    
 
 ```
 
+---
+### Artifactory HA
+#### Database
+```bash
+$ kubectl create -f mysql-storage.yml
+$ kubectl create -f mysql-service.yml
+```
+
+#### Artifactory storage  
+Prepare 3 storage volumes.
+```bash
+$ kubectl create -f artifactory-ha-storage.yml
+```
+
+
+#### Prepare the binary storage configuration
+Artifactory HA can be configured with various storage solutions.  
+You can see more details in [Configuring the Filestore](https://www.jfrog.com/confluence/display/RTF/Configuring+the+Filestore).  
+In our examples, we have an example [binarystore.xml](../files/binarystore.xml) that configures a simple `cache-fs` template.  
+- Place the file in the directory defined by the `artifactory-extra-conf` persistent volume in [artifactory-ha-storage.yml](artifactory-ha-storage.yml) (defaults to `/data/art-extra-conf/`)
+
+
+#### Artifactory HA nodes
+Spin up the two nodes.
+```bash
+$ kubectl create -f artifactory-ha-node1.yml
+$ kubectl create -f artifactory-ha-node2.yml
+```
+
+#### Joining node 2 to the HA cluster
+Once node 1 start, you need to prepare the configuration to pass to node 2 in order for it to join the cluster.  
+You can see more details in [Artifactory HA setup](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup).  
+The following steps need to completed before node 2 can join the cluster
+- Connect to node 1 and complete the initial onboarding process
+  - Use `kubectl get services` to get the `art_node1_service_ip`
+  - Open a web browser to `http://<cluster_ip>:<art_node1_service_ip>/artifactory`
+  - Install a license
+  - Complete any additional steps you require (you can come back to this later)
+- Create a [bootstrap bundle](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup#HAInstallationandSetup-CreatingtheBootstrapBundle) in node 1 to be copied over to node 2
+  - `curl -XPOST -uadmin:password http://<cluster_ip>:<art_node1_service_ip>/artifactory/api/system/bootstrap_bundle`
+  - This will place the `bootstrap.bundle.tar.gz` under node 1's ARTIFACTORY_HOME/etc directory
+- Copy the `bootstrap.bundle.tar.gz` into node 2's ARTIFACTORY_HOME/etc
+  - Node 2 will detect it and continue its automatic setup and joining to the cluster
+
+
+#### Nginx
+```bash
+# Storage and deployment
+$ kubectl create -f nginx-storage.yml
+$ kubectl create -f nginx-deployment.yml
+
+# Service
+# If running on a standard Kubernetes cluster
+$ kubectl create -f nginx-service.yml
+
+# If running on Minikube
+$ kubectl create -f nginx-service-minikube.yml
+
+```
+
+Once done, you should be able to see the deployed pods and services
+```bash
+# Get pods and their status (example output)
+$ kubectl get pods
+NAME                                    READY     STATUS    RESTARTS   AGE
+artifactory-ha-node1-3776668781-fc3wq   1/1       Running   0          7m
+artifactory-ha-node2-3265495874-cz6rj   1/1       Running   0          7m
+mysql-k8s-deployment-4196928137-3s6tn   1/1       Running   0          7m
+nginx-k8s-deployment-1544469967-bt5m1   1/1       Running   0          1m
+
+# Get services (example output)
+# On a standard Kubernetes cluster
+$ kubectl get services
+NAME                CLUSTER-IP   EXTERNAL-IP   PORT(S)                      AGE
+artifactory-node1   10.0.0.159   <nodes>       8081:30690/TCP               8m
+artifactory-node2   10.0.0.176   <nodes>       8081:30981/TCP               7m
+kubernetes          10.0.0.1     <none>        443/TCP                      3d
+mysql-k8s-service   10.0.0.17    <none>        3306/TCP                     8m
+nginx-k8s-service   10.0.0.75    59.156.13.6   80:32094/TCP,443:30063/TCP   2m
+
+# On Minikube
+$ kubectl get services
+NAME                CLUSTER-IP   EXTERNAL-IP   PORT(S)                      AGE
+artifactory-node1   10.0.0.159   <nodes>       8081:30690/TCP               8m
+artifactory-node2   10.0.0.176   <nodes>       8081:30981/TCP               7m
+kubernetes          10.0.0.1     <none>        443/TCP                      3d
+mysql-k8s-service   10.0.0.17    <none>        3306/TCP                     8m
+nginx-k8s-service   10.0.0.75    <nodes>       80:30002/TCP,443:32600/TCP   2m
+
+```
+
 ### Accessing your Artifactory
+Depending on your deployment type, you can now access Artifactory through its Nginx.
 
 #### Standard Kubernetes
 You can see the Nginx is exposed with a public IP of `59.156.13.6` on ports 80 and 443.  
@@ -142,4 +263,3 @@ Now point your browser to **http://192.168.99.100:30002/artifactory/** or **http
 **NOTE**: When using `https`, you might need to confirm trusting the certificate and that will redirect you back to 
 https://192.168.99.100/artifactory, resulting in an error. Just put the port 32600 again in the URL, refresh your page, 
 and Artifactory should now load properly.
-
