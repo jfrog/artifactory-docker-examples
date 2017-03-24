@@ -33,5 +33,3 @@ void createInternalUserIfNeeded() {
                 "You should use this API key for communicating with the primary and disable internal password"
     }
 }
-
-

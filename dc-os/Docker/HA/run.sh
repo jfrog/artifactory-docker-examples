@@ -42,6 +42,7 @@ function setInitialConfiguration {
     if [ ! -d /var/opt/jfrog/artifactory/etc/plugins ]; then
         mkdir -p /var/opt/jfrog/artifactory/etc/plugins
         cp -f /tmp/internalUser.groovy /var/opt/jfrog/artifactory/etc/plugins/internalUser.groovy
+        cp -f /tmp/inactiveServerCleaner.groovy /var/opt/jfrog/artifactory/etc/plugins/inactiveServerCleaner.groovy
     fi
      cp -f /tmp/binarystore.xml /var/opt/jfrog/artifactory/etc/binarystore.xml
      # Artifactory's external server name
