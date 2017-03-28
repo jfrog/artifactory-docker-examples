@@ -26,8 +26,6 @@ services:
      - /data/artifactory/node1:/var/opt/jfrog/artifactory
      - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
      - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
-    # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
-     - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
     environment:
      - HA_IS_PRIMARY=true
      - HA_DATA_DIR=/var/opt/jfrog/artifactory-ha
@@ -56,8 +54,6 @@ services:
      - /data/artifactory/node2:/var/opt/jfrog/artifactory
      - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
      - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
-    # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
-     - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
     environment:
      - HA_IS_PRIMARY=false
      - HA_DATA_DIR=/var/opt/jfrog/artifactory-ha

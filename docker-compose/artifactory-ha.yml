@@ -24,8 +24,6 @@ services:
      - postgresql
     volumes:
      - /data/artifactory/node1:/var/opt/jfrog/artifactory
-    # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
-     - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
     environment:
      - HA_IS_PRIMARY=true
      - HA_MEMBERSHIP_PORT=10017
@@ -50,8 +48,6 @@ services:
      - artifactory-node1
     volumes:
      - /data/artifactory/node2:/var/opt/jfrog/artifactory
-    # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
-     - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
     environment:
      - HA_IS_PRIMARY=false
      - HA_MEMBERSHIP_PORT=10017
