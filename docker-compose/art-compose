@@ -198,7 +198,7 @@ getArtifactoryComposeYaml () {
         fi
 
         echo "Getting ${COMPOSE_FILE}"
-        curl -# -o ${COMPOSE_FILE} ${ART_COMPOSE_YML} || errorExit "Getting ${DB_DRIVER} failed"
+        curl -# -o ${COMPOSE_FILE} ${ART_COMPOSE_YML} || errorExit "Getting ${COMPOSE_FILE} failed"
 
         echo "Preparing ${COMPOSE_FILE}"
         # Do some editing
