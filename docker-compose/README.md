@@ -71,12 +71,8 @@ After executing the script, the needed set of data directories for Artifactory P
 
 ---
 ### Database Driver
-The database used in these examples is PostgreSQL. For Artifactory to communicate with the database, it needs the
-database driver mounted into its Tomcat's lib directory.  
-You need to download the PostgreSQL driver (jar file) from [PostgreSQL download page](https://jdbc.postgresql.org/download.html) to your home directory.  
-Direct link to driver: [https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar](https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar)  
-In all examples using PostgreSQL, the file is mounted like this:  
-`~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar`
+The database used in these examples is PostgreSQL.  
+The PostgreSQL database driver comes pre-loaded into the Artifactory Docker image, but you can still use other databases without any conflicts. 
 
 #### Using Different Databases
 Artifactory can run with other databases. For more details on supported databases and how to set them up for use with Artifactory, please refer to [Changing the Database](https://www.jfrog.com/confluence/display/RTF/Changing+the+Database) in the JFrog Artifactory Use Guide.

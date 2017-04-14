@@ -12,8 +12,6 @@ SCRIPT_NAME=$(basename $0)
 DEFAULT_ROOT_DATA_DIR=/data
 LINUX_ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
 MAC_DEFAULT_ROOT_DATA_DIR=~/.jfrog/artifactory
-DB_DRIVER=postgresql-9.4.1212.jar
-DB_DRIVER_URL=https://jdbc.postgresql.org/download/${DB_DRIVER}
 ARTIFACTORY_VERSION=5.2.1
 ART_COMPOSE_YML=https://jfrog.bintray.com/run/artifactory-pro/${ARTIFACTORY_VERSION}/compose/artifactory-pro.yml
 COMPOSE_FILE=artifactory-pro.yml
@@ -163,17 +161,6 @@ createDirectories () {
         if [ -n "$SUDO_USER" ] && [ "$OS_TYPE" == "Darwin" ]; then
             echo "Changing ownership of ${ROOT_DATA_DIR} to ${SUDO_USER}"
             chown -R ${SUDO_USER} ${ROOT_DATA_DIR}
-        fi
-    fi
-}
-
-getDbDriver () {
-    if [ "$ACTION" == "start" ]; then
-        if [ ! -f ${ROOT_DATA_DIR}/${DB_DRIVER} ]; then
-            echo "Downloading the DB driver"
-            curl -# -o ${ROOT_DATA_DIR}/${DB_DRIVER} ${DB_DRIVER_URL} || errorExit "Getting ${DB_DRIVER} failed"
-        else
-            echo "DB driver already exists"
         fi
     fi
 }
@@ -410,7 +397,6 @@ checkDocker
 validateActions
 clean
 createDirectories
-getDbDriver
 setDbPassword
 getArtifactoryComposeYaml
 

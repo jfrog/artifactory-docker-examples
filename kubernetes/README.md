@@ -27,21 +27,17 @@ You should find your best matching [storage solution](https://kubernetes.io/docs
 The databases used in these examples are PostgreSQL and MySQL.  
 For Artifactory to communicate with the database, it needs the database driver in its Tomcat's lib directory.  
 
-For this, you should build your own Artifactory Docker image using the Dockerfiles in this directory that already adds the driver.  
+Artifactory Docker image comes with the PostgreSQL driver pre-loaded.
+
+For MySQL, you should build your own Artifactory Docker image using the `Dockerfile.mysql` in this directory that already adds the driver.  
 To build the image
 ```bash
-# PostgreSQL
-$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-postgresql:<version> -f Dockerfile.postgresql .
-
-# MySQL
+# For MySQL
 $ docker build -t <your-docker-reg>/jfrog/artifactory-pro-mysql:<version> -f Dockerfile.mysql .
 ```
-This will build an image of artifactory-pro that includes the PostgreSQL or MySQL driver in it. Make sure to push it into your registry
+This will build an image of artifactory-pro that includes the MySQL driver in it. Make sure to push it into your registry
 ```bash
-# PostgreSQL
-$ docker push <your-docker-reg>/jfrog/artifactory-pro-postgresql:<version>
-
-# MySQL
+# For MySQL
 $ docker push <your-docker-reg>/jfrog/artifactory-pro-mysql:<version>
 ```
 And edit the artifactory-service.yml to use this image.
@@ -100,7 +96,7 @@ Note that the resources to use are already defined in the Yaml files.
 **NOTE:** If running on [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/), you will need to deploy a simpler service (NodePort). See the differences in the code examples below.
 
 ### Artifactory Pro
-#### Database
+#### Database (using PostgreSQL)
 ```bash
 # PostgreSQL storage, pods and service
 $ kubectl create -f postgresql-storage.yml
@@ -159,7 +155,7 @@ postgresql-k8s-service   10.0.0.165   <none>        5432/TCP                    
 
 ---
 ### Artifactory HA
-#### Database
+#### Database (using MySQL)
 ```bash
 $ kubectl create -f mysql-storage.yml
 $ kubectl create -f mysql-service.yml

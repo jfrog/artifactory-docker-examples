@@ -24,8 +24,6 @@ services:
      - postgresql
     volumes:
      - /data/artifactory:/var/opt/jfrog/artifactory
-    # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
-     - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
     environment:
      - DB_TYPE=postgresql
      # The following must match the POSTGRES_USER and POSTGRES_PASSWORD values passed to PostgreSQL
