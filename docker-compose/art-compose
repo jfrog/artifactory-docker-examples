@@ -12,7 +12,7 @@ SCRIPT_NAME=$(basename $0)
 DEFAULT_ROOT_DATA_DIR=/data
 LINUX_ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
 MAC_DEFAULT_ROOT_DATA_DIR=~/.jfrog/artifactory
-ARTIFACTORY_VERSION=5.2.0
+ARTIFACTORY_VERSION=5.2.1
 ART_COMPOSE_YML=https://jfrog.bintray.com/run/artifactory-pro/${ARTIFACTORY_VERSION}/compose/artifactory-pro.yml
 COMPOSE_FILE=artifactory-pro.yml
 DB_PASSWORD_FILE=.dbpassword
@@ -185,7 +185,7 @@ getArtifactoryComposeYaml () {
         fi
 
         echo "Getting ${COMPOSE_FILE}"
-        curl -# -o ${COMPOSE_FILE} ${ART_COMPOSE_YML} || errorExit "Getting ${DB_DRIVER} failed"
+        curl -# -o ${COMPOSE_FILE} ${ART_COMPOSE_YML} || errorExit "Getting ${COMPOSE_FILE} failed"
 
         echo "Preparing ${COMPOSE_FILE}"
         # Do some editing

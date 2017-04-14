@@ -14,7 +14,7 @@ services:
      - /data/postgresql:/var/lib/postgresql/data
     restart: always
   artifactory:
-    image: docker.bintray.io/jfrog/artifactory-pro:5.2.0
+    image: docker.bintray.io/jfrog/artifactory-pro:5.2.1
     container_name: artifactory
     ports:
      - 8081:8081
@@ -33,7 +33,7 @@ services:
      #- EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always
   nginx:
-    image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.2.0
+    image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.2.1
     container_name: nginx
     ports:
      - 80:80
