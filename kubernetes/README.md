@@ -33,12 +33,12 @@ For MySQL, you should build your own Artifactory Docker image using the `Dockerf
 To build the image
 ```bash
 # For MySQL
-$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-mysql:<version> -f Dockerfile.mysql .
+$ docker build -t ${YOUR_DOCKER_REGISTRY}/jfrog/artifactory-pro-mysql:${VERSION} -f Dockerfile.mysql .
 ```
 This will build an image of artifactory-pro that includes the MySQL driver in it. Make sure to push it into your registry
 ```bash
 # For MySQL
-$ docker push <your-docker-reg>/jfrog/artifactory-pro-mysql:<version>
+$ docker push ${YOUR_DOCKER_REGISTRY}/jfrog/artifactory-pro-mysql:${VERSION}
 ```
 And edit the artifactory-service.yml to use this image.
 
@@ -56,7 +56,7 @@ Need to create some resources that will be used by Nginx as SSL and Artifactory 
 #### Docker registry secret
 In case you built your own Artifactory image and pushed it to your private registry as suggested above, you might need to define a docker-registry secret to be used by Kubernetes to pull images
 ```bash
-$ kubectl create secret docker-registry docker-reg-secret --docker-server=<your-docker-reg> --docker-username=${USER} --docker-password=${PASSWORD} --docker-email=you@domain.com
+$ kubectl create secret docker-registry docker-reg-secret --docker-server=${YOUR_DOCKER_REGISTRY} --docker-username=${USER} --docker-password=${PASSWORD} --docker-email=you@domain.com
 ```
 
 #### SSL secret
@@ -67,7 +67,7 @@ $ kubectl create secret tls art-tls --cert=../files/nginx/ssl/demo.pem --key=../
 ```
 You can replace the key and certificate with your own files
 ```bash
-$ kubectl create secret tls art-tls --cert=<path_to>/myssl.pem --key=<path_to>/myssl.key
+$ kubectl create secret tls art-tls --cert=${PATH_TO_CERT}/myssl.pem --key=${PATH_TO_CERT}/myssl.key
 ```
 
 #### Artifactory Nginx configuration
@@ -183,19 +183,36 @@ $ kubectl create -f artifactory-ha-node2.yml
 ```
 
 #### Joining node 2 to the HA cluster
-Once node 1 start, you need to prepare the configuration to pass to node 2 in order for it to join the cluster.  
-You can see more details in [Artifactory HA setup](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup).  
-The following steps need to completed before node 2 can join the cluster
-- Connect to node 1 and complete the initial onboarding process
-  - Use `kubectl get services` to get the `art_node1_service_ip`
-  - Open a web browser to `http://<cluster_ip>:<art_node1_service_ip>/artifactory`
-  - Install a license
-  - Complete any additional steps you require (you can come back to this later)
-- Create a [bootstrap bundle](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup#HAInstallationandSetup-CreatingtheBootstrapBundle) in node 1 to be copied over to node 2
-  - `curl -XPOST -uadmin:password http://<cluster_ip>:<art_node1_service_ip>/artifactory/api/system/bootstrap_bundle`
-  - This will place the `bootstrap.bundle.tar.gz` under node 1's ARTIFACTORY_HOME/etc directory
-- Copy the `bootstrap.bundle.tar.gz` into node 2's ARTIFACTORY_HOME/etc
-  - Node 2 will detect it and continue its automatic setup and joining to the cluster
+Once node 1 starts you need to prepare the configuration that node 2 will use to join the cluster. You can see more details in [Artifactory HA setup](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup).  
+
+Begin by obtaining the cluster's ip, the names of pods 1 and 2, and node the following to obtain the necessary variables for the process:
+```bash
+CLUSTER_IP="$(kubectl cluster-info | grep master | cut -d'/' -f3 | cut -d':' -f1)"
+ART_NODE1_SERVICE_PORT=$(kubectl get services artifactory-node1 | grep artifactory-node1 | awk '{print $4}' | cut -d':' -f2 | cut -d'/' -f1)
+ART_NODE1_POD_NAME=$(kubectl get pods | grep node1 | cut -d' ' -f1)
+ART_NODE2_POD_NAME=$(kubectl get pods | grep node2 | cut -d' ' -f1)
+```
+
+Connect to node 1 and complete the initial onboarding process:
+- Open a web browser to node 1
+```bash
+open "http://${CLUSTER_IP}:${ART_NODE1_SERVICE_PORT}/artifactory"
+```
+
+Then install a license and complete any additional steps you require (you can come back to this later).
+
+One complete create a [bootstrap bundle](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup#HAInstallationandSetup-CreatingtheBootstrapBundle) in node 1 to be copied over to node 2. This will place the `bootstrap.bundle.tar.gz` under node 1's ARTIFACTORY_HOME/etc directory:
+```bash
+curl -XPOST -uadmin:password "http://${CLUSTER_IP}:${ART_NODE1_SERVICE_PORT}/artifactory/api/system/bootstrap_bundle"
+```
+
+Copy the `bootstrap.bundle.tar.gz` into node 2's ARTIFACTORY_HOME/etc:
+```bash
+kubectl cp "default/${ART_NODE1_POD_NAME}:opt/jfrog/artifactory/etc/bootstrap.bundle.tar.gz" bootstrap.bundle.tar.gz
+kubectl cp bootstrap.bundle.tar.gz "default/${ART_NODE2_POD_NAME}:/opt/jfrog/artifactory/etc/bootstrap.bundle.tar.gz"
+```
+
+Node 2 will detect it, continue its automatic setup, and join the cluster.
 
 
 #### Nginx
