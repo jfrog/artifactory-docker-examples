@@ -44,5 +44,14 @@ $ helm upgrade -n artifactory ./artifactory
 
 This will apply any configuration changes on your existing deployment.
 
+### Deleting Artifactory
+```bash
+$ helm delete --purge artifactory
+```
+
+This will delete your Artifactory deployment.  
+**IMPORTANT:** This will also delete your data volumes. You will loose all data!
+
+
 See more details on [using helm](https://github.com/kubernetes/helm/blob/master/docs/using_helm.md).
 
