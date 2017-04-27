@@ -134,7 +134,7 @@ This example starts the following containers
 - PostgreSQL database serving Artifactory  
 
 Artifactory data is stored on a binary store provider and no shared NFS is needed.  
-I this example, the HA nodes use their local storage and sync data between the nodes. 
+In this example, the HA nodes use their local storage and sync data between the nodes. 
 
 
 ### Artifactory HA with PostgreSQL and Nginx for load balancing and https support with shared data storage (NFS)
