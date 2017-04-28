@@ -16,6 +16,12 @@ Helm in [GitHub](https://github.com/kubernetes/helm)
 ### Installing helm
 Follow [instructions on installing helm](https://github.com/kubernetes/helm#install)
  
+#### Setup Helm to use your cluster
+To initialize Helm and install Tiller, you should run
+```bash
+$ helm init
+```
+
 ### Deploying Artifactory
 You can deploy the Artifactory chart, which is in the [artifactory](artifactory) directory
 ```bash
