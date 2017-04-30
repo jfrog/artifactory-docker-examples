@@ -50,6 +50,14 @@ $ helm upgrade -n artifactory ./artifactory
 
 This will apply any configuration changes on your existing deployment.
 
+### Customizing Database password
+You can override the specified database password (set in [artifactory/values.yaml](artifactory/values.yaml)), by passing it as a parameter in the install command line
+```bash
+$ helm install -n artifactory --set db_env.db_pass=12_hX34qwerQ2 ./artifactory
+```
+
+You can customise other parameters in the same way, by passing them on `helm install` command line.
+
 ### Deleting Artifactory
 ```bash
 $ helm delete --purge artifactory

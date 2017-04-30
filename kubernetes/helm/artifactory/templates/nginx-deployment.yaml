@@ -10,6 +10,17 @@ spec:
     metadata:
       labels:
         app: {{ .Values.nx_name }}
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[{
+          "name": "remove-lost-found",
+          "image": {{ .Values.initContainerImage | quote }},
+          "command": ["rm", "-rf", "{{ .Values.nx_persistence.mountPath }}/lost+found"],
+          "volumeMounts": [{
+              "name": "nginx-volume",
+              "mountPath": {{ .Values.nx_persistence.mountPath | quote }}
+            }],
+          "imagePullPolicy": {{ .Values.imagePullPolicy | quote }}
+        }]'
     spec:
       containers:
       - name: {{ .Values.nx_name }}
@@ -24,10 +35,8 @@ spec:
         - containerPort: {{ .Values.nx_service.internalPortHttp }}
         - containerPort: {{ .Values.nx_service.internalPortHttps }}
         volumeMounts:
-        - mountPath: "/var/opt/jfrog/nginx"
+        - mountPath: {{ .Values.nx_persistence.mountPath | quote }}
           name: nginx-volume
-        resources:
-{{ toYaml .Values.nx_resources | indent 12 }}
       volumes:
       - name: nginx-volume
       {{- if .Values.nx_persistence.enabled }}

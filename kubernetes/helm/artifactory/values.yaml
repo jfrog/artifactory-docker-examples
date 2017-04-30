@@ -7,11 +7,12 @@
 # Common
 replicaCount: 1
 imagePullPolicy: IfNotPresent
+initContainerImage: "busybox:1.26.2"
 db_env:
   db_type: postgresql
   db_name: artifactory
   db_user: artifactory
-  db_pass: artifactory17
+  db_pass: artXifactory1973
 
 # DB
 db_name: postgresql
@@ -23,14 +24,8 @@ db_service:
   type: ClusterIP
   externalPort: 5432
   internalPort: 5432
-db_resources:
-#  limits:
-#    cpu: 2
-#    memory: 512Mi
-  requests:
-    cpu: 2
-    memory: 512Mi
 db_persistence:
+  mountPath: "/var/lib/postgresql/data"
   enabled: true
   accessMode: ReadWriteOnce
   size: 10Gi
@@ -46,14 +41,8 @@ art_service:
   type: ClusterIP
   externalPort: 8081
   internalPort: 8081
-art_resources:
-#  limits:
-#    cpu: 2
-#    memory: 4Gi
-  requests:
-    cpu: 2
-    memory: 4Gi
 art_persistence:
+  mountPath: "/var/opt/jfrog/artifactory"
   enabled: true
   accessMode: ReadWriteOnce
   size: 20Gi
@@ -71,17 +60,11 @@ nx_service:
   internalPortHttp: 80
   externalPortHttps: 443
   internalPortHttps: 443
-nx_resources:
-#  limits:
-#    cpu: 2
-#    memory: 256Mi
-  requests:
-    cpu: 2
-    memory: 256Mi
 nx_env:
   art_url: "http://artifactory:8081/artifactory"
   ssl: true
 nx_persistence:
+  mountPath: "/var/opt/jfrog/nginx"
   enabled: true
   accessMode: ReadWriteOnce
   size: 5Gi

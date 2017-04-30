@@ -10,6 +10,17 @@ spec:
     metadata:
       labels:
         app: {{ .Values.art_name }}
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[{
+          "name": "remove-lost-found",
+          "image": {{ .Values.initContainerImage | quote }},
+          "command": ["rm", "-rf", "{{ .Values.art_persistence.mountPath }}/lost+found"],
+          "volumeMounts": [{
+              "name": "artifactory-volume",
+              "mountPath": {{ .Values.art_persistence.mountPath | quote }}
+            }],
+          "imagePullPolicy": {{ .Values.imagePullPolicy | quote }}
+        }]'
     spec:
       containers:
       - name: {{ .Values.art_name }}
@@ -27,10 +38,8 @@ spec:
         ports:
         - containerPort: {{ .Values.art_service.internalPort }}
         volumeMounts:
-        - mountPath: "/var/opt/jfrog/artifactory"
+        - mountPath: {{ .Values.art_persistence.mountPath | quote }}
           name: artifactory-volume
-        resources:
-{{ toYaml .Values.art_resources | indent 12 }}
       volumes:
       - name: artifactory-volume
       {{- if .Values.art_persistence.enabled }}

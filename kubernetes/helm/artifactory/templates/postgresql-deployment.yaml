@@ -10,6 +10,17 @@ spec:
     metadata:
       labels:
         app: {{ .Values.db_name }}
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[{
+          "name": "remove-lost-found",
+          "image": {{ .Values.initContainerImage | quote }},
+          "command": ["rm", "-rf", "{{ .Values.db_persistence.mountPath }}/lost+found"],
+          "volumeMounts": [{
+              "name": "postgresql-volume",
+              "mountPath": {{ .Values.db_persistence.mountPath | quote }}
+            }],
+          "imagePullPolicy": {{ .Values.imagePullPolicy | quote }}
+        }]'
     spec:
       containers:
       - name: {{ .Values.db_name }}
@@ -22,15 +33,11 @@ spec:
           value: {{ .Values.db_env.db_user }}
         - name: POSTGRES_PASSWORD
           value: {{ .Values.db_env.db_pass }}
-        - name: PGDATA
-          value: "/var/lib/postgresql/data/pgdata"
         ports:
         - containerPort: {{ .Values.db_service.internalPort }}
         volumeMounts:
-        - mountPath: "/var/lib/postgresql/data"
+        - mountPath: {{ .Values.db_persistence.mountPath | quote }}
           name: postgresql-volume
-        resources:
-{{ toYaml .Values.db_resources | indent 12 }}
       volumes:
       - name: postgresql-volume
       {{- if .Values.db_persistence.enabled }}
