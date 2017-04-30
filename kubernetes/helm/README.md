@@ -22,20 +22,20 @@ To initialize Helm and install Tiller, you should run
 $ helm init
 ```
 
-### Deploying Artifactory
-You can deploy the Artifactory chart, which is in the [artifactory](artifactory) directory
+### Deploying Artifactory Pro
+You can deploy the Artifactory Pro chart, which is in the [artifactory-pro](artifactory-pro) directory
 ```bash
-$ helm install -n artifactory ./artifactory
+$ helm install -n artifactory-pro ./artifactory-pro
 ```
 
-You can package the Artifactory chart and distribute it for use later
+You can package the Artifactory Pro chart and distribute it for use later
 ```bash
-$ helm package artifactory/
+$ helm package artifactory-pro/
 ```
 
-This will create a file `artifactory-<version>.tgz`. You can deploy it to Kubernetes with
+This will create a file `artifactory-pro-<version>.tgz`. You can deploy it to Kubernetes with
 ```bash
-$ helm install -n artifactory ./artifactory-<version>.tgz
+$ helm install -n artifactory-pro ./artifactory-pro-<version>.tgz
 ```
 
 ### Accessing Artifactory
@@ -45,25 +45,25 @@ Follow the instructions outputted by the install command to get the Artifactory 
 ### Updating Artifactory
 Once you have a new chart version, you can update your deployment with
 ```bash
-$ helm upgrade artifactory ./artifactory
+$ helm upgrade artifactory-pro ./artifactory-pro
 ```
 
 This will apply any configuration changes on your existing deployment.
 
 ### Customizing Database password
-You can override the specified database password (set in [artifactory/values.yaml](artifactory/values.yaml)), by passing it as a parameter in the install command line
+You can override the specified database password (set in [artifactory-pro/values.yaml](artifactory-pro/values.yaml)), by passing it as a parameter in the install command line
 ```bash
-$ helm install -n artifactory --set db_env.db_pass=12_hX34qwerQ2 ./artifactory
+$ helm install -n artifactory-pro --set db_env.db_pass=12_hX34qwerQ2 ./artifactory-pro
 ```
 
 You can customise other parameters in the same way, by passing them on `helm install` command line.
 
 ### Deleting Artifactory
 ```bash
-$ helm delete --purge artifactory
+$ helm delete --purge artifactory-pro
 ```
 
-This will delete your Artifactory deployment.  
+This will completely delete your Artifactory Pro deployment.  
 **IMPORTANT:** This will also delete your data volumes. You will loose all data!
 
 
