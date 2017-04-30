@@ -66,6 +66,9 @@ $ helm delete --purge artifactory-pro
 This will completely delete your Artifactory Pro deployment.  
 **IMPORTANT:** This will also delete your data volumes. You will loose all data!
 
+### Deploying Artifactory OSS
+You can deploy Artifactory OSS by using the same instructions as provided for the Pro, but using the `artifactory-oss` chart source directory.  
+**NOTE:** The Artifactory OSS does not use Nginx, so your Artifactory's Kubernetes service exposes Tomcat's port 8081 as port 80.
 
 See more details on [using helm](https://github.com/kubernetes/helm/blob/master/docs/using_helm.md).
 
