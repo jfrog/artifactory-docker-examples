@@ -45,7 +45,7 @@ Follow the instructions outputted by the install command to get the Artifactory 
 ### Updating Artifactory
 Once you have a new chart version, you can update your deployment with
 ```bash
-$ helm upgrade -n artifactory ./artifactory
+$ helm upgrade artifactory ./artifactory
 ```
 
 This will apply any configuration changes on your existing deployment.
