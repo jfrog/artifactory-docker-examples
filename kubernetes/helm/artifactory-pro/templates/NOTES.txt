@@ -8,10 +8,11 @@ Congratulations. You have just deployed JFrog Artifactory Pro!
    export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ .Values.nx_name }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
    export ARTIFACTORY_DNS=artifactory.local
 
-2. Add the Artifactory IP to your DNS (or /etc/hosts) to access it with a name instead of IP
+2. If you want to access your Artifactory using an alias or a qualified host and domain,
+   add the Artifactory IP to your network's DNS or your local /etc/hosts
 
    sudo sh -c "echo \"${SERVICE_IP} ${ARTIFACTORY_DNS}\" >> /etc/hosts"
 
 3. Open Artifactory in your browser
 
-   https://${ARTIFACTORY_DNS}/artifactory
+   http://${ARTIFACTORY_DNS}/artifactory

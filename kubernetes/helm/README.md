@@ -3,11 +3,9 @@ This directory has examples for Artifactory in Kubernetes deployments using the 
 
 ## Helm
 From https://helm.sh/:
-```
-What is Helm?
 
-Helm helps you manage Kubernetes applications — Helm Charts helps you define, install, and upgrade even the most complex Kubernetes application.
-```
+**What is Helm?  
+Helm helps you manage Kubernetes applications — Helm Charts helps you define, install, and upgrade even the most complex Kubernetes application.**
 
 Helm in [GitHub](https://github.com/kubernetes/helm)
 
@@ -26,16 +24,6 @@ $ helm init
 You can deploy the Artifactory Pro chart, which is in the [artifactory-pro](artifactory-pro) directory
 ```bash
 $ helm install -n artifactory-pro ./artifactory-pro
-```
-
-You can package the Artifactory Pro chart and distribute it for use later
-```bash
-$ helm package artifactory-pro/
-```
-
-This will create a file `artifactory-pro-<version>.tgz`. You can deploy it to Kubernetes with
-```bash
-$ helm install -n artifactory-pro ./artifactory-pro-<version>.tgz
 ```
 
 ### Accessing Artifactory
@@ -69,6 +57,21 @@ This will completely delete your Artifactory Pro deployment.
 ### Deploying Artifactory OSS
 You can deploy Artifactory OSS by using the same instructions as provided for the Pro, but using the `artifactory-oss` chart source directory.  
 **NOTE:** The Artifactory OSS does not use Nginx, so your Artifactory's Kubernetes service exposes Tomcat's port 8081 as port 80.
+
+
+### Packaging your Helm Charts
+You can package the Artifactory Helm charts and distribute them for later use.
+
+Example for Artifactory Pro
+```bash
+$ helm package artifactory-pro/
+```
+
+This will create a file `artifactory-pro-<version>.tgz`. You can deploy it to Kubernetes with
+```bash
+$ helm install -n artifactory-pro ./artifactory-pro-<version>.tgz
+```
+
 
 See more details on [using helm](https://github.com/kubernetes/helm/blob/master/docs/using_helm.md).
 
