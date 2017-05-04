@@ -5,8 +5,13 @@ This directory has some examples for setting up Artifactory running in a Kuberne
 Kubernetes is an open-source system for orchestrating containerized applications. To learn more about Kubernetes, see details in the [Kubernetes](https://kubernetes.io/docs/) documentation.  
 This page assumes you have prior knowledge of Kubernetes and have a working cluster to deploy in.
 
+## Helm - a package manager for Kubernetes
+The recommended way to deploy your applications to Kubernetes is using [Helm](https://helm.sh/) charts (packages).  
+Artifactory Pro can be deployed and managed by the [Helm](https://helm.sh/) package manager (also [supported by Artifactory](https://github.com/JFrogDev/artifactory-user-plugins/tree/master/helm/helmRepoSupport))  
+See the [helm](helm) directory for an example and usage. 
+
 ## Kubectl
-The examples are defines and deployed using the `kubectl` command line tool. See more details in the [kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) documentation.  
+The examples here are defines and deployed using the `kubectl` command line tool. See more details in the [kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) documentation.  
 Also see a useful [cheat sheet](https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/) with a good summary of the useful commands and usage.
 
 In these examples Kubernetes objects are defines as Yaml files, so applying them is very easy
@@ -17,7 +22,7 @@ This will create the object(s) defined in artifactory.yml in your Kubernetes clu
   
 --- 
 ## Persistent Storage
-For persistent storage, all volumes are mounted from the cluster's hosts.  
+For persistent storage, all volumes are mounted from the cluster's hosts or as Google disks.  
 **NOTE:** The examples here use a simple [PersistentVolume](https://kubernetes.io/docs/user-guide/persistent-volumes/) and 
 [PersistentVolumeClaim](https://kubernetes.io/docs/user-guide/persistent-volumes/) for example purposes. This setup should **NOT** be used for production! 
 You should find your best matching [storage solution](https://kubernetes.io/docs/user-guide/volumes/) and use it.
