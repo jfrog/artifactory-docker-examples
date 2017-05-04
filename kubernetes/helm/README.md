@@ -21,9 +21,9 @@ $ helm init
 ```
 
 ### Deploying Artifactory Pro
-You can deploy the Artifactory Pro chart, which is in the [artifactory-pro](artifactory-pro) directory
+You can deploy the Artifactory Pro chart, which is in the [artifactory-pro](artifactory-pro) directory to the `artifactory` namespace
 ```bash
-$ helm install -n artifactory-pro ./artifactory-pro
+$ helm install -n artifactory-pro --namespace artifactory ./artifactory-pro
 ```
 
 ### Accessing Artifactory
@@ -33,7 +33,7 @@ Follow the instructions outputted by the install command to get the Artifactory 
 ### Updating Artifactory
 Once you have a new chart version, you can update your deployment with
 ```bash
-$ helm upgrade artifactory-pro ./artifactory-pro
+$ helm upgrade artifactory-pro --namespace artifactory ./artifactory-pro
 ```
 
 This will apply any configuration changes on your existing deployment.
@@ -41,7 +41,7 @@ This will apply any configuration changes on your existing deployment.
 ### Customizing Database password
 You can override the specified database password (set in [artifactory-pro/values.yaml](artifactory-pro/values.yaml)), by passing it as a parameter in the install command line
 ```bash
-$ helm install -n artifactory-pro --set db_env.db_pass=12_hX34qwerQ2 ./artifactory-pro
+$ helm install -n artifactory-pro --namespace artifactory --set db_env.db_pass=12_hX34qwerQ2 ./artifactory-pro
 ```
 
 You can customise other parameters in the same way, by passing them on `helm install` command line.
@@ -69,7 +69,7 @@ $ helm package artifactory-pro/
 
 This will create a file `artifactory-pro-<version>.tgz`. You can deploy it to Kubernetes with
 ```bash
-$ helm install -n artifactory-pro ./artifactory-pro-<version>.tgz
+$ helm install -n artifactory-pro --namespace artifactory ./artifactory-pro-<version>.tgz
 ```
 
 
