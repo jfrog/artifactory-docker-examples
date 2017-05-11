@@ -1,4 +1,4 @@
-##Artifactory-lb installation guide for DC/OS
+## Artifactory-lb installation guide for DC/OS
 
 ## To set up Artifactory-lb in DC/OS following are prerequisites:
 1. **Running Artifactory**
@@ -34,7 +34,7 @@
 ##### Use pre populated API KEY in case you have changed artifactory password.
 ##### It needs port 5000-5010 open to use artifactory as docker registry.
 
-##Awesome!! now you can access artifactory UI by going to public ip of node where Artifactory-lb is running.
+## Awesome!! now you can access artifactory UI by going to public ip of node where Artifactory-lb is running.
 
 Here is how Artifactory UI looks like!!!
 ![Artifactory UI](images/Artifactory_UI.png)
@@ -43,7 +43,7 @@ Here is how Artifactory UI looks like!!!
 
 ## Steps to use artifactory as docker registry
 
-####Insecure
+### Insecure
 In case you'd like to run an insecure registry without using any TLS certificates, you can configure the nodes in your DC/OS cluster to work without certificates or security.
 
 This basically tells the Docker engine in each node to entirely disregard security for your registry. While this is relatively easy to configure the daemon in this way, it is very insecure. It does expose your registry to trivial MITM. Only use this solution for isolated testing or in a tightly controlled, air-gapped environment.
@@ -61,11 +61,11 @@ sudo systemctl daemon-reload
 sudo systemctl restart docker.service
 ```
 
-####Pull image from local registry
+### Pull image from local registry
 
 The Docker registry at `artifactory-lb.marathon.mesos:5001` is now available for use in your Marathon applications. It can be used to launch applications from the GUI or the CLI interfaces.
 
-#### From the Marathon UI
+### From the Marathon UI
 
 Simply use ```artifactory-lb.marathon.mesos:5001``` as a prefix in the `Container Settings`/`Container Image` field of the `Services` form:
 
@@ -80,7 +80,7 @@ Check cached image in Artifactory UI
 ![Usage: Cached Image in Artifactory](images/artifactory_cache.png)
 
 
-##### From the CLI
+#### From the CLI
 
 Check that your DC/OS CLI is connected properly to the DC/OS cluster:
 

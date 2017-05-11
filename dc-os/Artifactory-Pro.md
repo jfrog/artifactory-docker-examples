@@ -1,4 +1,4 @@
-##Artifactory-Pro installation guide for DC/OS
+## Artifactory-Pro installation guide for DC/OS
 
 ## To set up Artifactory HA in DC/OS following are prerequisites:
 1. **Database (MySQL)**
@@ -45,16 +45,16 @@
 }
 ```
 
-####NOTE: Make sure you provide your Artifactory-Pro/Enterprise trial license in json file.
+#### NOTE: Make sure you provide your Artifactory-Pro/Enterprise trial license in json file.
 
 2. Run command to install Artifactory Pro ```dcos package install --options=artifactory-pro-option.json artifactory```
 
 3. Make sure Artifactory is running and its healthy by looking at Marathon UI.
 
-##NOW you are just one step away from accessing Artifactory
+## NOW you are just one step away from accessing Artifactory
 
 4. [Install Artifactory-lb by following this guide to access artifactory](install-artifactory-lb.md)
 
 ---
 
-####To learn more about DC/OS go to the [official DC/OS website](https://dcos.io/)
+#### To learn more about DC/OS go to the [official DC/OS website](https://dcos.io/)

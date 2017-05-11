@@ -1,4 +1,4 @@
-##Steps to build Artifactory HA docker image for DC/OS:
+## Steps to build Artifactory HA docker image for DC/OS:
 
 1. Create `files` directory inside HA directory and copy all contents form  [files](../../files) to it.
 
@@ -10,7 +10,7 @@
 
 ---
 
-##Steps to build Artifactory Pro docker images:
+## Steps to build Artifactory Pro docker images:
 
 1. Build docker image using docker build command.
     e.g ```docker build -t jfrog/artifactory-dcos:pro .```
