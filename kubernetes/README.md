@@ -178,8 +178,12 @@ $ CLUSTER_IP="$(kubectl cluster-info | grep master | cut -d'/' -f3 | cut -d':' -
 $ ART_NODE1_SERVICE_PORT=$(kubectl get services artifactory-node1 | grep artifactory-node1 | awk '{print $4}' | cut -d':' -f2 | cut -d'/' -f1)
 $ ART_NODE1_POD_NAME=$(kubectl get pods | grep node1 | cut -d' ' -f1)
 $ ART_NODE2_POD_NAME=$(kubectl get pods | grep node2 | cut -d' ' -f1)
+
+# Echo the URL for node 1
+$ echo http://${CLUSTER_IP}:${ART_NODE1_SERVICE_PORT}/artifactory
 ```
-Connect to node 1 and complete the initial onboarding process:
+
+Copy URL from last echo's output and connect to node 1. Complete the initial onboarding process:
 - Browse to node 1: `http://${CLUSTER_IP}:${ART_NODE1_SERVICE_PORT}/artifactory`
 
 Then install a license and complete any additional steps you require (you can come back to this later).
