@@ -23,6 +23,9 @@ $ docker-compose -f <compose-file> <options>
 
 
 ### Docker Compose Control Commands
+**NOTE:** On Mac OS, you should omit the `sudo` from all your `docker-compose` commands
+
+
 - Start  
 ```bash
 $ sudo docker-compose -f <compose-file> up -d
@@ -90,8 +93,15 @@ Artifactory Pro and HA require some more setup due to the built in support for s
 
 ### Artifactory Pro with PostgreSQL and Nginx for https support
 ```bash
+### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro.yml up -d
+
+### MacOS
+$ ./prepareHostEnv.sh -t pro -c
+$ sed -ie "s,/data/,~/.artifactory/,g" artifactory-pro.yml
+$ docker-compose -f artifactory-pro.yml up -d
+
 ```  
 
 This example starts the following containers
@@ -105,8 +115,14 @@ This example starts the following containers
 
 ### Artifactory Pro with PostgreSQL only 
 ```bash
+### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-postgresql.yml up -d
+
+### Mac OS
+$ ./prepareHostEnv.sh -t pro -c
+$ sed -ie "s,/data/,~/.artifactory/,g" artifactory-pro-postgresql.yml
+$ docker-compose -f artifactory-pro-postgresql.yml up -d
 ```  
 
 This example starts the following containers
@@ -119,8 +135,14 @@ Artifactory uses the PostgreSQL database running in another container.
 
 ### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
 ```bash
+### Linux
 $ sudo ./prepareHostEnv.sh -t ha -c
 $ sudo docker-compose -f artifactory-ha.yml up -d
+
+### Mac OS
+$ ./prepareHostEnv.sh -t ha -c
+$ sed -ie "s,/data/,~/.artifactory/,g" artifactory-ha.yml
+$ docker-compose -f artifactory-ha.yml up -d
 ```  
 
 This example starts the following containers
@@ -139,8 +161,14 @@ In this example, the HA nodes use their local storage and sync data between the 
 
 ### Artifactory HA with PostgreSQL and Nginx for load balancing and https support with shared data storage (NFS)
 ```bash
+### Linux
 $ sudo ./prepareHostEnv.sh -t ha-shared-data -c
 $ sudo docker-compose -f artifactory-ha-shared-data.yml up -d
+
+### Mac OS
+$ ./prepareHostEnv.sh -t ha-shared-data -c
+$ sed -ie "s,/data/,~/.artifactory/,g" artifactory-ha-shared-data.yml
+$ docker-compose -f artifactory-ha-shared-data.yml up -d
 ```
 
 This example starts the following containers
