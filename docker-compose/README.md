@@ -99,7 +99,7 @@ $ sudo docker-compose -f artifactory-pro.yml up -d
 
 ### OSX
 $ ./prepareHostEnv.sh -t pro -c
-$ sed -ie "s,/data/,~/.artifactory/,g" artifactory-pro.yml
+$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-pro.yml
 $ docker-compose -f artifactory-pro.yml up -d
 
 ```  
@@ -121,7 +121,7 @@ $ sudo docker-compose -f artifactory-pro-postgresql.yml up -d
 
 ### OSX
 $ ./prepareHostEnv.sh -t pro -c
-$ sed -ie "s,/data/,~/.artifactory/,g" artifactory-pro-postgresql.yml
+$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-pro-postgresql.yml
 $ docker-compose -f artifactory-pro-postgresql.yml up -d
 ```  
 
@@ -141,7 +141,7 @@ $ sudo docker-compose -f artifactory-ha.yml up -d
 
 ### OSX
 $ ./prepareHostEnv.sh -t ha -c
-$ sed -ie "s,/data/,~/.artifactory/,g" artifactory-ha.yml
+$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-ha.yml
 $ docker-compose -f artifactory-ha.yml up -d
 ```  
 
@@ -168,7 +168,7 @@ $ sudo docker-compose -f artifactory-ha-shared-data.yml up -d
 
 ### OSX
 $ ./prepareHostEnv.sh -t ha-shared-data -c
-$ sed -ie "s,/data/,~/.artifactory/,g" artifactory-ha-shared-data.yml
+$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-ha-shared-data.yml
 $ docker-compose -f artifactory-ha-shared-data.yml up -d
 ```
 
