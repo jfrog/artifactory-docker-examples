@@ -70,7 +70,7 @@ Get the usage by running it with `-h`
 ```bash
 sudo ./prepareHostEnv.sh -h
 ```
-After executing the script, the needed set of data directories for Artifactory Pro or HA will be created under **/data** (on Mac it defaults to **~/.artifactory**).  
+After executing the script, the needed set of data directories for Artifactory Pro or HA will be created under **/data** (on Mac it defaults to **~/.jfrog**).  
 
 ---
 ### Database Driver
