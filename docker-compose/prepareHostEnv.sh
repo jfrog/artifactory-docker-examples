@@ -6,7 +6,7 @@
 SCRIPT_DIR=$(dirname $0)
 DEFAULT_ROOT_DATA_DIR=/data
 LINUX_ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
-MAC_DEFAULT_ROOT_DATA_DIR=~/.artifactory
+MAC_DEFAULT_ROOT_DATA_DIR=~/.jfrog/artifactory
 
 errorExit () {
     echo; echo "ERROR: $1"; echo
@@ -48,7 +48,7 @@ setOS () {
         errorExit "This script can run on Mac or Linux only!"
     fi
 
-    # On Mac, set DEFAULT_ROOT_DATA_DIR to ~/.artifactory
+    # On Mac, set DEFAULT_ROOT_DATA_DIR to ~/.jfrog/artifactory
     if [ "$OS_TYPE" == "Darwin" ]; then
         echo "On Mac. Setting DEFAULT_ROOT_DATA_DIR to $MAC_DEFAULT_ROOT_DATA_DIR"
         DEFAULT_ROOT_DATA_DIR=${MAC_DEFAULT_ROOT_DATA_DIR}
