@@ -123,6 +123,7 @@ Artifactory uses the PostgreSQL database running in another container.
 
 ### Artifactory Pro with Derby and Nginx for https support
 ```bash
+$ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-nginx-derby.yml up -d
 ```  
 
