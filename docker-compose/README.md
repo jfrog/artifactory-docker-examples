@@ -133,6 +133,21 @@ This example starts the following containers
 Artifactory uses the PostgreSQL database running in another container.
 
 
+### Artifactory Pro with Derby and Nginx for https support
+```bash
+$ sudo ./prepareHostEnv.sh -t pro -c
+$ sudo docker-compose -f artifactory-pro-nginx-derby.yml up -d
+```  
+
+This example starts the following containers
+
+- Nginx exposed on ports 80 and 443
+  - You can disable port 80 in Nginx's configuration files
+  - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
+- Artifactory Pro exposed on port 8081  
+
+Artifactory uses the Derby database at it container.
+
 ### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
 ```bash
 ### Linux
