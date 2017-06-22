@@ -1,7 +1,7 @@
 version: '2'
 services:
   artifactory:
-    image: docker.bintray.io/jfrog/artifactory-pro:5.4.0
+    image: docker.bintray.io/jfrog/artifactory-pro:5.4.1
     container_name: artifactory
     ports:
      - 8081:8081
@@ -9,7 +9,7 @@ services:
      - /data/artifactory:/var/opt/jfrog/artifactory
     restart: always
   nginx:
-    image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.4.0
+    image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.4.1
     container_name: nginx
     ports:
      - 80:80
