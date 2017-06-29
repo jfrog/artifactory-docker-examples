@@ -15,12 +15,6 @@ See details in the official [Swarm](https://docs.docker.com/engine/swarm/) docum
 
 ## Artifactory Pro with PostgreSQL and Nginx for https support
 
-	$ sudo ./prepareHostEnv.sh -t pro -c
+	$ sudo ../docker-compose/prepareHostEnv.sh -t pro -c
     $ sudo docker swarm init
-    $ docker stack deploy -c artifactory-pro.yml artifactory  
-    
-  
-    
-
-
-
+    $ docker stack deploy -c artifactory-pro.yml artifactory
