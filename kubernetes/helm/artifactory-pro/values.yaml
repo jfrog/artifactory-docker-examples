@@ -35,7 +35,7 @@ art_name: artifactory
 art_replicaCount: 1
 art_image:
   repository: docker.bintray.io/jfrog/artifactory-pro
-  version: 5.4.1
+  version: 5.4.2
 art_service:
   name: artifactory
   type: ClusterIP
@@ -52,7 +52,7 @@ nx_name: nginx
 nx_replicaCount: 1
 nx_image:
   repository: docker.bintray.io/jfrog/nginx-artifactory-pro
-  version: 5.4.1
+  version: 5.4.2
 nx_service:
   name: nginx
   type: LoadBalancer
