@@ -13,6 +13,10 @@ services:
     volumes:
      - /data/postgresql:/var/lib/postgresql/data
     restart: always
+	ulimit:
+		nproc:65535
+			soft:20000
+			hard:40000
   artifactory:
     image: docker.bintray.io/jfrog/artifactory-pro:5.4.2
     container_name: artifactory
@@ -32,6 +36,10 @@ services:
      # Add extra Java options by uncommenting the following line
      #- EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always
+	ulimit:
+		nproc:65535
+			soft:20000
+			hard:40000
   nginx:
     image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.4.2
     container_name: nginx
@@ -48,3 +56,7 @@ services:
      - ART_BASE_URL=http://artifactory:8081/artifactory
      - SSL=true
     restart: always
+	ulimit:
+		nproc:65535
+			soft:20000
+			hard:40000
