@@ -14,10 +14,10 @@ services:
      - /data/postgresql:/var/lib/postgresql/data
     restart: always
     ulimits:
-        nproc: 65535
-        nofile:
-            soft: 20000
-            hard: 40000
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
   artifactory:
     image: docker.bintray.io/jfrog/artifactory-oss:5.4.2
     container_name: artifactory
@@ -38,7 +38,7 @@ services:
      #- EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always
     ulimits:
-        nproc: 65535
-        nofile:
-            soft: 20000
-            hard: 40000
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000

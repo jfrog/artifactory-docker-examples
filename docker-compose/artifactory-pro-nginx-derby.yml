@@ -9,10 +9,10 @@ services:
      - /data/artifactory:/var/opt/jfrog/artifactory
     restart: always
     ulimits:
-        nproc: 65535
-        nofile:
-            soft: 20000
-            hard: 40000
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
   nginx:
     image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.4.2
     container_name: nginx
@@ -30,7 +30,7 @@ services:
      - SSL=true
     restart: always
     ulimits:
-        nproc: 65535
-        nofile:
-            soft: 20000
-            hard: 40000
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
