@@ -16,7 +16,7 @@ services:
     ulimits:
       nproc: 65535
       nofile:
-        soft: 20000
+        soft: 32000
         hard: 40000
   artifactory:
     image: docker.bintray.io/jfrog/artifactory-pro:5.4.2
@@ -40,5 +40,5 @@ services:
     ulimits:
       nproc: 65535
       nofile:
-        soft: 20000
+        soft: 32000
         hard: 40000
