@@ -11,3 +11,8 @@ services:
 #    environment:
 #     - EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000

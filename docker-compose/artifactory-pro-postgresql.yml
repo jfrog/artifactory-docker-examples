@@ -13,6 +13,11 @@ services:
     volumes:
      - /data/postgresql:/var/lib/postgresql/data
     restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
   artifactory:
     image: docker.bintray.io/jfrog/artifactory-pro:5.4.3
     container_name: artifactory
@@ -32,3 +37,8 @@ services:
      # Add extra Java options by uncommenting the following line
      #- EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
