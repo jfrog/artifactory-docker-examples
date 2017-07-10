@@ -1,6 +1,5 @@
 # Dockerfile for a primary node
-#FROM jfrog-int-docker-dockerv2.bintray.io/jfrog/artifactory-pro:5.0.0-rc4
-FROM jfrog-docker-reg2.bintray.io/jfrog/artifactory-pro:5.1.0
+FROM docker.bintray.io/jfrog/artifactory-pro:5.4.4
 
 MAINTAINER jainishs@jfrog.com
 
@@ -17,7 +16,6 @@ COPY run.sh /runArtifactory.sh
 
 # Still needed ?
 COPY server.xml /opt/jfrog/artifactory/tomcat/conf/server.xml
-COPY files/plugins/internalUser.groovy /tmp/internalUser.groovy
 
 # This should be mapped to a shared NFS mounted on the host
 EXPOSE 8081 10042

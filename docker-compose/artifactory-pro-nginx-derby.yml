@@ -1,0 +1,36 @@
+version: '2'
+services:
+  artifactory:
+    image: docker.bintray.io/jfrog/artifactory-pro:5.4.4
+    container_name: artifactory
+    ports:
+     - 8081:8081
+    volumes:
+     - /data/artifactory:/var/opt/jfrog/artifactory
+    restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
+  nginx:
+    image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.4.4
+    container_name: nginx
+    ports:
+     - 80:80
+     - 443:443
+    depends_on:
+     - artifactory
+    links:
+     - artifactory
+    volumes:
+     - /data/nginx:/var/opt/jfrog/nginx
+    environment:
+     - ART_BASE_URL=http://artifactory:8081/artifactory
+     - SSL=true
+    restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000

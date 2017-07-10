@@ -39,11 +39,6 @@ setPorts() {
 function setInitialConfiguration {
     echo "Setting initial configuration"
 
-    if [ ! -d /var/opt/jfrog/artifactory/etc/plugins ]; then
-        mkdir -p /var/opt/jfrog/artifactory/etc/plugins
-        cp -f /tmp/internalUser.groovy /var/opt/jfrog/artifactory/etc/plugins/internalUser.groovy
-    fi
-
      # Artifactory's external server name
     : ${ART_SERVER_NAME:=artifactory-cluster}
     # Artifactory's port method, default to PORTPERREPO (can be SUBDOMAIN)

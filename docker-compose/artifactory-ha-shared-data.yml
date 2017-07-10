@@ -13,8 +13,13 @@ services:
     volumes:
      - /data/postgresql:/var/lib/postgresql/data
     restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
   artifactory-node1:
-    image: docker.bintray.io/jfrog/artifactory-pro:5.1.4
+    image: docker.bintray.io/jfrog/artifactory-pro:5.4.4
     container_name: artifactory-node1
     ports:
      - 8081:8081
@@ -26,8 +31,6 @@ services:
      - /data/artifactory/node1:/var/opt/jfrog/artifactory
      - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
      - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
-    # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
-     - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
     environment:
      - HA_IS_PRIMARY=true
      - HA_DATA_DIR=/var/opt/jfrog/artifactory-ha
@@ -40,8 +43,13 @@ services:
      # Add extra Java options by uncommenting the following line
      #- EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
   artifactory-node2:
-    image: docker.bintray.io/jfrog/artifactory-pro:5.1.4
+    image: docker.bintray.io/jfrog/artifactory-pro:5.4.4
     container_name: artifactory-node2
     ports:
      - 8082:8081
@@ -56,8 +64,6 @@ services:
      - /data/artifactory/node2:/var/opt/jfrog/artifactory
      - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
      - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
-    # Mount the postgresql driver. Make sure to have it in your local path (~/postgresql-9.4.1212.jar)
-     - ~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar
     environment:
      - HA_IS_PRIMARY=false
      - HA_DATA_DIR=/var/opt/jfrog/artifactory-ha
@@ -70,8 +76,13 @@ services:
      # Add extra Java options by uncommenting the following line
      #- EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
   nginx:
-    image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.1.4
+    image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.4.4
     container_name: nginx
     ports:
      - 80:80
@@ -88,3 +99,8 @@ services:
      - ART_BASE_URL=http://artifactory-node1:8081/artifactory
      - SSL=true
     restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000

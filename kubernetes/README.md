@@ -5,19 +5,20 @@ This directory has some examples for setting up Artifactory running in a Kuberne
 Kubernetes is an open-source system for orchestrating containerized applications. To learn more about Kubernetes, see details in the [Kubernetes](https://kubernetes.io/docs/) documentation.  
 This page assumes you have prior knowledge of Kubernetes and have a working cluster to deploy in.
 
+## Helm - a package manager for Kubernetes
+The recommended way to deploy your applications to Kubernetes is using [Helm](https://helm.sh/) charts (packages).  
+Artifactory Pro can be deployed and managed by the [Helm](https://helm.sh/) package manager (also [supported by Artifactory](https://github.com/JFrogDev/artifactory-user-plugins/tree/master/helm/helmRepoSupport))  
+See the [helm](helm) directory for an example and usage. 
+
 ## Kubectl
-The examples are defines and deployed using the `kubectl` command line tool. See more details in the [kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) documentation.  
+The examples here are defines and deployed using the `kubectl` command line tool. See more details in the [kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) documentation.  
 Also see a useful [cheat sheet](https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/) with a good summary of the useful commands and usage.
 
-In these examples Kubernetes objects are defines as Yaml files, so applying them is very easy
-```bash
-$ kubectl create -f artifactory.yml
-``` 
-This will create the object(s) defined in artifactory.yml in your Kubernetes cluster.
+In these examples Kubernetes objects are defines as Yaml files, so applying them is a simple call to `kubectl create`
   
 --- 
 ## Persistent Storage
-For persistent storage, all volumes are mounted from the cluster's hosts.  
+For persistent storage, all volumes are mounted from the cluster's hosts or as Google disks.  
 **NOTE:** The examples here use a simple [PersistentVolume](https://kubernetes.io/docs/user-guide/persistent-volumes/) and 
 [PersistentVolumeClaim](https://kubernetes.io/docs/user-guide/persistent-volumes/) for example purposes. This setup should **NOT** be used for production! 
 You should find your best matching [storage solution](https://kubernetes.io/docs/user-guide/volumes/) and use it.
@@ -27,22 +28,18 @@ You should find your best matching [storage solution](https://kubernetes.io/docs
 The databases used in these examples are PostgreSQL and MySQL.  
 For Artifactory to communicate with the database, it needs the database driver in its Tomcat's lib directory.  
 
-For this, you should build your own Artifactory Docker image using the Dockerfiles in this directory that already adds the driver.  
+Artifactory Docker image comes with the PostgreSQL driver pre-loaded.
+
+For MySQL, you should build your own Artifactory Docker image using the `Dockerfile.mysql` in this directory that already adds the driver.  
 To build the image
 ```bash
-# PostgreSQL
-$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-postgresql:<version> -f Dockerfile.postgresql .
-
-# MySQL
-$ docker build -t <your-docker-reg>/jfrog/artifactory-pro-mysql:<version> -f Dockerfile.mysql .
+# For MySQL
+$ docker build -t ${YOUR_DOCKER_REGISTRY}/jfrog/artifactory-pro-mysql:${VERSION} -f Dockerfile.mysql .
 ```
-This will build an image of artifactory-pro that includes the PostgreSQL or MySQL driver in it. Make sure to push it into your registry
+This will build an image of artifactory-pro that includes the MySQL driver in it. Make sure to push it into your registry
 ```bash
-# PostgreSQL
-$ docker push <your-docker-reg>/jfrog/artifactory-pro-postgresql:<version>
-
-# MySQL
-$ docker push <your-docker-reg>/jfrog/artifactory-pro-mysql:<version>
+# For MySQL
+$ docker push ${YOUR_DOCKER_REGISTRY}/jfrog/artifactory-pro-mysql:${VERSION}
 ```
 And edit the artifactory-service.yml to use this image.
 
@@ -53,40 +50,24 @@ Artifactory can run with other databases. For more details on supported database
 ## Deploying your Artifactory to Kubernetes
 The following describes the steps to do the actual deployment of the Artifactory and its services to Kubernetes.
 
-
 ### Preparing Resources
 Need to create some resources that will be used by Nginx as SSL and Artifactory reverse proxy configuration
 
 #### Docker registry secret
 In case you built your own Artifactory image and pushed it to your private registry as suggested above, you might need to define a docker-registry secret to be used by Kubernetes to pull images
 ```bash
-$ kubectl create secret docker-registry docker-reg-secret --docker-server=<your-docker-reg> --docker-username=${USER} --docker-password=${PASSWORD} --docker-email=you@domain.com
+$ kubectl create secret docker-registry docker-reg-secret --docker-server=${YOUR_DOCKER_REGISTRY} --docker-username=${USER} --docker-password=${PASSWORD} --docker-email=you@domain.com
 ```
-
 #### SSL secret
-Create the SSL secret that will be used by Nginx's container  
+Create the SSL secret that will be used by the Nginx pod  
 **NOTE:** These are self signed key and certificate for demo use only!
 ```bash
 $ kubectl create secret tls art-tls --cert=../files/nginx/ssl/demo.pem --key=../files/nginx/ssl/demo.key
 ```
 You can replace the key and certificate with your own files
 ```bash
-$ kubectl create secret tls art-tls --cert=<path_to>/myssl.pem --key=<path_to>/myssl.key
+$ kubectl create secret tls art-tls --cert=${PATH_TO_CERT}/myssl.pem --key=${PATH_TO_CERT}/myssl.key
 ```
-
-#### Artifactory Nginx configuration
-Create a Kubernetes ConfigMap from artifactory.conf
-
-**Artifactory Pro**
-```bash
-$ kubectl create configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/pro/artifactory.conf
-```
-
-**Artifactory HA**
-```bash
-$ kubectl create configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/ha/artifactory.conf
-```
-
 
 ### Deploying the applications
 Now you are ready to create the applications in Kubernetes.  
@@ -100,14 +81,14 @@ Note that the resources to use are already defined in the Yaml files.
 **NOTE:** If running on [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/), you will need to deploy a simpler service (NodePort). See the differences in the code examples below.
 
 ### Artifactory Pro
-#### Database
+#### Database (using PostgreSQL)
 ```bash
 # PostgreSQL storage, pods and service
 $ kubectl create -f postgresql-storage.yml
 $ kubectl create -f postgresql-service.yml
 ```
 
-#### Artifactory Pro
+#### Artifactory
 ```bash
 # Artifactory storage, pods and service
 $ kubectl create -f artifactory-storage.yml
@@ -116,6 +97,9 @@ $ kubectl create -f artifactory-service.yml
 
 #### Nginx
 ```bash
+# Configuration
+$ kubectl create configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/pro/artifactory.conf
+
 # Nginx storage and deployment
 $ kubectl create -f nginx-storage.yml
 $ kubectl create -f nginx-deployment.yml
@@ -126,7 +110,6 @@ $ kubectl create -f nginx-service.yml
 
 # If running on Minikube
 $ kubectl create -f nginx-service-minikube.yml
-
 ```
 
 Once done, you should be able to see the deployed pods and services
@@ -159,7 +142,7 @@ postgresql-k8s-service   10.0.0.165   <none>        5432/TCP                    
 
 ---
 ### Artifactory HA
-#### Database
+#### Database (using MySQL)
 ```bash
 $ kubectl create -f mysql-storage.yml
 $ kubectl create -f mysql-service.yml
@@ -187,23 +170,47 @@ $ kubectl create -f artifactory-ha-node2.yml
 ```
 
 #### Joining node 2 to the HA cluster
-Once node 1 start, you need to prepare the configuration to pass to node 2 in order for it to join the cluster.  
-You can see more details in [Artifactory HA setup](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup).  
-The following steps need to completed before node 2 can join the cluster
-- Connect to node 1 and complete the initial onboarding process
-  - Use `kubectl get services` to get the `art_node1_service_ip`
-  - Open a web browser to `http://<cluster_ip>:<art_node1_service_ip>/artifactory`
-  - Install a license
-  - Complete any additional steps you require (you can come back to this later)
-- Create a [bootstrap bundle](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup#HAInstallationandSetup-CreatingtheBootstrapBundle) in node 1 to be copied over to node 2
-  - `curl -XPOST -uadmin:password http://<cluster_ip>:<art_node1_service_ip>/artifactory/api/system/bootstrap_bundle`
-  - This will place the `bootstrap.bundle.tar.gz` under node 1's ARTIFACTORY_HOME/etc directory
-- Copy the `bootstrap.bundle.tar.gz` into node 2's ARTIFACTORY_HOME/etc
-  - Node 2 will detect it and continue its automatic setup and joining to the cluster
+Once node 1 starts you need to prepare the configuration that node 2 will use to join the cluster. You can see more details in [Artifactory HA setup](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup).  
+
+Begin by obtaining the cluster's ip, the names of pods 1 and 2, and node the following to obtain the necessary variables for the process:
+```bash
+$ CLUSTER_IP="$(kubectl cluster-info | grep master | cut -d'/' -f3 | cut -d':' -f1)"
+$ ART_NODE1_SERVICE_PORT=$(kubectl get services artifactory-node1 | grep artifactory-node1 | awk '{print $4}' | cut -d':' -f2 | cut -d'/' -f1)
+$ ART_NODE1_POD_NAME=$(kubectl get pods | grep node1 | cut -d' ' -f1)
+$ ART_NODE2_POD_NAME=$(kubectl get pods | grep node2 | cut -d' ' -f1)
+
+# Echo the URL for node 1
+$ echo http://${CLUSTER_IP}:${ART_NODE1_SERVICE_PORT}/artifactory
+```
+
+Copy URL from last echo's output and connect to node 1. Complete the initial onboarding process:
+- Browse to node 1: `http://${CLUSTER_IP}:${ART_NODE1_SERVICE_PORT}/artifactory`
+
+Then install a license and complete any additional steps you require (you can come back to this later).
+
+Once complete, create a [bootstrap bundle](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup#HAInstallationandSetup-CreatingtheBootstrapBundle) in node 1 to be copied over to node 2.  
+The following will create the `bootstrap.bundle.tar.gz` under node 1's ARTIFACTORY_HOME/etc directory:
+```bash
+$ curl -XPOST -uadmin:password "http://${CLUSTER_IP}:${ART_NODE1_SERVICE_PORT}/artifactory/api/system/bootstrap_bundle"
+```
+
+Copy the `bootstrap.bundle.tar.gz` into node 2's ARTIFACTORY_HOME/etc:
+```bash
+# Copy bundle from node 1 to host
+$ kubectl cp "default/${ART_NODE1_POD_NAME}:opt/jfrog/artifactory/etc/bootstrap.bundle.tar.gz" bootstrap.bundle.tar.gz
+
+# Copy bundle from host to node 2
+$ kubectl cp bootstrap.bundle.tar.gz "default/${ART_NODE2_POD_NAME}:/opt/jfrog/artifactory/etc/bootstrap.bundle.tar.gz"
+```
+
+Node 2 will detect it, continue its automatic setup, and join the cluster.
 
 
 #### Nginx
 ```bash
+# Configuration
+$ kubectl create configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/ha/artifactory.conf
+
 # Storage and deployment
 $ kubectl create -f nginx-storage.yml
 $ kubectl create -f nginx-deployment.yml
@@ -214,7 +221,6 @@ $ kubectl create -f nginx-service.yml
 
 # If running on Minikube
 $ kubectl create -f nginx-service-minikube.yml
-
 ```
 
 Once done, you should be able to see the deployed pods and services

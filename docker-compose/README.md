@@ -23,6 +23,9 @@ $ docker-compose -f <compose-file> <options>
 
 
 ### Docker Compose Control Commands
+**NOTE:** On **OSX**, you should omit the `sudo` from all your `docker-compose` commands
+
+
 - Start  
 ```bash
 $ sudo docker-compose -f <compose-file> up -d
@@ -71,12 +74,8 @@ After executing the script, the needed set of data directories for Artifactory P
 
 ---
 ### Database Driver
-The database used in these examples is PostgreSQL. For Artifactory to communicate with the database, it needs the
-database driver mounted into its Tomcat's lib directory.  
-You need to download the PostgreSQL driver (jar file) from [PostgreSQL download page](https://jdbc.postgresql.org/download.html) to your home directory.  
-Direct link to driver: [https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar](https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar)  
-In all examples using PostgreSQL, the file is mounted like this:  
-`~/postgresql-9.4.1212.jar:/opt/jfrog/artifactory/tomcat/lib/postgresql-9.4.1212.jar`
+The database used in these examples is PostgreSQL.  
+The PostgreSQL database driver comes pre-loaded into the Artifactory Docker image, but you can still use other databases without any conflicts. 
 
 #### Using Different Databases
 Artifactory can run with other databases. For more details on supported databases and how to set them up for use with Artifactory, please refer to [Changing the Database](https://www.jfrog.com/confluence/display/RTF/Changing+the+Database) in the JFrog Artifactory Use Guide.
@@ -94,8 +93,15 @@ Artifactory Pro and HA require some more setup due to the built in support for s
 
 ### Artifactory Pro with PostgreSQL and Nginx for https support
 ```bash
+### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro.yml up -d
+
+### OSX
+$ ./prepareHostEnv.sh -t pro -c
+$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-pro.yml
+$ docker-compose -f artifactory-pro.yml up -d
+
 ```  
 
 This example starts the following containers
@@ -109,8 +115,14 @@ This example starts the following containers
 
 ### Artifactory Pro with PostgreSQL only 
 ```bash
+### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-postgresql.yml up -d
+
+### OSX
+$ ./prepareHostEnv.sh -t pro -c
+$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-pro-postgresql.yml
+$ docker-compose -f artifactory-pro-postgresql.yml up -d
 ```  
 
 This example starts the following containers
@@ -121,10 +133,31 @@ This example starts the following containers
 Artifactory uses the PostgreSQL database running in another container.
 
 
+### Artifactory Pro with Derby and Nginx for https support
+```bash
+$ sudo ./prepareHostEnv.sh -t pro -c
+$ sudo docker-compose -f artifactory-pro-nginx-derby.yml up -d
+```  
+
+This example starts the following containers
+
+- Nginx exposed on ports 80 and 443
+  - You can disable port 80 in Nginx's configuration files
+  - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
+- Artifactory Pro exposed on port 8081  
+
+Artifactory uses the Derby database at it container.
+
 ### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
 ```bash
+### Linux
 $ sudo ./prepareHostEnv.sh -t ha -c
 $ sudo docker-compose -f artifactory-ha.yml up -d
+
+### OSX
+$ ./prepareHostEnv.sh -t ha -c
+$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-ha.yml
+$ docker-compose -f artifactory-ha.yml up -d
 ```  
 
 This example starts the following containers
@@ -138,13 +171,20 @@ This example starts the following containers
 - PostgreSQL database serving Artifactory  
 
 Artifactory data is stored on a binary store provider and no shared NFS is needed.  
-I this example, the HA nodes use their local storage and sync data between the nodes. 
+In this example, the HA nodes use their local storage and sync data between the nodes. 
 
+**NOTE:** You must complete the onboarding process to have a fully functional Artifactory HA cluster!
 
 ### Artifactory HA with PostgreSQL and Nginx for load balancing and https support with shared data storage (NFS)
 ```bash
+### Linux
 $ sudo ./prepareHostEnv.sh -t ha-shared-data -c
 $ sudo docker-compose -f artifactory-ha-shared-data.yml up -d
+
+### OSX
+$ ./prepareHostEnv.sh -t ha-shared-data -c
+$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-ha-shared-data.yml
+$ docker-compose -f artifactory-ha-shared-data.yml up -d
 ```
 
 This example starts the following containers
@@ -158,6 +198,8 @@ This example starts the following containers
 - PostgreSQL database serving Artifactory
 
 Artifactory data is shared on a common NFS mount.
+
+**NOTE:** You must complete the onboarding process to have a fully functional Artifactory HA cluster!
 
 
 ---

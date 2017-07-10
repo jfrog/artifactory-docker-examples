@@ -1,7 +1,7 @@
 version: '2'
 services:
   artifactory:
-    image: docker.bintray.io/jfrog/artifactory-oss:5.1.4
+    image: docker.bintray.io/jfrog/artifactory-oss:5.4.4
     container_name: artifactory
     ports:
      - 80:8081
@@ -11,3 +11,8 @@ services:
 #    environment:
 #     - EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 32000
+        hard: 40000
