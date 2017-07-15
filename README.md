@@ -10,5 +10,6 @@ To learn more about Docker and how to set it up, please refer to the [Docker](ht
 ## Examples
 The following examples are available
 - [Docker compose](docker-compose)
+- [Docker Swarm](swarm)
 - [Kubernetes](kubernetes)
 - [DC/OS](dc-os)
