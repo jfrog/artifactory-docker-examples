@@ -9,6 +9,17 @@ spec:
       labels:
         app: postgresql-k8s
         group: artifactory-k8s-demo
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[{
+          "name": "remove-lost-found",
+          "image": "busybox:1.26.2",
+          "command": ["rm", "-rf", "/var/lib/postgresql/data/lost+found"],
+          "volumeMounts": [{
+              "name": "postgresql-volume",
+              "mountPath": "/var/lib/postgresql/data"
+            }],
+          "imagePullPolicy": "IfNotPresent"
+        }]'
     spec:
       containers:
       - name: postgresql-k8s

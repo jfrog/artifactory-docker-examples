@@ -14,7 +14,7 @@ See the [helm](helm) directory for an example and usage.
 The examples here are defines and deployed using the `kubectl` command line tool. See more details in the [kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) documentation.  
 Also see a useful [cheat sheet](https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/) with a good summary of the useful commands and usage.
 
-In these examples Kubernetes objects are defines as Yaml files, so applying them is a simple call to `kubectl create`
+In these examples Kubernetes objects are defines as Yaml files, so applying them is a simple call to `kubectl apply` or `kubectl create`.
   
 --- 
 ## Persistent Storage
@@ -84,15 +84,15 @@ Note that the resources to use are already defined in the Yaml files.
 #### Database (using PostgreSQL)
 ```bash
 # PostgreSQL storage, pods and service
-$ kubectl create -f postgresql-storage.yml
-$ kubectl create -f postgresql-service.yml
+$ kubectl apply -f postgresql-storage.yml
+$ kubectl apply -f postgresql-service.yml
 ```
 
 #### Artifactory
 ```bash
 # Artifactory storage, pods and service
-$ kubectl create -f artifactory-storage.yml
-$ kubectl create -f artifactory-service.yml
+$ kubectl apply -f artifactory-storage.yml
+$ kubectl apply -f artifactory-service.yml
 ```
 
 #### Nginx
@@ -101,15 +101,15 @@ $ kubectl create -f artifactory-service.yml
 $ kubectl create configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/pro/artifactory.conf
 
 # Nginx storage and deployment
-$ kubectl create -f nginx-storage.yml
-$ kubectl create -f nginx-deployment.yml
+$ kubectl apply -f nginx-storage.yml
+$ kubectl apply -f nginx-deployment.yml
 
 # Nginx service
 # If running on a standard Kubernetes cluster
-$ kubectl create -f nginx-service.yml
+$ kubectl apply -f nginx-service.yml
 
 # If running on Minikube
-$ kubectl create -f nginx-service-minikube.yml
+$ kubectl apply -f nginx-service-minikube.yml
 ```
 
 Once done, you should be able to see the deployed pods and services
@@ -144,14 +144,14 @@ postgresql-k8s-service   10.0.0.165   <none>        5432/TCP                    
 ### Artifactory HA
 #### Database (using MySQL)
 ```bash
-$ kubectl create -f mysql-storage.yml
-$ kubectl create -f mysql-service.yml
+$ kubectl apply -f mysql-storage.yml
+$ kubectl apply -f mysql-service.yml
 ```
 
 #### Artifactory storage  
 Prepare 3 storage volumes.
 ```bash
-$ kubectl create -f artifactory-ha-storage.yml
+$ kubectl apply -f artifactory-ha-storage.yml
 ```
 
 
@@ -165,8 +165,8 @@ In our examples, we have an example [binarystore.xml](../files/binarystore.xml) 
 #### Artifactory HA nodes
 Spin up the two nodes.
 ```bash
-$ kubectl create -f artifactory-ha-node1.yml
-$ kubectl create -f artifactory-ha-node2.yml
+$ kubectl apply -f artifactory-ha-node1.yml
+$ kubectl apply -f artifactory-ha-node2.yml
 ```
 
 #### Joining node 2 to the HA cluster
@@ -209,18 +209,18 @@ Node 2 will detect it, continue its automatic setup, and join the cluster.
 #### Nginx
 ```bash
 # Configuration
-$ kubectl create configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/ha/artifactory.conf
+$ kubectl apply configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/ha/artifactory.conf
 
 # Storage and deployment
-$ kubectl create -f nginx-storage.yml
-$ kubectl create -f nginx-deployment.yml
+$ kubectl apply -f nginx-storage.yml
+$ kubectl apply -f nginx-deployment.yml
 
 # Service
 # If running on a standard Kubernetes cluster
-$ kubectl create -f nginx-service.yml
+$ kubectl apply -f nginx-service.yml
 
 # If running on Minikube
-$ kubectl create -f nginx-service-minikube.yml
+$ kubectl apply -f nginx-service-minikube.yml
 ```
 
 Once done, you should be able to see the deployed pods and services
