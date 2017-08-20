@@ -91,7 +91,7 @@ Below is a list of included examples. You are welcome to contribute.
 Artifactory Pro and HA require some more setup due to the built in support for simple and complex configurations.  
 
 
-### Artifactory Pro with PostgreSQL and Nginx for https support
+### Artifactory Pro with PostgreSQL and Nginx for Docker registry support
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
@@ -106,7 +106,7 @@ $ docker-compose -f artifactory-pro.yml up -d
 
 This example starts the following containers
 
-- Nginx exposed on ports 80 and 443
+- Nginx exposed on ports 80 (http) and 443 (https)
   - You can disable port 80 in Nginx's configuration files
   - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
 - Artifactory Pro exposed on port 8081
@@ -133,7 +133,7 @@ This example starts the following containers
 Artifactory uses the PostgreSQL database running in another container.
 
 
-### Artifactory Pro with Derby and Nginx for https support
+### Artifactory Pro with Derby and Nginx for Docker registry support
 ```bash
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-nginx-derby.yml up -d
@@ -141,14 +141,14 @@ $ sudo docker-compose -f artifactory-pro-nginx-derby.yml up -d
 
 This example starts the following containers
 
-- Nginx exposed on ports 80 and 443
+- Nginx exposed on ports 80 (http) and 443 (https)
   - You can disable port 80 in Nginx's configuration files
   - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
 - Artifactory Pro exposed on port 8081  
 
 Artifactory uses the Derby database at it container.
 
-### Artifactory HA with PostgreSQL and Nginx for load balancing and https support
+### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t ha -c
@@ -162,10 +162,10 @@ $ docker-compose -f artifactory-ha.yml up -d
 
 This example starts the following containers
 
-- Nginx exposed on ports 80 and 443
+- Nginx exposed on ports 80 (http) and 443 (https)
   - You can disable port 80 in Nginx's configuration files
   - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
-  - Nginx is configured to load balance the two Artifactory instances
+  - Nginx is configured to load balance between the two Artifactory instances
 - Artifactory primary exposed on port 8081 using its own data storage
 - Artifactory node exposed on port 8082 using its own data storage
 - PostgreSQL database serving Artifactory  
@@ -175,7 +175,7 @@ In this example, the HA nodes use their local storage and sync data between the 
 
 **NOTE:** You must complete the onboarding process to have a fully functional Artifactory HA cluster!
 
-### Artifactory HA with PostgreSQL and Nginx for load balancing and https support with shared data storage (NFS)
+### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support with shared data storage (NFS)
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t ha-shared-data -c
@@ -189,7 +189,7 @@ $ docker-compose -f artifactory-ha-shared-data.yml up -d
 
 This example starts the following containers
 
-- Nginx exposed on ports 80 and 443
+- Nginx exposed on ports 80 (http) and 443 (https)
   - You can disable port 80 in Nginx's configuration files
   - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
   - Nginx is configured to load balance the two Artifactory instances
