@@ -1,5 +1,7 @@
 version: '3'
+
 services:
+
   postgresql:
     image: docker.bintray.io/postgres:9.5.2
     ports:
@@ -9,12 +11,18 @@ services:
      # The following must match the DB_USER and DB_PASSWORD values passed to Artifactory
      - POSTGRES_USER=artifactory
      - POSTGRES_PASSWORD=password
-    volumes:
-     - /data/postgresql:/var/lib/postgresql/data
-    restart: always
+    #volumes:
+    # - artifactory:/var/lib/postgresql/data
     deploy:
       mode: replicated
       replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      placement:
+        constraints: [node.role != manager]
+
   artifactory:
     image: docker.bintray.io/jfrog/artifactory-pro:5.4.4
     ports:
@@ -24,10 +32,14 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-    links:
-     - postgresql
-    volumes:
-     - /data/artifactory:/var/opt/jfrog/artifactory
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      placement:
+        constraints: [node.role != manager]
+    #volumes:
+    # - artifactory:/var/opt/jfrog/artifactory
     environment:
      - DB_TYPE=postgresql
      # The following must match the POSTGRES_USER and POSTGRES_PASSWORD values passed to PostgreSQL
@@ -35,7 +47,7 @@ services:
      - DB_PASSWORD=password
      # Add extra Java options by uncommenting the following line
      #- EXTRA_JAVA_OPTIONS=-Xmx4g
-    restart: always
+
   nginx:
     image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.4.4
     ports:
@@ -46,11 +58,17 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-    links:
-     - artifactory
-    volumes:
-     - /data/nginx:/var/opt/jfrog/nginx
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      placement:
+        constraints: [node.role != manager]
+    #volumes:
+    # - artifactory:/var/opt/jfrog/nginx
     environment:
      - ART_BASE_URL=http://artifactory:8081/artifactory
      - SSL=true
-    restart: always
+
+#volumes:
+#  artifactory:
