@@ -12,7 +12,7 @@ In this example Artifactory Pro runs on one leader, meaning three images will ru
 A swarm is a cluster of one or more Docker Engines running in swarm mode.
 See details in the official [Swarm](https://docs.docker.com/engine/swarm/) documentation.
 
-## Artifactory Pro with PostgreSQL and Nginx for https support
+## Artifactory Pro with PostgreSQL and Nginx for Docker registry support
 
 ```bash
 $ sudo ../docker-compose/prepareHostEnv.sh -t pro -c
