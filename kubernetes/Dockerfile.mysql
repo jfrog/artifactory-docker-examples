@@ -1,4 +1,4 @@
-FROM docker.bintray.io/jfrog/artifactory-pro:5.4.6
+FROM docker.bintray.io/jfrog/artifactory-pro:5.5.0
 
 MAINTAINER eldada@jfrog.com
 
