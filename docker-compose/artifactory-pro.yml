@@ -19,7 +19,7 @@ services:
         soft: 32000
         hard: 40000
   artifactory:
-    image: docker.bintray.io/jfrog/artifactory-pro:5.5.1
+    image: docker.bintray.io/jfrog/artifactory-pro:5.5.2
     container_name: artifactory
     ports:
      - 8081:8081
@@ -43,7 +43,7 @@ services:
         soft: 32000
         hard: 40000
   nginx:
-    image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.5.1
+    image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.5.2
     container_name: nginx
     ports:
      - 80:80
