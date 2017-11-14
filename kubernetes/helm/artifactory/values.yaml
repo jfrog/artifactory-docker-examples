@@ -60,6 +60,7 @@ nginx:
   service:
     ## For minikube, set this to NodePort, elsewhere use LoadBalancer
     type: LoadBalancer
+    sourceRanges:
   externalPortHttp: 80
   internalPortHttp: 80
   externalPortHttps: 443

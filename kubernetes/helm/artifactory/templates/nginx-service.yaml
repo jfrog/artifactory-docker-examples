@@ -23,3 +23,9 @@ spec:
     app: {{ template "name" . }}
     component: "{{ .Values.nginx.name }}"
     release: {{ .Release.Name }}
+  {{- if .Values.nginx.service.sourceRanges }}
+  loadBalancerSourceRanges:
+  {{- range .Values.nginx.service.sourceRanges }}
+  - {{ . }}
+  {{- end }}
+  {{- end }}
