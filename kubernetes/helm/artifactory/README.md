@@ -88,6 +88,7 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `artifactory.persistence.accessMode` | Artifactory persistence volume access mode | `ReadWriteOnce`   |
 | `artifactory.persistence.size` | Artifactory persistence volume size | `20Gi`   |
 | `nginx.name` | Nginx name | `nginx`   |
+| `nginx.anotations` | Annotations to add to the nginx service | |
 | `nginx.replicaCount` | Nginx replica count | `1`   |
 | `nginx.image.repository`    | Container image                   | `docker.bintray.io/jfrog/nginx-artifactory-pro`                |
 | `nginx.image.pullPolicy`    | Container pull policy                   | `IfNotPresent`                |
@@ -103,6 +104,9 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `nginx.persistence.enabled` | Nginx persistence volume enabled | `true`   |
 | `nginx.persistence.accessMode` | Nginx persistence volume access mode | `ReadWriteOnce`   |
 | `nginx.persistence.size` | Nginx persistence volume size | `5Gi`   |
+| `nginx.service.sourceRanges` | Nginx source ranges for `LoadBalancer` | |
+| `serviceInternal.enable` | Wether to enable a second internal service for access inside kubernetes | `false` |
+| `serviceInternal.anotations` | Annotations for the internal service | |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
 
