@@ -8,6 +8,11 @@ metadata:
     component: "{{ .Values.nginx.name }}"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
+  annotations:
+    {{- if .Values.nginx.service.certificateArn }}
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ .Values.nginx.service.certificateArn }}
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
+    {{- end }}
 spec:
   type: {{ .Values.nginx.service.type }}
   ports:
@@ -23,3 +28,9 @@ spec:
     app: {{ template "name" . }}
     component: "{{ .Values.nginx.name }}"
     release: {{ .Release.Name }}
+  {{- if .Values.nginx.service.sourceRanges }}
+  loadBalancerSourceRanges:
+  {{- range .Values.nginx.service.sourceRanges }}
+  - {{ . }}
+  {{- end }}
+  {{- end }}

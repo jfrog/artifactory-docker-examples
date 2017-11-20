@@ -92,7 +92,9 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `nginx.image.repository`    | Container image                   | `docker.bintray.io/jfrog/nginx-artifactory-pro`                |
 | `nginx.image.pullPolicy`    | Container pull policy                   | `IfNotPresent`                |
 | `nginx.image.version`       | Container image tag               | `5.4.6`                                                  |
+| `nginx.service.sourceRanges` | The SSL certificate ARN to use for the load balancer TLS | |
 | `nginx.service.type`| Nginx service type | `LoadBalancer` |
+| `nginx.service.sourceRanges` | Nginx source ranges for `LoadBalancer` | |
 | `nginx.externalPortHttp` | Nginx service external port | `80`   |
 | `nginx.internalPortHttp` | Nginx service internal port | `80`   |
 | `nginx.externalPortHttps` | Nginx service external port | `443`   |
