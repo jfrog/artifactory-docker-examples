@@ -8,7 +8,7 @@ This page assumes you have prior knowledge of Kubernetes and have a working clus
 ## Helm - a package manager for Kubernetes
 The recommended way to deploy your applications to Kubernetes is using [Helm](https://helm.sh/) charts (packages).  
 Artifactory Pro can be deployed and managed by the [Helm](https://helm.sh/) package manager (also [supported by Artifactory](https://github.com/JFrogDev/artifactory-user-plugins/tree/master/helm/helmRepoSupport))  
-See the [helm](helm) directory for an example and usage. 
+See the [helm/artifactory](helm/artifactory) directory for an example and usage.
 
 ## Kubectl
 The examples here are defines and deployed using the `kubectl` command line tool. See more details in the [kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) documentation.  
