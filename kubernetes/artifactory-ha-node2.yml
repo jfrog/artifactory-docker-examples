@@ -39,6 +39,19 @@ spec:
         - name: binarystore-xml
           mountPath: "/var/opt/jfrog/artifactory/etc/binarystore.xml"
           subPath: binarystore.xml
+        readinessProbe:
+          httpGet:
+            path: '/artifactory/webapp/#/login'
+            port: 8081
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          failureThreshold: 10
+        livenessProbe:
+          httpGet:
+            path: '/artifactory/webapp/#/login'
+            port: 8081
+          initialDelaySeconds: 180
+          periodSeconds: 10
       volumes:
       - name: artifactory-node2-volume
         persistentVolumeClaim:
