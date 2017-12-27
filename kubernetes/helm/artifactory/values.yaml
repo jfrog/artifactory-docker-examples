@@ -60,6 +60,9 @@ nginx:
   service:
     ## For minikube, set this to NodePort, elsewhere use LoadBalancer
     type: LoadBalancer
+    # Master Service annotations
+    annotations:
+    sourceRanges:
   externalPortHttp: 80
   internalPortHttp: 80
   externalPortHttps: 443
@@ -72,3 +75,8 @@ nginx:
     enabled: true
     accessMode: ReadWriteOnce
     size: 5Gi
+
+# Service for accessing artifactory inside kubernetes
+serviceInternal:
+  enabled: false
+  annotations:

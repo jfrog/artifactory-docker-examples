@@ -1,16 +1,17 @@
+{{- if .Values.serviceInternal.enable }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "nginx.name" . }}
+  name: {{ template "nginx.name" . }}-internal
   labels:
     app: {{ template "name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-    component: "{{ .Values.nginx.name }}"
+    component: "{{ .Values.nginx.name }}-internal"
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
-  {{- if .Values.nginx.service.annotations }}
+  {{- if .Values.serviceInternal.annotations }}
   annotations:
-{{ toYaml .Values.nginx.service.annotations | indent 4 }}
+{{ toYaml .Values.serviceInternal.annotations | indent 4 }}
   {{- end }}
 spec:
   type: {{ .Values.nginx.service.type }}
@@ -27,9 +28,4 @@ spec:
     app: {{ template "name" . }}
     component: "{{ .Values.nginx.name }}"
     release: {{ .Release.Name }}
-  {{- if .Values.nginx.service.sourceRanges }}
-  loadBalancerSourceRanges:
-  {{- range .Values.nginx.service.sourceRanges }}
-  - {{ . }}
-  {{- end }}
-  {{- end }}
+{{- end }}
