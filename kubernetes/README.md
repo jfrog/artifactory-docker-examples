@@ -97,9 +97,6 @@ $ kubectl apply -f artifactory.yml
 
 #### Nginx
 ```bash
-# Configuration
-$ kubectl create configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/pro/artifactory.conf
-
 # Nginx storage and deployment
 $ kubectl apply -f nginx-storage.yml
 $ kubectl apply -f nginx-deployment.yml
@@ -140,7 +137,11 @@ postgresql-k8s-service   10.0.0.165   <none>        5432/TCP                    
 
 ```
 
+#### Accessing your Artifactory Pro
+See [Accessing your Artifactory](#accessing-your-artifactory)
+
 ---
+
 ### Artifactory HA
 #### Database (using MySQL)
 ```bash
@@ -163,7 +164,7 @@ $ kubectl apply -f artifactory-binarystore.yml
 ```
 
 #### Artifactory Master Key
-As of Artifactory 5.7.X and up, the joining of a node to an HA cluster is much simpler. All nodes need to share the `Master Key` and database configuration.
+As of Artifactory 5.7.X and up, the joining of a node to an HA cluster is much simpler. All nodes need to share the same `Master Key` and database configuration.
 Create the key in the following way:
 ```bash
 $ openssl rand -hex 32
@@ -172,10 +173,11 @@ You should put the resulting value inside the files `artifactory-ha-node1.yml` a
 The files currently have a default value set, but you should update them for a production deployment.
 
 #### Artifactory HA nodes
-Spin up the two nodes.
+Spin up the two nodes and the Kubernetes service
 ```bash
 $ kubectl apply -f artifactory-ha-node1.yml
 $ kubectl apply -f artifactory-ha-node2.yml
+$ kubectl apply -f artifactory-ha-service.yml
 ```
 
 #### Complete the Artifactory HA cluster setup
@@ -195,20 +197,13 @@ $ kubectl logs -f ${ART_NODE1_POD_NAME}
 ### Artifactory successfully started (23.275 seconds)   ###
 ###########################################################
 
-# You can stop following the log now.
-
-# Open a port forwaring process directly to the pod
-$ kubectl port-forward ${ART_NODE1_POD_NAME} 8081:8081
 ```
 
-Open http://localhost:8081/artifactory in your browser and follow the onboarding wizard.
-This also includes installing the licenses and completing any additional steps you require (you can come back to this later).
-
 #### Nginx
-```bash
-# Configuration
-$ kubectl apply -f nginx-artifactory-ha-conf.yml
+Setup the Nginx that is used for load balancing, reverse proxy and SSL handling.
 
+**NOTE:** Make sure to have the SSL secret create as [shown before](#ssl-secret)
+```bash
 # Storage and deployment
 $ kubectl apply -f nginx-storage.yml
 $ kubectl apply -f nginx-deployment.yml
@@ -251,6 +246,19 @@ mysql-k8s-service   10.0.0.17    <none>        3306/TCP                     8m
 nginx-k8s-service   10.0.0.75    <nodes>       80:30002/TCP,443:32600/TCP   2m
 
 ```
+
+#### Adding more nodes
+Adding more Artifactory nodes to your cluster is simple. Here is an example for adding **node3**
+- Add another `PersistentVolumeClaim` section in `artifactory-ha-storage.yml`. Give it a new name: **artifactory-node3-claim**
+- Copy `artifactory-ha-node2.yml` to `artifactory-ha-node3.yml`. Edit it and rename all **node2** to **node3**
+- Deploy the new storage and node
+```bash
+$ kubectl apply -f artifactory-ha-storage.yml
+$ kubectl apply -f artifactory-ha-node3.yml
+```
+Make sure you have the license needed to have the new node join and activated in the cluster.
+
+---
 
 ### Accessing your Artifactory
 Depending on your deployment type, you can now access Artifactory through its Nginx.

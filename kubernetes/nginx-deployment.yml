@@ -24,14 +24,9 @@ spec:
         volumeMounts:
         - mountPath: "/var/opt/jfrog/nginx"
           name: nginx-volume
-        - mountPath: "/var/opt/jfrog/nginx/conf.d"
-          name: configmap-volume
         - mountPath: "/var/opt/jfrog/nginx/ssl"
           name: ssl-secret-volume
       volumes:
-      - name: configmap-volume
-        configMap:
-          name: nginx-artifactory-conf
       - name: nginx-volume
         persistentVolumeClaim:
           claimName: nginx-claim

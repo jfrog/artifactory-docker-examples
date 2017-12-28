@@ -7,7 +7,8 @@ spec:
   template:
     metadata:
       labels:
-        app: artifactory-ha-node1
+        app: artifactory-ha
+        role: artifactory-primary
         group: artifactory-k8s-demo
     spec:
       containers:
@@ -62,12 +63,13 @@ spec:
       imagePullSecrets:
       - name: docker-reg-secret
 ---
+# This service it to allow all new member nodes to check that primary is up
 apiVersion: v1
 kind: Service
 metadata:
   name: artifactory-node1
   labels:
-    app: artifactory-node1
+    app: artifactory-ha
     group: artifactory-k8s-demo
 spec:
   type: NodePort
@@ -75,4 +77,4 @@ spec:
   - port: 8081
     protocol: TCP
   selector:
-    app: artifactory-ha-node1
+    role: artifactory-primary
