@@ -22,11 +22,15 @@ spec:
           value: password
         - name: DB_HOST
           value: postgresql-k8s-service
+        # Make sure to keep the memory java args aligned with the resources definitions
+        - name: EXTRA_JAVA_OPTIONS
+          value: "-Xms1g -Xmx2g"
         ports:
         - containerPort: 8081
         volumeMounts:
         - mountPath: "/var/opt/jfrog/artifactory"
           name: artifactory-pro-volume
+        # Make sure to keep the resources set with values matching EXTRA_JAVA_OPTIONS above
         resources:
           requests:
             memory: "1Gi"
