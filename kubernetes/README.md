@@ -50,8 +50,14 @@ Artifactory can run with other databases. For more details on supported database
 ## Deploying your Artifactory to Kubernetes
 The following describes the steps to do the actual deployment of the Artifactory and its services to Kubernetes.
 
-### Preparing Resources
-Need to create some resources that will be used by Nginx as SSL and Artifactory reverse proxy configuration
+### Memory and CPU resources
+To have full control of the memory and cpu allocated to your applications,
+it is recommended to set [resource requests and limits](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/) to all your pods.
+
+All templates here include examples of such resources definitions. The provided are examples. You should tune them to your actual needs.
+
+### Preparing other Resources
+Need to create some Kubernetes resources that will be used by Nginx as SSL and Artifactory reverse proxy configuration
 
 #### Docker registry secret
 In case you built your own Artifactory image and pushed it to your private registry as suggested above, you might need to define a docker-registry secret to be used by Kubernetes to pull images

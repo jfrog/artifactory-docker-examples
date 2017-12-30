@@ -27,6 +27,26 @@ spec:
         volumeMounts:
         - mountPath: "/var/opt/jfrog/artifactory"
           name: artifactory-pro-volume
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+        readinessProbe:
+          httpGet:
+            path: '/artifactory/webapp/#/login'
+            port: 8081
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          failureThreshold: 10
+        livenessProbe:
+          httpGet:
+            path: '/artifactory/webapp/#/login'
+            port: 8081
+          initialDelaySeconds: 180
+          periodSeconds: 10
       volumes:
       - name: artifactory-pro-volume
         persistentVolumeClaim:
