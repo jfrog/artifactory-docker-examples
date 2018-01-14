@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: artifactory
+  labels:
+    app: artifactory
+    group: artifactory-k8s-demo
+spec:
+  type: NodePort
+  ports:
+  - port: 8081
+    protocol: TCP
+  selector:
+    app: artifactory-ha

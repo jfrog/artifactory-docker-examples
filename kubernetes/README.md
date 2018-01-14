@@ -41,7 +41,7 @@ This will build an image of artifactory-pro that includes the MySQL driver in it
 # For MySQL
 $ docker push ${YOUR_DOCKER_REGISTRY}/jfrog/artifactory-pro-mysql:${VERSION}
 ```
-And edit the artifactory-service.yml to use this image.
+And edit the artifactory.yml to use this image.
 
 #### Using Different Databases
 Artifactory can run with other databases. For more details on supported databases and how to set them up for use with Artifactory, please refer to [Changing the Database](https://www.jfrog.com/confluence/display/RTF/Changing+the+Database) in the JFrog Artifactory Use Guide.
@@ -50,8 +50,14 @@ Artifactory can run with other databases. For more details on supported database
 ## Deploying your Artifactory to Kubernetes
 The following describes the steps to do the actual deployment of the Artifactory and its services to Kubernetes.
 
-### Preparing Resources
-Need to create some resources that will be used by Nginx as SSL and Artifactory reverse proxy configuration
+### Memory and CPU resources
+To have full control of the memory and cpu allocated to your applications,
+it is recommended to set [resource requests and limits](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/) to all your pods.
+
+All templates here include examples of such resources definitions. The provided are examples. You should tune them to your actual needs.
+
+### Preparing other Resources
+Need to create some Kubernetes resources that will be used by Nginx as SSL and Artifactory reverse proxy configuration
 
 #### Docker registry secret
 In case you built your own Artifactory image and pushed it to your private registry as suggested above, you might need to define a docker-registry secret to be used by Kubernetes to pull images
@@ -85,21 +91,18 @@ Note that the resources to use are already defined in the Yaml files.
 ```bash
 # PostgreSQL storage, pods and service
 $ kubectl apply -f postgresql-storage.yml
-$ kubectl apply -f postgresql-service.yml
+$ kubectl apply -f postgresql.yml
 ```
 
 #### Artifactory
 ```bash
 # Artifactory storage, pods and service
 $ kubectl apply -f artifactory-storage.yml
-$ kubectl apply -f artifactory-service.yml
+$ kubectl apply -f artifactory.yml
 ```
 
 #### Nginx
 ```bash
-# Configuration
-$ kubectl create configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/pro/artifactory.conf
-
 # Nginx storage and deployment
 $ kubectl apply -f nginx-storage.yml
 $ kubectl apply -f nginx-deployment.yml
@@ -140,77 +143,73 @@ postgresql-k8s-service   10.0.0.165   <none>        5432/TCP                    
 
 ```
 
+#### Accessing your Artifactory Pro
+See [Accessing your Artifactory](#accessing-your-artifactory)
+
 ---
+
 ### Artifactory HA
 #### Database (using MySQL)
 ```bash
 $ kubectl apply -f mysql-storage.yml
-$ kubectl apply -f mysql-service.yml
+$ kubectl apply -f mysql.yml
 ```
 
 #### Artifactory storage  
-Prepare 3 storage volumes.
+Prepare the storage volumes. One for each node.
 ```bash
 $ kubectl apply -f artifactory-ha-storage.yml
 ```
 
-
 #### Prepare the binary storage configuration
 Artifactory HA can be configured with various storage solutions.  
 You can see more details in [Configuring the Filestore](https://www.jfrog.com/confluence/display/RTF/Configuring+the+Filestore).  
-In our examples, we have an example [binarystore.xml](../files/binarystore.xml) that configures a simple `cache-fs` template.  
-- Place the file in the directory defined by the `artifactory-extra-conf` persistent volume in [artifactory-ha-storage.yml](artifactory-ha-storage.yml) (defaults to `/data/art-extra-conf/`)
+In thie examples, we deploy a ConfigMap with a simple file-system replication configuration (a `cache-fs` template).
+```bash
+$ kubectl apply -f artifactory-binarystore.yml
+```
 
+#### Artifactory Master Key
+As of Artifactory 5.7.X and up, the joining of a node to an HA cluster is much simpler. All nodes need to share the same `Master Key` and database configuration.
+Create the key in the following way:
+```bash
+$ openssl rand -hex 32
+```
+You should put the resulting value inside the files `artifactory-ha-node1.yml` and `artifactory-ha-node2.yml` as the value of `ARTIFACTORY_MASTER_KEY`.
+The files currently have a default value set, but you should update them for a production deployment.
 
 #### Artifactory HA nodes
-Spin up the two nodes.
+Spin up the two nodes and the Kubernetes service
 ```bash
 $ kubectl apply -f artifactory-ha-node1.yml
 $ kubectl apply -f artifactory-ha-node2.yml
+$ kubectl apply -f artifactory-ha-service.yml
 ```
 
-#### Joining node 2 to the HA cluster
-Once node 1 starts you need to prepare the configuration that node 2 will use to join the cluster. You can see more details in [Artifactory HA setup](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup).  
+#### Complete the Artifactory HA cluster setup
+Once the nodes are running, you need to complete the setup by installing the licenses for the nodes.
+You can see more details in [Artifactory HA setup](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup).
 
-Begin by obtaining the cluster's ip, the names of pods 1 and 2, and node the following to obtain the necessary variables for the process:
+Check that the primary node (artifactory-node1) is up and ready to work.
 ```bash
-$ CLUSTER_IP="$(kubectl cluster-info | grep master | cut -d'/' -f3 | cut -d':' -f1)"
-$ ART_NODE1_SERVICE_PORT=$(kubectl get services artifactory-node1 | grep artifactory-node1 | awk '{print $4}' | cut -d':' -f2 | cut -d'/' -f1)
-$ ART_NODE1_POD_NAME=$(kubectl get pods | grep node1 | cut -d' ' -f1)
-$ ART_NODE2_POD_NAME=$(kubectl get pods | grep node2 | cut -d' ' -f1)
+# Get the primary node pod name
+$ ART_NODE1_POD_NAME=$(kubectl get pods | grep artifactory-ha-node1 | cut -d' ' -f1)
 
-# Echo the URL for node 1
-$ echo http://${CLUSTER_IP}:${ART_NODE1_SERVICE_PORT}/artifactory
+# Follow the log for artifactory-node1
+$ kubectl logs -f ${ART_NODE1_POD_NAME}
+
+# Wait for the following to appear in the log:
+###########################################################
+### Artifactory successfully started (23.275 seconds)   ###
+###########################################################
+
 ```
-
-Copy URL from last echo's output and connect to node 1. Complete the initial onboarding process:
-- Browse to node 1: `http://${CLUSTER_IP}:${ART_NODE1_SERVICE_PORT}/artifactory`
-
-Then install a license and complete any additional steps you require (you can come back to this later).
-
-Once complete, create a [bootstrap bundle](https://www.jfrog.com/confluence/display/RTF/HA+Installation+and+Setup#HAInstallationandSetup-CreatingtheBootstrapBundle) in node 1 to be copied over to node 2.  
-The following will create the `bootstrap.bundle.tar.gz` under node 1's ARTIFACTORY_HOME/etc directory:
-```bash
-$ curl -XPOST -uadmin:password "http://${CLUSTER_IP}:${ART_NODE1_SERVICE_PORT}/artifactory/api/system/bootstrap_bundle"
-```
-
-Copy the `bootstrap.bundle.tar.gz` into node 2's ARTIFACTORY_HOME/etc:
-```bash
-# Copy bundle from node 1 to host
-$ kubectl cp "default/${ART_NODE1_POD_NAME}:opt/jfrog/artifactory/etc/bootstrap.bundle.tar.gz" bootstrap.bundle.tar.gz
-
-# Copy bundle from host to node 2
-$ kubectl cp bootstrap.bundle.tar.gz "default/${ART_NODE2_POD_NAME}:/opt/jfrog/artifactory/etc/bootstrap.bundle.tar.gz"
-```
-
-Node 2 will detect it, continue its automatic setup, and join the cluster.
-
 
 #### Nginx
-```bash
-# Configuration
-$ kubectl apply configmap nginx-artifactory-conf --from-file=../files/nginx/conf.d/ha/artifactory.conf
+Setup the Nginx that is used for load balancing, reverse proxy and SSL handling.
 
+**NOTE:** Make sure to have the SSL secret create as [shown before](#ssl-secret)
+```bash
 # Storage and deployment
 $ kubectl apply -f nginx-storage.yml
 $ kubectl apply -f nginx-deployment.yml
@@ -254,6 +253,19 @@ nginx-k8s-service   10.0.0.75    <nodes>       80:30002/TCP,443:32600/TCP   2m
 
 ```
 
+#### Adding more nodes
+Adding more Artifactory nodes to your cluster is simple. Here is an example for adding **node3**
+- Add another `PersistentVolumeClaim` section in `artifactory-ha-storage.yml`. Give it a new name: **artifactory-node3-claim**
+- Copy `artifactory-ha-node2.yml` to `artifactory-ha-node3.yml`. Edit it and rename all **node2** to **node3**
+- Deploy the new storage and node
+```bash
+$ kubectl apply -f artifactory-ha-storage.yml
+$ kubectl apply -f artifactory-ha-node3.yml
+```
+Make sure you have the license needed to have the new node join and activated in the cluster.
+
+---
+
 ### Accessing your Artifactory
 Depending on your deployment type, you can now access Artifactory through its Nginx.
 
@@ -262,10 +274,12 @@ You can see the Nginx is exposed with a public IP of `59.156.13.6` on ports 80 a
 Now just point your browser to **http://59.156.13.6/artifactory/** or **https://59.156.13.6/artifactory/**  
 
 #### Minikube
-You need to use the Minikube's IP with the assigned port like `192.168.99.100`.  
+You need to use the Minikube's IP with the assigned port like `192.168.99.100`.
 You can get the Minikube IP with the command `minikube ip`.  
-The assigned ports can be seen in the output of `kubectl get services` as seen above.  
-Now point your browser to **http://192.168.99.100:30002/artifactory/** or **https://192.168.99.100:32600/artifactory/**  
-**NOTE**: When using `https`, you might need to confirm trusting the certificate and that will redirect you back to 
-https://192.168.99.100/artifactory, resulting in an error. Just put the port 32600 again in the URL, refresh your page, 
+The assigned minikube ports can be seen in the output of `kubectl get services` as seen above (port 30002 -> 80 and port 32600 -> 443).
+
+Now point your browser to **http://192.168.99.100:30002/artifactory/** or **https://192.168.99.100:32600/artifactory/**
+
+**NOTE**: When using `https`, you might need to confirm trusting the certificate and that will redirect you back to
+https://192.168.99.100/artifactory, resulting in an error. Just put the port **32600** again in the URL, refresh your page,
 and Artifactory should now load properly.

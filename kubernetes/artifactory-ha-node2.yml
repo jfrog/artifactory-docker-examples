@@ -7,7 +7,7 @@ spec:
   template:
     metadata:
       labels:
-        app: artifactory-ha-node2
+        app: artifactory-ha
         group: artifactory-k8s-demo
     spec:
       containers:
@@ -29,36 +29,46 @@ spec:
           value: ha-node2
         - name: HA_MEMBERSHIP_PORT
           value: "10117"
-        - name: HA_WAIT_FOR_BUNDLE
-          value: "true"
+        - name: ARTIFACTORY_MASTER_KEY
+          value: "fc9dfbbfb055f18c765ed19e63ad41a9e1fda67bdb6a24ebfb2aeb6aa6349549"
+        # Make sure to keep the memory java args aligned with the resources definitions
+        - name: EXTRA_JAVA_OPTIONS
+          value: "-Xms1g -Xmx2g"
         ports:
         - containerPort: 8081
         volumeMounts:
-        - mountPath: "/var/opt/jfrog/artifactory"
-          name: artifactory-node2-volume
-        - mountPath: "/artifactory_extra_conf"
-          name: artifactory-extra-conf
+        - name: artifactory-node2-volume
+          mountPath: "/var/opt/jfrog/artifactory"
+        - name: binarystore-xml
+          mountPath: "/var/opt/jfrog/artifactory/etc/binarystore.xml"
+          subPath: binarystore.xml
+        # Make sure to keep the resources set with values matching EXTRA_JAVA_OPTIONS above
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+        readinessProbe:
+          httpGet:
+            path: '/artifactory/webapp/#/login'
+            port: 8081
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          failureThreshold: 10
+        livenessProbe:
+          httpGet:
+            path: '/artifactory/webapp/#/login'
+            port: 8081
+          initialDelaySeconds: 180
+          periodSeconds: 10
       volumes:
       - name: artifactory-node2-volume
         persistentVolumeClaim:
           claimName: artifactory-node2-claim
-      - name: artifactory-extra-conf
-        persistentVolumeClaim:
-          claimName: artifactory-extra-conf-claim
+      - name: binarystore-xml
+        configMap:
+          name: artifactory-binarystore
       imagePullSecrets:
       - name: docker-reg-secret
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: artifactory-node2
-  labels:
-    app: artifactory-node2
-    group: artifactory-k8s-demo
-spec:
-  type: NodePort
-  ports:
-  - port: 8081
-    protocol: TCP
-  selector:
-    app: artifactory-ha-node2

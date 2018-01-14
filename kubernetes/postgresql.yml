@@ -9,18 +9,18 @@ spec:
       labels:
         app: postgresql-k8s
         group: artifactory-k8s-demo
-      annotations:
-        pod.beta.kubernetes.io/init-containers: '[{
-          "name": "remove-lost-found",
-          "image": "busybox:1.26.2",
-          "command": ["rm", "-rf", "/var/lib/postgresql/data/lost+found"],
-          "volumeMounts": [{
-              "name": "postgresql-volume",
-              "mountPath": "/var/lib/postgresql/data"
-            }],
-          "imagePullPolicy": "IfNotPresent"
-        }]'
     spec:
+      initContainers:
+      - name: "remove-lost-found"
+        image: "busybox:1.26.2"
+        imagePullPolicy: "IfNotPresent"
+        command:
+        - 'sh'
+        - '-c'
+        - 'rm -rf /var/lib/postgresql/data/lost+found'
+        volumeMounts:
+        - mountPath: "/var/lib/postgresql/data"
+          name: postgresql-volume
       containers:
       - name: postgresql-k8s
         image: docker.bintray.io/postgres:9.5.2
@@ -33,9 +33,34 @@ spec:
           value: password
         ports:
         - containerPort: 5432
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
         volumeMounts:
         - mountPath: "/var/lib/postgresql/data"
           name: postgresql-volume
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - exec pg_isready
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - exec pg_isready
+          initialDelaySeconds: 30
+          timeoutSeconds: 3
+          periodSeconds: 5
       volumes:
       - name: postgresql-volume
         persistentVolumeClaim:
