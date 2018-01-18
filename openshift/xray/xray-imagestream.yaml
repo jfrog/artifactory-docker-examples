@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: Template
+metadata:
+    name: xray-imagestream-template
+
+objects:
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+        name: xray-server
+        namespace: ${NAMESPACE}
+    spec:
+        dockerImageRepository: ${DOCKER_REGISTRY}/jfrog/xray-server
+        tags:
+          - name: ${XRAY_VERSION}
+            from:
+                kind: DockerImage
+                name: ${DOCKER_REGISTRY}/jfrog/xray-server:${XRAY_VERSION}
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+        name: xray-persist
+        namespace: ${NAMESPACE}
+    spec:
+        dockerImageRepository: ${DOCKER_REGISTRY}/jfrog/xray-persist
+        tags:
+          - name: ${XRAY_VERSION}
+            from:
+                kind: DockerImage
+                name: ${DOCKER_REGISTRY}/jfrog/xray-persist:${XRAY_VERSION}
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+        name: xray-event
+        namespace: ${NAMESPACE}
+    spec:
+        dockerImageRepository: ${DOCKER_REGISTRY}/jfrog/xray-event
+        tags:
+          - name: ${XRAY_VERSION}
+            from:
+                kind: DockerImage
+                name: ${DOCKER_REGISTRY}/jfrog/xray-event:${XRAY_VERSION}
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+        name: xray-analysis
+        namespace: ${NAMESPACE}
+    spec:
+        dockerImageRepository: ${DOCKER_REGISTRY}/jfrog/xray-analysis
+        tags:
+          - name: ${XRAY_VERSION}
+            from:
+                kind: DockerImage
+                name: ${DOCKER_REGISTRY}/jfrog/xray-analysis:${XRAY_VERSION}
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+        name: xray-indexer
+        namespace: ${NAMESPACE}
+    spec:
+        dockerImageRepository: ${DOCKER_REGISTRY}/jfrog/xray-indexer
+        tags:
+          - name: ${XRAY_VERSION}
+            from:
+                kind: DockerImage
+                name: ${DOCKER_REGISTRY}/jfrog/xray-indexer:${XRAY_VERSION}
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: DOCKER_REGISTRY
+    description: Docker registry that provides JFrog Xray docker images
+    displayName: Docker registry that provides JFrog Xray docker images
+    value: "docker.bintray.io"
+    required: true
+  - name: XRAY_VERSION
+    description: JFrog Xray Version
+    displayName: JFrog Xray Version
+    value: "1.8.6.5"
+    required: true
+

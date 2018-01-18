@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Template
+metadata:
+    name: xray-rabbitmq-pvc-template
+    annotations:
+        openshift.io/provider-display-name: "JFrog"
+        openshift.io/display-name: "JFrog Xray RabbitMQ PVC"
+        description: |-
+          This template creates a PVC to be used by RabbitMQ
+        tags: "ci-cd"
+
+objects:
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: xray-rabbitmq-pvc
+    namespace: ${NAMESPACE}
+  spec:
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: ${RABBITMQ_PVC_SIZE} 
+    volumeName: xray-rabbitmq-pv-${NAMESPACE}
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: RABBITMQ_PVC_SIZE
+    description: Size of RabbitMQ pvc
+    displayName: Size of RabbitMQ pvc
+    value: 50Gi
+    required: true

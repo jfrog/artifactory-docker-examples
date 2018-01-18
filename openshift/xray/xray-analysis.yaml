@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: Xray-Analysis
+message: |-
+  The following service(s) have been created in your project: xray-analysis.
+
+         Connection URL: http://xray-analysis:7000
+metadata:
+  annotations:
+    description: |-
+      Xray Analysis Template
+
+      NOTE: Scaling to more than one replica is not supported. You must have persistent volumes available in your cluster to use this template.
+    openshift.io/display-name: JFrog Xray Analysis
+    tags: ci-cd,build,repository
+  name: xray-analysis
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: analysis
+  spec:
+    ports:
+    - name: 7000-tcp
+      port: 7000
+      protocol: TCP
+      targetPort: 7000
+    selector:
+      name: analysis
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: analysis
+  spec:
+    replicas: 1
+    selector:
+      name: analysis
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          name: analysis
+      spec:
+        serviceAccountName: ${SERVICE_ACCOUNT}
+        initContainers:
+        - name: init-xray
+          image: ${INIT_CONTAINER_IMAGE}
+          command: ['sh', '-c', 'until nc -z -w 2 rabbitmq 5672 && echo rabbitmq ok && nc -z -w 2 mongodb 27017 && echo mongodb ok && nc -z -w 2 postgres 5432 && echo postgres ok ; do sleep 2; done']
+          imagePullPolicy: IfNotPresent
+        containers:
+        - env:
+          - name: XRAYCONFIGPATH
+            value: /var/opt/jfrog/xray/data
+          image: ''
+          imagePullPolicy: IfNotPresent
+          name: analysis
+          ports:
+          - containerPort: 7000
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /var/opt/jfrog/xray/data
+            name: volume-xray-analysis
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+        securityContext:
+          supplementalGroups: [1035]
+        volumes:
+        - name: volume-xray-analysis
+          persistentVolumeClaim:
+            claimName: xray-data-pvc
+    triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - analysis
+        from:
+          kind: ImageStreamTag
+          namespace: ${NAMESPACE}
+          name: xray-analysis:${XRAY_VERSION}
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: XRAY_VERSION
+    description: JFrog Xray Version
+    displayName: JFrog Xray Version
+    value: 1.8.6.5
+    required: true
+  - name: SERVICE_ACCOUNT
+    description: Service account
+    displayName: Service account
+    required: true
+  - name: INIT_CONTAINER_IMAGE
+    description: Init container image
+    displayName: Init container image
+    value: "alpine:3.6"
+    required: true

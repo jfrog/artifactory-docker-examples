@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: Xray-Server
+message: |-
+  The following service(s) have been created in your project: xray-server.
+
+         Connection URL: http://xray-server:8000
+metadata:
+  annotations:
+    description: |-
+      Xray Server Template
+
+      NOTE: Scaling to more than one replica is not supported. You must have persistent volumes available in your cluster to use this template.
+    openshift.io/display-name: JFrog Xray Server
+    tags: ci-cd,build,repository
+  name: xray-server
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: server
+  spec:
+    ports:
+    - name: 8000-tcp
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+    selector:
+      name: server
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: server
+  spec:
+    replicas: 1
+    selector:
+      name: server
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          name: server
+      spec:
+        serviceAccountName: ${SERVICE_ACCOUNT}
+        initContainers:
+        - name: init-xray
+          image: ${INIT_CONTAINER_IMAGE}
+          command: ['sh', '-c', 'until nc -z -w 2 rabbitmq 5672 && echo rabbitmq ok && nc -z -w 2 mongodb 27017 && echo mongodb ok && nc -z -w 2 postgres 5432 && echo postgres ok ; do sleep 2; done']
+          imagePullPolicy: IfNotPresent
+        containers:
+        - env:
+          - name: XRAYCONFIGPATH
+            value: /var/opt/jfrog/xray/data
+          image: ''
+          imagePullPolicy: IfNotPresent
+          name: server
+          ports:
+          - containerPort: 8000
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /var/opt/jfrog/xray/data
+            name: volume-xray-server
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "100m"
+            limits:
+              memory: "2Gi"
+              cpu: "1"
+        securityContext:
+          supplementalGroups: [1035]
+          privileged: false  
+        volumes:
+        - name: volume-xray-server
+          persistentVolumeClaim:
+            claimName: xray-data-pvc
+    triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - server
+        from:
+          kind: ImageStreamTag
+          namespace: ${NAMESPACE}
+          name: xray-server:${XRAY_VERSION}
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: XRAY_VERSION
+    description: JFrog Xray Version
+    displayName: JFrog Xray Version
+    value: 1.8.6.5
+    required: true
+  - name: SERVICE_ACCOUNT
+    description: Service account
+    displayName: Service account
+    required: true
+  - name: INIT_CONTAINER_IMAGE
+    description: Init container image
+    displayName: Init container image
+    value: "alpine:3.6"
+    required: true

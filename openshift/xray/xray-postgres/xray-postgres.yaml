@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: Xray-Postgres
+message: |-
+  The following service(s) have been created in your project: xray-postgres.
+
+         Connection URL: http://xray-postgres:5432
+metadata:
+  annotations:
+    description: |-
+      JFrog Xray Postgres Template
+
+      NOTE: Scaling to more than one replica is not supported. You must have persistent volumes available in your cluster to use this template.
+    iconClass: icon-mysql-database
+    openshift.io/display-name: JFrog Xray Postgres
+    tags: datastore,ci-cd,jfrog
+  name: xray-postgres
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: postgres
+  spec:
+    ports:
+    - name: 5432-tcp
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      name: postgres
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: postgres
+    namespace: ${NAMESPACE} 
+  spec:
+    tags:
+      - name: latest
+        annotations: null
+        from:
+          kind: DockerImage
+          name: ${DOCKER_REGISTRY}/jfrog/xray-postgres:9.5.2
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: postgres
+  spec:
+    replicas: 1
+    selector:
+      name: postgres
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          name: postgres
+      spec:
+        initContainers:
+        - name: init 
+          image: ${INIT_CONTAINER_IMAGE}
+          command: ['sh', '-c', 'rm -rf /var/lib/postgresql/data/lost+found']
+          volumeMounts:
+            - name: postgres-volume
+              mountPath: /var/lib/postgresql/data
+        containers:
+        - env:
+          - name: POSTGRES_USER
+            value: xray
+          - name: POSTGRES_PASSWORD
+            value: xray
+          - name: POSTGRES_DB
+            value: xraydb
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+          image: ${DOCKER_REGISTRY}/jfrog/xray-postgres:9.5.2@sha256:17395001988c5551b7c6468218641d185b9ab4c36734101324d84ab54c466b21
+          imagePullPolicy: IfNotPresent
+          name: postgres
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: postgres-volume
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1"
+        volumes:
+        - name: postgres-volume
+          persistentVolumeClaim:
+            claimName: xray-postgres-pvc
+    triggers:
+    - type: ConfigChange
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: DOCKER_REGISTRY
+    description: Docker registry that provides JFrog Xray docker images
+    displayName: Docker registry that provides JFrog Xray docker images
+    value: "docker.bintray.io"
+    required: true
+  - name: INIT_CONTAINER_IMAGE
+    description: Init container image
+    displayName: Init container image
+    value: "alpine:3.6"
+    required: true

@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Template
+metadata:
+    name: xray-mongodb-pvc-template
+    annotations:
+        openshift.io/provider-display-name: "JFrog"
+        openshift.io/display-name: "JFrog Xray MongoDB PVC"
+        description: |-
+          This template creates a PVC to be used by MongoDB
+        tags: "ci-cd"
+
+objects: 
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: xray-mongodb-pvc
+    namespace: ${NAMESPACE}
+  spec:
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: ${MONGODB_PVC_SIZE}
+    volumeName: xray-mongodb-pv-${NAMESPACE}
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: MONGODB_PVC_SIZE
+    description: Size of MongoDB pvc
+    displayName: Size of MongoDB pvc
+    value: 50Gi
+    required: true
+

@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: Xray-Mongodb
+message: |-
+  The following service(s) have been created in your project: xray-mongodb.
+
+         Connection URL: http://xray-mongodb:27017
+metadata:
+  annotations:
+    description: |-
+      Xray Mongodb Template
+
+      NOTE: Scaling to more than one replica is not supported. You must have persistent volumes available in your cluster to use this template.
+    iconClass: icon-mysql-database
+    openshift.io/display-name: JFrog Xray Mongodb 
+    tags: datastore
+  name: xray-mongodb
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: mongodb
+  spec:
+    ports:
+    - name: 27017-tcp
+      port: 27017
+      protocol: TCP
+      targetPort: 27017
+    - name: 28017-tcp
+      port: 28017
+      protocol: TCP
+      targetPort: 28017
+    selector:
+      name: mongodb
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: mongodb
+    namespace: ${NAMESPACE} 
+  spec:
+    tags:
+      - name: latest
+        annotations: null
+        from:
+          kind: DockerImage
+          name: ${DOCKER_REGISTRY}/jfrog/xray-mongo:3.2.6
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: mongodb
+  spec:
+    replicas: 1
+    selector:
+      name: mongodb
+    strategy:
+      type: Recreate
+      recreateParams:
+        post:
+          failurePolicy: ignore
+          execNewPod:
+            command:
+            - '/bin/sh'
+            - '-c'
+            - sleep 10 && chmod +x /scripts/setup.sh; /scripts/setup.sh > /data/db/setup-$(date +%Y%m%d%H%M%S).log 2>&1
+            containerName: mongodb
+            volumes:
+              - xray-mongodb-setup
+              - mongodb-volume-db
+        timeoutSeconds: 600
+    template:
+      metadata:
+        labels:
+          name: mongodb
+      spec:
+        containers:
+        - env:
+          image: ${DOCKER_REGISTRY}/jfrog/xray-mongo:3.2.6@sha256:d040daee83452b3a2db3a8d91bfe29e890a5cbe6c331dc12c32024bd132c99a3
+          imagePullPolicy: IfNotPresent
+          name: mongodb
+          command:
+            - mongod
+            - '--wiredTigerCacheSizeGB=6'
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - mongod
+                  - '--dbpath /data/db'
+                  - '--shutdown'
+          ports:
+          - containerPort: 27017
+            protocol: TCP
+          - containerPort: 28017
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /scripts 
+            name: xray-mongodb-setup
+          - mountPath: /data/db
+            name: mongodb-volume-db
+          resources:
+            requests:
+              memory: "5Gi"
+              cpu: "200m"
+            limits:
+              memory: "7Gi"
+              cpu: "1"
+          livenessProbe:
+            exec:
+              command:
+              - mongo
+              - --eval
+              - "db.adminCommand('ping')"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+              - mongo
+              - --eval
+              - "db.adminCommand('ping')"
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+        volumes:
+        - name: mongodb-volume-db
+          persistentVolumeClaim:
+            claimName: xray-mongodb-pvc 
+        - name: xray-mongodb-setup
+          configMap:
+            name: xray-mongodb-setup
+    triggers:
+    - type: ConfigChange
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: DOCKER_REGISTRY
+    description: Docker registry that provides JFrog Xray docker images
+    displayName: Docker registry that provides JFrog Xray docker images
+    value: "docker.bintray.io"
+    required: true

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: xray-data-pv-NAMESPACE
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+  - ReadWriteMany
+  nfs:
+    path: /data/xray
+    server: NFS_SERVER 
+  persistentVolumeReclaimPolicy: Retain

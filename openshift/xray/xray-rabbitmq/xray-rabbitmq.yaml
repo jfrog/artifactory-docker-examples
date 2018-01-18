@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: Xray-RabbitMQ
+message: |-
+  The following service(s) have been created in your project: xray-rabbitmq.
+
+         Connection URL: http://xray-rabbitmq:5672
+metadata:
+  annotations:
+    description: |-
+      Xray RabbitMQ Template
+
+      NOTE: Scaling to more than one replica is not supported. You must have persistent volumes available in your cluster to use this template.
+    openshift.io/display-name: "JFrog Xray RabbitMQ"
+    openshift.io/provider-display-name: "JFrog"
+    openshift.io/documentation-url: "https://www.jfrog.com/confluence/display/XRAY/Welcome+to+JFrog+Xray"
+    openshift.io/support-url: "https://jfrog.com/support/"
+    tags: messaging,jfrog,ci-cd 
+  name: xray-rabbitmq
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: rabbitmq
+  spec:
+    ports:
+    - name: 5672-tcp
+      port: 5672
+      protocol: TCP
+      targetPort: 5672
+    - name: 15672-tcp
+      port: 15672
+      protocol: TCP
+      targetPort: 15672
+    selector:
+      name: rabbitmq
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: rabbitmq
+    namespace: ${NAMESPACE}
+  spec:
+    tags:
+      - name: latest
+        annotations: null
+        from:
+          kind: DockerImage
+          name: ${DOCKER_REGISTRY}/jfrog/xray-rabbitmq:3.6.1-management
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: rabbitmq
+  spec:
+    replicas: 1
+    selector:
+      name: rabbitmq
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          name: rabbitmq
+      spec:
+        initContainers:
+        - name: init
+          image: ${INIT_CONTAINER_IMAGE}
+          command: ['sh', '-c', 'rm -rf /var/lib/rabbitmq/lost+found']
+          volumeMounts:
+          - name: rabbitmq-volume
+            mountPath: "/var/lib/rabbitmq"
+        containers:
+        - env:
+          -  name: HOSTNAME
+             value: localhost 
+          image: ${DOCKER_REGISTRY}/jfrog/xray-rabbitmq:3.6.1-management@sha256:4ea3f7a098cd8ee857278baeb07bce2857646bbdcb1b365dc908544e859112ef
+          imagePullPolicy: IfNotPresent
+          name: rabbitmq
+          ports:
+          - containerPort: 5672
+            protocol: TCP
+          - containerPort: 15672
+            protocol: TCP
+          volumeMounts:
+          - mountPath: /var/lib/rabbitmq
+            name: rabbitmq-volume
+          - mountPath: /etc/rabbitmq/rabbitmq.config
+            name: xray-rabbitmq-conf
+            subPath: rabbitmq.config
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "250m"
+          livenessProbe:
+            exec:
+              command:
+              - rabbitmqctl
+              - status
+            initialDelaySeconds: 120
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+              - rabbitmqctl
+              - status
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+        volumes:
+        - name: rabbitmq-volume
+          persistentVolumeClaim:
+            claimName: xray-rabbitmq-pvc
+        - name: xray-rabbitmq-conf
+          configMap:
+            name: xray-rabbitmq-conf  
+    triggers:
+    - type: ConfigChange
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: DOCKER_REGISTRY
+    description: Docker registry that provides JFrog Xray docker images
+    displayName: Docker registry that provides JFrog Xray docker images
+    value: "docker.bintray.io"
+    required: true
+  - name: INIT_CONTAINER_IMAGE
+    description: Init container image
+    displayName: Init container image
+    value: "alpine:3.6"
+    required: true
