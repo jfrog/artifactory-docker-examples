@@ -222,7 +222,7 @@ parameters:
   - name: ARTIFACTORY_VERSION
     description: Artifactory Version
     displayName: Artifactory Version
-    value: "5.8.0"
+    value: "5.8.3"
     required: true
   - name: ARTIFACTORY_EXTRA_JAVA_OPTIONS
     description: Artifactory Extra Java Options
