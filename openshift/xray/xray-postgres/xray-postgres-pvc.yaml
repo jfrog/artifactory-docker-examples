@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Template
+metadata:
+    name: xray-postgres-pvc-template
+    annotations:
+        openshift.io/provider-display-name: "JFrog"
+        openshift.io/display-name: "JFrog Xray PostGres PVC"
+        description: |-
+          This template creates a PVC to be used by PostGres
+        tags: "ci-cd"
+
+objects:
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: xray-postgres-pvc
+    namespace: ${NAMESPACE}
+  spec:
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: ${POSTGRES_PVC_SIZE} 
+    volumeName: xray-postgres-pv-${NAMESPACE}
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: POSTGRES_PVC_SIZE
+    description: Size of Postgres pvc
+    displayName: Size of Postgres pvc
+    value: 50Gi
+    required: true
