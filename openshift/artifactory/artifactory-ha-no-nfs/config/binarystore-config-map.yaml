@@ -1,0 +1,35 @@
+
+apiVersion: v1
+kind: Template
+metadata:
+    name: artifactory-binarystore-no-nfs-config-map-template
+    annotations:
+        openshift.io/provider-display-name: "JFrog"
+        openshift.io/display-name: "Artifactory No NFS Binarystore"
+        description: |-
+          This template creates a ConfigMap to store the binarystore.xml file.
+          The file content is suitable to Artifactory clusters using no NFS
+          Binarystore solutions.
+        tags: "ci-cd"
+
+objects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+        name: ${BINARYSTORE_CONFIG_MAP_NAME}
+        namespace: ${NAMESPACE}
+    data:
+        binarystore.xml: |-
+            <config version="1">
+                <chain template="cluster-file-system"/>
+            </config>
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: BINARYSTORE_CONFIG_MAP_NAME
+    description: Artifactory Binarystore Config Map name
+    displayName: Artifactory Binarystore Config Map name
+    required: true

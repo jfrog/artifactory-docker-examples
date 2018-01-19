@@ -1,0 +1,250 @@
+apiVersion: v1
+kind: Template
+metadata:
+    name: artifactory-nfs-primary-deployment-template
+    annotations:
+        openshift.io/provider-display-name: "JFrog"
+        openshift.io/display-name: "Artifactory Primary (NFS)"
+        description: |-
+          This template deploys the primary node of an Artifactory Cluster using
+          NFS.
+        tags: "ci-cd"
+
+objects:
+
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+        name: ${NAME}-primary
+        namespace: ${NAMESPACE}
+
+    spec:
+        replicas: 1
+        strategy:
+            type: Recreate
+        template:
+            metadata:
+                labels:
+                    name: ${NAME}-primary
+                    artifactory-ha: ${NAME}
+            spec:
+                serviceAccountName: ${SERVICE_ACCOUNT}
+
+                initContainers:
+                  - name: remove-lost-found
+                    image: ${INIT_CONTAINER_IMAGE}
+                    command: ["sh", "-c", "rm -rf /var/opt/jfrog/artifactory/lost+found"]
+                    volumeMounts:
+                      - name: artifactory-data
+                        mountPath: /var/opt/jfrog/artifactory
+                  - name: wait-for-db
+                    image: ${INIT_CONTAINER_IMAGE}
+                    command: ["sh", "-c", "until nc -z -w 2 $(DB_HOST) $(DB_PORT) && echo database ok; do sleep 2; done"]
+                    env:
+                      - name: DB_HOST
+                        valueFrom:
+                            configMapKeyRef:
+                                name: ${DATABASE_CONFIG_MAP_NAME}
+                                key: db.host
+                      - name: DB_PORT
+                        valueFrom:
+                            configMapKeyRef:
+                                name: ${DATABASE_CONFIG_MAP_NAME}
+                                key: db.port
+
+                containers:
+                  - image: ''
+                    imagePullPolicy: Always
+                    name: ${NAME}-primary
+                    ports:
+                      - containerPort: 8081
+                        protocol: TCP
+                      - containerPort: 10042
+                        protocol: TCP
+                    volumeMounts:
+                      - name: artifactory
+                        mountPath: /var/opt/jfrog/artifactory
+                      - name: artifactory-data
+                        mountPath: ${HA_DATA_DIR}
+                      - name: artifactory-backup
+                        mountPath: ${HA_BACKUP_DIR}
+                      - name: artifactory-licenses
+                        mountPath: /var/opt/jfrog/artifactory/etc/artifactory.cluster.license
+                        subPath: artifactory.cluster.license
+                      - name: artifactory-master-key
+                        mountPath: /var/opt/jfrog/artifactory/etc/security/master.key
+                        subPath: master.key
+                      - name: artifactory-binarystore
+                        mountPath: /var/opt/jfrog/artifactory/etc/binarystore.xml
+                        subPath: binarystore.xml
+                    env:
+                      - name: DB_TYPE
+                        valueFrom:
+                            configMapKeyRef:
+                                name: ${DATABASE_CONFIG_MAP_NAME}
+                                key: db.type
+                      - name: DB_HOST
+                        valueFrom:
+                            configMapKeyRef:
+                                name: ${DATABASE_CONFIG_MAP_NAME}
+                                key: db.host
+                      - name: DB_PORT
+                        valueFrom:
+                            configMapKeyRef:
+                                name: ${DATABASE_CONFIG_MAP_NAME}
+                                key: db.port
+                      - name: DB_USER
+                        valueFrom:
+                            secretKeyRef:
+                                name: ${DATABASE_CREDENTIALS_SECRET_NAME}
+                                key: username
+                      - name: DB_PASSWORD
+                        valueFrom:
+                            secretKeyRef:
+                                name: ${DATABASE_CREDENTIALS_SECRET_NAME}
+                                key: password
+                      - name: HA_NODE_ID
+                        value: "${NAME}-primary"
+                      - name: HA_IS_PRIMARY
+                        value: "true"
+                      - name: HA_DATA_DIR
+                        value: ${HA_DATA_DIR}
+                      - name: HA_BACKUP_DIR
+                        value: ${HA_BACKUP_DIR}
+                      - name: HA_MEMBERSHIP_PORT
+                        value: "10042"
+                      - name: EXTRA_JAVA_OPTIONS
+                        value: ${ARTIFACTORY_EXTRA_JAVA_OPTIONS}
+
+                    readinessProbe:
+                        httpGet:
+                            path: /artifactory/webapp/#/login
+                            port: 8081
+                        initialDelaySeconds: 60
+                        timeoutSeconds: 10
+                    livenessProbe:
+                        httpGet:
+                            path: /artifactory/webapp/#/login
+                            port: 8081
+                        initialDelaySeconds: 180
+                        timeoutSeconds: 10
+
+                    resources:
+                        requests:
+                            cpu: ${CPU_REQUEST}
+                            memory: ${MEMORY_REQUEST}
+                        limits:
+                            cpu: ${CPU_LIMIT}
+                            memory: ${MEMORY_LIMIT}
+
+                volumes:
+                  - name: artifactory
+                    persistentVolumeClaim:
+                        claimName: ${NAME}-primary
+                  - name: artifactory-data
+                    persistentVolumeClaim:
+                        claimName: ${NAME}-data
+                  - name: artifactory-backup
+                    persistentVolumeClaim:
+                        claimName: ${NAME}-backup
+                  - name: artifactory-licenses
+                    secret:
+                        secretName: ${LICENSES_SECRET_NAME}
+                  - name: artifactory-master-key
+                    secret:
+                        secretName: ${MASTER_KEY_SECRET_NAME}
+                  - name: artifactory-binarystore
+                    configMap:
+                        name: ${BINARYSTORE_CONFIG_MAP_NAME}
+        triggers:
+          - type: ImageChange
+            imageChangeParams:
+                automatic: true
+                containerNames:
+                    - ${NAME}-primary
+                from:
+                    kind: ImageStreamTag
+                    name: ${ARTIFACTORY_IMAGE_STREAM_NAME}:${ARTIFACTORY_VERSION}
+          - type: ConfigChange
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: NAME
+    description: Artifactory HA Name
+    displayName: Artifactory HA Name
+    required: true
+  - name: SERVICE_ACCOUNT
+    description: Service account
+    displayName: Service account
+    required: true
+  - name: INIT_CONTAINER_IMAGE
+    description: Init container image
+    displayName: Init container image
+    value: "busybox"
+    required: true
+  - name: LICENSES_SECRET_NAME
+    description: Artifactory licenses Secret name
+    displayName: Artifactory licenses Secret name
+    required: true
+  - name: MASTER_KEY_SECRET_NAME
+    description: Artifactory Master Key Secret name
+    displayName: Artifactory Master Key Secret name
+    required: true
+  - name: DATABASE_CONFIG_MAP_NAME
+    description: Artifactory Database ConfigMap name
+    displayName: Artifactory Database ConfigMap name
+    required: true
+  - name: DATABASE_CREDENTIALS_SECRET_NAME
+    description: Database Credentials Secret name
+    displayName: Database Credentials Secret name
+    required: true
+  - name: BINARYSTORE_CONFIG_MAP_NAME
+    description: Artifactory Binarystore ConfigMap name
+    displayName: Artifactory Binarystore ConfigMap name
+    required: true
+  - name: HA_DATA_DIR
+    description: Shared Data Directory
+    displayName: Shared Data Directory
+    value: "/var/opt/jfrog/artifactory/data"
+    required: true
+  - name: HA_BACKUP_DIR
+    description: Shared Backup Directory
+    displayName: Shared Backup Directory
+    value: "/var/opt/jfrog/artifactory/backup"
+    required: true
+  - name: ARTIFACTORY_IMAGE_STREAM_NAME
+    description: Artifactory ImageStream name
+    displayName: Artifactory ImageStream name
+    required: true
+  - name: ARTIFACTORY_VERSION
+    description: Artifactory Version
+    displayName: Artifactory Version
+    value: "5.8.0"
+    required: true
+  - name: ARTIFACTORY_EXTRA_JAVA_OPTIONS
+    description: Artifactory Extra Java Options
+    displayName: Artifactory Extra Java Options
+    value: "-Xms1g -Xmx2g"
+  - name: CPU_REQUEST
+    description: Artifactory CPU Request
+    displayName: Artifactory CPU Request
+    value: "500m"
+    required: true
+  - name: CPU_LIMIT
+    description: Artifactory CPU Limit
+    displayName: Artifactory CPU Limit
+    value: "1"
+    required: true
+  - name: MEMORY_REQUEST
+    description: Artifactory Memory Request
+    displayName: Artifactory Memory Request
+    value: "2Gi"
+    required: true
+  - name: MEMORY_LIMIT
+    description: Artifactory Memory Limit
+    displayName: Artifactory Memory Limit
+    value: "3Gi"
+    required: true

@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Template
+metadata:
+    name: artifactory-imagestream-template
+    annotations:
+        openshift.io/provider-display-name: "JFrog"
+        openshift.io/display-name: "Artifactory Image Stream"
+        description: |-
+          This template creates an ImageStream to the Artifactory Docker image.
+        tags: "ci-cd"
+
+objects:
+  - apiVersion: v1
+    kind: ImageStream
+    metadata:
+        name: ${ARTIFACTORY_IMAGE_STREAM_NAME}
+        namespace: ${NAMESPACE}
+    spec:
+        dockerImageRepository: ${ARTIFACTORY_IMAGE_REPOSITORY}
+        tags:
+          - name: ${ARTIFACTORY_VERSION}
+            from:
+                kind: DockerImage
+                name: ${ARTIFACTORY_IMAGE_REPOSITORY}:${ARTIFACTORY_VERSION}
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: ARTIFACTORY_IMAGE_STREAM_NAME
+    description: Artifactory Image Stream name
+    displayName: Artifactory Image Stream name
+    required: true
+  - name: ARTIFACTORY_IMAGE_REPOSITORY
+    description: Artifactory Image Repository
+    displayName: Artifactory Image Repository
+    value: "jfrog-docker-reg2.bintray.io/jfrog/artifactory-pro"
+    required: true
+  - name: ARTIFACTORY_VERSION
+    description: Artifactory Version
+    displayName: Artifactory Version
+    value: "5.8.3"
+    required: true
