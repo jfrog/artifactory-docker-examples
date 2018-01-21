@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Template
+metadata:
+    name: artifactory-secondary-pvc-template
+    annotations:
+        openshift.io/provider-display-name: "JFrog"
+        openshift.io/display-name: "Artifactory Secondary PVC"
+        description: |-
+          This template creates a PVC to be used by a secondary node in an
+          Artifactory cluster.
+        tags: "ci-cd"
+
+objects:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+        name: ${NAME}-secondary
+        namespace: ${NAMESPACE}
+    spec:
+        resources:
+            requests:
+                storage: ${ARTIFACTORY_PVC_SIZE}
+        accessModes:
+          - "ReadWriteOnce"
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: NAME
+    description: Artifactory HA Name
+    displayName: Artifactory HA Name
+    required: true
+  - name: ARTIFACTORY_PVC_SIZE
+    description: Artifactory PVC size
+    displayName: Artifactory PVC size
+    value: "20Gi"
+    required: true

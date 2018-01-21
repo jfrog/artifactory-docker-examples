@@ -1,0 +1,44 @@
+
+apiVersion: v1
+kind: Template
+metadata:
+    name: artifactory-database-config-map-template
+    annotations:
+        openshift.io/provider-display-name: "JFrog"
+        openshift.io/display-name: "Artifactory Database Configuration"
+        description: |-
+          This template creates a ConfigMap to store database configuration used
+          by Artifactory.
+        tags: "ci-cd"
+objects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+        name: ${DATABASE_CONFIG_MAP_NAME}
+        namespace: ${NAMESPACE}
+    data:
+        db.type: ${DATABASE_TYPE}
+        db.host: ${DATABASE_HOST}
+        db.port: ${DATABASE_PORT}
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: DATABASE_CONFIG_MAP_NAME
+    description: Artifactory Database Config Map name
+    displayName: Artifactory Database Config Map name
+    required: true
+  - name: DATABASE_TYPE
+    description: Artifactory Database type. Possible values are postgresql, mysql, oracle or mssql.
+    displayName: Artifactory Database type
+    required: true
+  - name: DATABASE_HOST
+    description: Artifactory Database Hostname
+    displayName: Artifactory Database Hostname
+    required: true
+  - name: DATABASE_PORT
+    description: Artifactory Database Port
+    displayName: Artifactory Database Port
+    required: true

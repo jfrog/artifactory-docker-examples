@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Template
+metadata:
+    name: postgresql-service-template
+
+objects:
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+        name: ${NAME}
+        namespace: ${NAMESPACE}
+    spec:
+        ports:
+          - name: postgresql
+            port: 5432
+            protocol: TCP
+            targetPort: 5432
+        selector:
+            name: ${NAME}
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
+  - name: NAME
+    description: Service name
+    displayName: Service name
+    value: "postgresql"
