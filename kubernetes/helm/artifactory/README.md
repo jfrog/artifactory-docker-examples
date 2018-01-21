@@ -80,7 +80,7 @@ This will completely delete your Artifactory Pro deployment.
 
 
 ### Custom Docker registry for your images
-If you need to pull your Docker images from a private registry, you need to create a
+If you need to pull your Docker images from a private registry, you need to create a 
 [Kubernetes Docker registry secret](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) and pass it to helm
 ```bash
 # Create a Docker registry secret called 'regsecret'
@@ -122,7 +122,7 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `artifactory.replicaCount`            | Replica count for Artifactory deployment| `1`                                                |
 | `artifactory.image.pullPolicy`         | Container pull policy             | `IfNotPresent`                                           |
 | `artifactory.image.repository`    | Container image                   | `docker.bintray.io/jfrog/artifactory-pro`                |
-| `artifactory.image.version`       | Container image tag               | `5.7.2`                                                  |
+| `artifactory.image.version`       | Container tag                     |  `5.8.3`                                         |
 | `artifactory.service.name`| Artifactory service name to be set in Nginx configuration | `artifactory` |
 | `artifactory.service.type`| Artifactory service type | `ClusterIP` |
 | `artifactory.externalPort` | Artifactory service external port | `8081`   |
@@ -141,8 +141,8 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `nginx.name` | Nginx name | `nginx`   |
 | `nginx.replicaCount` | Nginx replica count | `1`   |
 | `nginx.image.repository`    | Container image                   | `docker.bintray.io/jfrog/nginx-artifactory-pro`                |
+| `nginx.image.version`       | Container tag                     | `5.8.3`                                                |
 | `nginx.image.pullPolicy`    | Container pull policy                   | `IfNotPresent`                |
-| `nginx.image.version`       | Container image tag               | `5.7.2`                                                  |
 | `nginx.service.type`| Nginx service type | `LoadBalancer` |
 | `nginx.service.loadBalancerSourceRanges`| Nginx service array of IP CIDR ranges to whitelist (only when service type is LoadBalancer) |  |
 | `nginx.externalPortHttp` | Nginx service external port | `80`   |
@@ -166,3 +166,4 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 ## Useful links
 https://www.jfrog.com
 https://www.jfrog.com/confluence/
+
