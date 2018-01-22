@@ -231,8 +231,8 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `artifactory.name`                   | Artifactory name                     | `artifactory`                              |
 | `artifactory.image.pullPolicy`       | Container pull policy                | `IfNotPresent`                             |
 | `artifactory.image.repository`       | Container image                      | `docker.bintray.io/jfrog/artifactory-pro`  |
-| `artifactory.image.version`          | Container image tag                  |                                            |
-| `artifactory.masterKey`      | Artifactory Master Key. Can be generated with `openssl rand -hex 32` |`0474ef3a52afe4ba6626a827c658ae5c3b5a91d34ae67d412b40ba6cc971e5e1`|
+| `artifactory.image.version`          | Container image tag                  | `5.8.3`                                    |
+| `artifactory.masterKey`      | Artifactory Master Key. Can be generated with `openssl rand -hex 32` |`557cff799d8735936e2c6e25a5526f07c36679882dc1c56eb6a44949fe964a44`|
 | `artifactory.license.secret` | Artifactory license secret name              |                                            |
 | `artifactory.license.dataKey`| Artifactory license secret data key          |                                            |
 | `artifactory.service.name`   | Artifactory service name to be set in Nginx configuration | `artifactory`                 |
@@ -279,6 +279,7 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `nginx.name`                | Nginx name                        | `nginx`                                                |
 | `nginx.replicaCount`        | Nginx replica count               | `1`                                                    |
 | `nginx.image.repository`    | Container image                   | `docker.bintray.io/jfrog/nginx-artifactory-pro`        |
+| `nginx.image.version`       | Container version                 | `5.8.3`                                                |
 | `nginx.image.pullPolicy`    | Container pull policy             | `IfNotPresent`                                         |
 | `nginx.service.type`        | Nginx service type                | `LoadBalancer`                                         |
 | `nginx.service.loadBalancerSourceRanges`| Nginx service array of IP CIDR ranges to whitelist (only when service type is LoadBalancer) |  |
