@@ -117,7 +117,8 @@ To use an AWS S3 bucket as the cluster's filestore
 
 ### Create a unique Master Key
 Artifactory HA cluster requires a unique master key. By default the chart has one set in values.yaml (`artifactory.masterKey`).
-This key is for demo purpose and should not be used in a production environment.
+
+**This key is for demo purpose and should not be used in a production environment!**
 
 You should generate a unique one and pass it to the template at install/upgrade time.
 ```bash
@@ -232,7 +233,7 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `artifactory.image.pullPolicy`       | Container pull policy                | `IfNotPresent`                             |
 | `artifactory.image.repository`       | Container image                      | `docker.bintray.io/jfrog/artifactory-pro`  |
 | `artifactory.image.version`          | Container image tag                  | `5.8.3`                                    |
-| `artifactory.masterKey`      | Artifactory Master Key. Can be generated with `openssl rand -hex 32` |`557cff799d8735936e2c6e25a5526f07c36679882dc1c56eb6a44949fe964a44`|
+| `artifactory.masterKey`      | Artifactory Master Key. Can be generated with `openssl rand -hex 32` |`FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF`|
 | `artifactory.license.secret` | Artifactory license secret name              |                                            |
 | `artifactory.license.dataKey`| Artifactory license secret data key          |                                            |
 | `artifactory.service.name`   | Artifactory service name to be set in Nginx configuration | `artifactory`                 |

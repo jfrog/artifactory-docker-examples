@@ -52,7 +52,8 @@ artifactory:
   ## You can generate one with the command:
   ## 'openssl rand -hex 32'
   ## Pass it to helm with '--set artifactory.masterKey=${MASTER_KEY}'
-  masterKey: 557cff799d8735936e2c6e25a5526f07c36679882dc1c56eb6a44949fe964a44
+  ## IMPORTANT: You should NOT use the example masterKey for a production deployment!
+  masterKey: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
   ## Artifactory license secret.
   ## If artifactory.license.secret is passed, it will be mounted as

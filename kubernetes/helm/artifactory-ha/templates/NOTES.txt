@@ -1,6 +1,23 @@
 Congratulations. You have just deployed JFrog Artifactory HA!
 
-1. Get the Artifactory URL by running these commands:
+{{- if eq .Values.artifactory.masterKey "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" }}
+
+
+***************************************** WARNING ******************************************
+* Your Artifactory master key is still set to the provided example:                        *
+* artifactory.masterKey=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF   *
+*                                                                                          *
+* You should change this to your own generated key:                                        *
+* $ export MASTER_KEY=$(openssl rand -hex 32)                                              *
+* $ echo ${MASTER_KEY}                                                                     *
+*                                                                                          *
+* Pass the created master key to helm with '--set artifactory.masterKey=${MASTER_KEY}'     *
+********************************************************************************************
+{{- end }}
+
+
+SETUP:
+1. Get the Artifactory IP and URL
 
    {{- if contains "NodePort" .Values.nginx.service.type }}
    export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ template "artifactory.nginx.name" . }})
@@ -8,8 +25,7 @@ Congratulations. You have just deployed JFrog Artifactory HA!
    echo http://$NODE_IP:$NODE_PORT/
 
    {{- else if contains "LoadBalancer" .Values.nginx.service.type }}
-
-   NOTE: It may take a few minutes for the LoadBalancer IP to be available!
+   NOTE: It may take a few minutes for the LoadBalancer public IP to be available!
 
    You can watch the status of the service by running 'kubectl get svc -w {{ template "artifactory.nginx.name" . }}'
    export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ template "artifactory.nginx.name" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
