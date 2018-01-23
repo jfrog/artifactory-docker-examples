@@ -2,7 +2,7 @@
 
 The templates part of this github project can be used to install JFrog Xray on OpenShift Container Platform.
 
-These templates have been tested with OpenShift Container Platform 3.6 (single node).
+These templates have been tested with OpenShift Container Platform 3.6 (single node) and latest version of oc cli (3.7.14).
 
 4 step process to install [JFrog Xray](https://www.jfrog.com/confluence/display/XRAY/Welcome+to+JFrog+Xray) -
 * Setup persistent volumes
@@ -88,8 +88,6 @@ oc adm policy add-scc-to-user $POLICY_NAME -z $SERVICE_ACCOUNT
 
 
 ## Upgrade ##
-
-Make sure that the oc version used is atleast 3.6.
 
 ### Usage ###
 ```

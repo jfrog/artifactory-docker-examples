@@ -69,6 +69,26 @@ objects:
             limits:
               memory: "1Gi"
               cpu: "1"
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /debug/pprof/
+              port: 7000
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /debug/pprof/
+              port: 7000
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
         securityContext:
           supplementalGroups: [1035]
         volumes:
@@ -95,7 +115,7 @@ parameters:
   - name: XRAY_VERSION
     description: JFrog Xray Version
     displayName: JFrog Xray Version
-    value: 1.8.6.5
+    value: 1.10.1
     required: true
   - name: SERVICE_ACCOUNT
     description: Service account
