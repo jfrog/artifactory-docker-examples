@@ -130,7 +130,7 @@ spec:
           mountPath: "{{ .Values.artifactory.persistence.nfs.backupDir }}"
       {{- else }}
         - name: binarystore-xml
-          mountPath: "{{ .Values.artifactory.persistence.mountPath }}/etc/binarystore.xml"
+          mountPath: "/artifactory_extra_conf/binarystore.xml"
           subPath: binarystore.xml
       {{- end }}
         resources:
