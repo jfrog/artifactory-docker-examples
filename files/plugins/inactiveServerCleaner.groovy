@@ -31,8 +31,7 @@ public class ArtifactoryInactiveServersCleaner {
             def noHeartbeat = heartbeat > ConstantValues.haHeartbeatStaleIntervalSecs.getInt()
             if (member.getServerState() == ArtifactoryServerState.UNAVAILABLE || noHeartbeat) {
                 try {
-                    log.info "Running inactive artifactory servers cleaning task, found ${member.serverId} inactive servers to " +
-                            "remove"
+                    log.info "Inactive artifactory servers cleaning task found server ${member.serverId} to remove"
                     artifactoryServersCommonService.removeServer(member.serverId)
 
                 }catch (Exception e){
