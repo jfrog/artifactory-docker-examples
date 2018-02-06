@@ -246,6 +246,7 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `artifactory.persistence.accessMode` | Artifactory persistence volume access mode      | `ReadWriteOnce`                 |
 | `artifactory.persistence.size`       | Artifactory persistence volume size             | `200Gi`                         |
 | `artifactory.persistence.type`       | Artifactory HA storage type                     | `file-system`                   |
+| `artifactory.persistence.redundancy` | Artifactory HA storage redundancy               | `2`                             |
 | `artifactory.persistence.nfs.ip`            | NFS server IP                        |                                     |
 | `artifactory.persistence.nfs.haDataMount`   | NFS data directory                   | `/data`                             |
 | `artifactory.persistence.nfs.haBackupMount` | NFS backup directory                 | `/backup`                           |

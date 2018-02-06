@@ -82,6 +82,10 @@ artifactory:
     ## aws-s3
     type: file-system
 
+    ## The number of copies that should be stored for each binary in the filestore.
+    ## Note that redundancy must be less than or equal to the number of Artifactory nodes.
+    redundancy: 2
+
     ## For artifactory.persistence.type nfs
     ## If using NFS as the shared storage, you must have a running NFS server that is accessible by your Kubernetes
     ## cluster nodes.
