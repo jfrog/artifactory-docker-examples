@@ -80,6 +80,11 @@ Artifactory HA support a wide range of storage back ends. You can see more detai
 In this chart, you set the type of storage you want with `artifactory.persistence.type` and pass the required configuration settings.
 The default storage in this chart is the `file-system` replication, where the data is replicated to all nodes.
 
+> **IMPORTANT:** All storage configurations (except NFS) come with a default `artifactory.persistence.redundancy` parameter.
+This is used to set how many replicas of a binary should be stored in the cluster's nodes.
+Once this value is set on initial deployment, you can not update it using helm.
+It is recommended to set this to a number greater than half of your cluster's size, and never scale your cluster down to a size smaller than this number.
+
 #### NFS
 To use an NFS server as your cluster's storage, you need to
 - Setup an NFS server. Get its IP as `NFS_IP`
@@ -246,6 +251,7 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `artifactory.persistence.accessMode` | Artifactory persistence volume access mode      | `ReadWriteOnce`                 |
 | `artifactory.persistence.size`       | Artifactory persistence volume size             | `200Gi`                         |
 | `artifactory.persistence.type`       | Artifactory HA storage type                     | `file-system`                   |
+| `artifactory.persistence.redundancy` | Artifactory HA storage redundancy               | `3`                             |
 | `artifactory.persistence.nfs.ip`            | NFS server IP                        |                                     |
 | `artifactory.persistence.nfs.haDataMount`   | NFS data directory                   | `/data`                             |
 | `artifactory.persistence.nfs.haBackupMount` | NFS backup directory                 | `/backup`                           |

@@ -69,6 +69,7 @@ artifactory:
   internalPort: 8081
 
   persistence:
+    redundancy: 3
     mountPath: "/var/opt/jfrog/artifactory"
     enabled: true
     accessMode: ReadWriteOnce
