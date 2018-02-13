@@ -2,7 +2,7 @@
 
 These templates can be used to deploy Artifactory HA on Openshift Container Platform. 
 
-You can find two sets of templates on this repository. `artifactory-ha-nfs` set should be used when you have a NFS server available and want to have shared data folders on your Artifactory nodes. If you do not have or do not intend to use NFS, `artifactory-na-no-nfs` set must be used.
+You can find two sets of templates on this repository. `artifactory-ha-nfs` set should be used when you have a NFS server available and want to have shared data folders on your Artifactory nodes. If you do not have or do not intend to use NFS, `artifactory-ha-no-nfs` set must be used.
 
 These templates have been tested with Artifactory 5.8.x and Openshift 3.6 running on a single node. To process the templates using the provided helper scripts, Openshift CLI 3.7.17 or newer is required. 
 
