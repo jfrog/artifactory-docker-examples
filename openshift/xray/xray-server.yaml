@@ -54,6 +54,13 @@ objects:
           - name: XRAYCONFIGPATH
             value: /var/opt/jfrog/xray/data
           image: ''
+          command:
+            - 'sh'
+            - '-c'
+            - >
+              mkdir -p /var/opt/jfrog/xray/data/config;
+              cp /xray-config/xray_config.yaml /var/opt/jfrog/xray/data/config/xray_config.yaml;
+              ./wrapper.sh
           imagePullPolicy: IfNotPresent
           name: server
           ports:
@@ -62,6 +69,9 @@ objects:
           volumeMounts:
           - mountPath: /var/opt/jfrog/xray/data
             name: volume-xray-server
+          - mountPath: /xray-config/xray_config.yaml
+            name: xray-conf-setup
+            subPath: xray_config.yaml
           resources:
             requests:
               memory: "1Gi"
@@ -91,11 +101,14 @@ objects:
             timeoutSeconds: 10
         securityContext:
           supplementalGroups: [1035]
-          privileged: false  
+          privileged: false
         volumes:
         - name: volume-xray-server
           persistentVolumeClaim:
             claimName: xray-data-pvc
+        - name: xray-conf-setup
+          configMap:
+            name: xray-conf-setup
     triggers:
     - type: ConfigChange
     - type: ImageChange
