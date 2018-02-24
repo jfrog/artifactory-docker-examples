@@ -1,6 +1,5 @@
 # Default values for artifactory-ha.
 # This is a YAML-formatted file.
-
 # Beware when changing values here. You should know what you are doing!
 # Access the values with {{ .Values.key.subkey }}
 
@@ -18,7 +17,7 @@ postgresql:
   enabled: true
   postgresDatabase: "artifactory"
   postgresUser: "artifactory"
-  postgresPassword: "artIfakt0ri1973"
+  postgresPassword:
   service:
     port: 5432
   persistence:
@@ -43,7 +42,7 @@ database:
 
 # Artifactory
 artifactory:
-  name: artifactory
+  name: artifactory-ha
   image:
     repository: "docker.bintray.io/jfrog/artifactory-pro"
     version: 5.8.4
@@ -62,9 +61,7 @@ artifactory:
   license:
     secret:
     dataKey:
-
   membershipPort: 10017
-
   externalPort: 8081
   internalPort: 8081
 
@@ -95,7 +92,6 @@ artifactory:
       dataDir: "/var/opt/jfrog/artifactory-ha"
       backupDir: "/var/opt/jfrog/artifactory-backup"
       capacity: 200Gi
-
     ## For artifactory.persistence.type google-storage
     googleStorage:
       # Set a unique bucket name
@@ -103,7 +99,6 @@ artifactory:
       identity:
       credential:
       path: "artifactory-ha/filestore"
-
     ## For artifactory.persistence.type aws-s3
     awsS3:
       # Set a unique bucket name
@@ -112,7 +107,6 @@ artifactory:
       identity:
       credential:
       path: "artifactory-ha/filestore"
-
   service:
     name: artifactory
     type: ClusterIP
@@ -131,7 +125,7 @@ artifactory:
   ## There is a difference between the primary and the member nodes.
   ## Customising their resources and java parameters is done here.
   primary:
-    name: artifactory-primary
+    name: artifactory-ha-primary
     ## Resources for the primary node
     resources: {}
     #  requests:
@@ -140,16 +134,14 @@ artifactory:
     #  limits:
     #    memory: "2Gi"
     #    cpu: "1"
-
     ## The following Java options are passed to the java process running Artifactory primary node.
     ## You should set them according to the resources set above
     javaOpts: {}
     #  xms: "1g"
     #  xmx: "2g"
     #  other:
-
   node:
-    name: artifactory-node
+    name: artifactory-ha-member
     replicaCount: 2
     ## Resources for the member nodes
     resources: {}
@@ -159,7 +151,6 @@ artifactory:
     #  limits:
     #    memory: "2Gi"
     #    cpu: "1"
-
     ## The following Java options are passed to the java process running Artifactory member nodes.
     ## You should set them according to the resources set above
     javaOpts: {}
@@ -167,10 +158,9 @@ artifactory:
     #  xmx: "2g"
     #  other:
 
-
 # Nginx
 nginx:
-  name: artifactory-nginx
+  name: nginx
   replicaCount: 1
   image:
     repository: "docker.bintray.io/jfrog/nginx-artifactory-pro"
@@ -185,12 +175,7 @@ nginx:
     ## or pass from helm command line
     ## Example: helm install ... --set nginx.service.loadBalancerSourceRanges='{10.10.10.5/32,10.11.10.5/32}'
     loadBalancerSourceRanges: []
-  externalPortHttp: 80
-  internalPortHttp: 80
-  externalPortHttps: 443
-  internalPortHttps: 443
   env:
-    artUrl: "http://artifactory:8081/artifactory"
     ssl: true
   resources: {}
   #  requests:
@@ -199,4 +184,3 @@ nginx:
   #  limits:
   #    memory: "250Mi"
   #    cpu: "500m"
-

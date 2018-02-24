@@ -1,27 +1,28 @@
 apiVersion: apps/v1beta2
 kind: StatefulSet
 metadata:
-  name: {{ template "artifactory.primary.name" . }}
+  name: {{ template "artifactory-ha.primary.name" . }}
   labels:
-    app: {{ template "artifactory.name" . }}
+    app: {{ template "artifactory-ha.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     component: {{ .Values.artifactory.name }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 spec:
-  serviceName: "{{ template "artifactory.primary.name" . }}"
+  serviceName: "{{ template "artifactory-ha.primary.name" . }}"
   replicas: 1
   updateStrategy:
     type: RollingUpdate
   selector:
     matchLabels:
-      role: {{ template "artifactory.primary.name" . }}
+      app: {{ template "artifactory-ha.name" . }}
+      role: {{ template "artifactory-ha.primary.name" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ template "artifactory.name" . }}
-        role: {{ template "artifactory.primary.name" . }}
+        app: {{ template "artifactory-ha.name" . }}
+        role: {{ template "artifactory-ha.primary.name" . }}
         component: {{ .Values.artifactory.name }}
         release: {{ .Release.Name }}
     spec:
