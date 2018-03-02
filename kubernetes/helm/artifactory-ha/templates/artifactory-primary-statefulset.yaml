@@ -85,7 +85,10 @@ spec:
         - name: DB_USER
           value: '{{ .Values.database.user }}'
         - name: DB_PASSWORD
-          value: '{{ .Values.database.password }}'
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "artifactory-ha.fullname" . }}
+              key: db-password
       {{- end }}
         - name: EXTRA_JAVA_OPTIONS
           value: "
@@ -105,7 +108,7 @@ spec:
         - name: ARTIFACTORY_MASTER_KEY
           valueFrom:
             secretKeyRef:
-              name: {{ template "artifactory.name" . }}-master-key
+              name: {{ template "artifactory-ha.fullname" . }}
               key: master-key
         - name: HA_IS_PRIMARY
           value: "true"
@@ -158,10 +161,10 @@ spec:
       volumes:
       - name: binarystore-xml
         configMap:
-          name: artifactory-binarystore
+          name: {{ template "artifactory-ha.fullname" . }}-bs
       - name: artifactory-inactiveservercleaner
         configMap:
-          name: artifactory-inactiveservercleaner
+          name: {{ template "artifactory-ha.fullname" . }}-isc
       {{- if .Values.artifactory.license.secret }}
       - name: artifactory-license
         secret:
@@ -170,10 +173,10 @@ spec:
       {{- if eq .Values.artifactory.persistence.type "nfs" }}
       - name: artifactory-ha-data
         persistentVolumeClaim:
-          claimName: {{ template "artifactory.name" . }}-data-pvc
+          claimName: {{ template "artifactory-ha.fullname" . }}-data-pvc
       - name: artifactory-ha-backup
         persistentVolumeClaim:
-          claimName: {{ template "artifactory.name" . }}-backup-pvc
+          claimName: {{ template "artifactory-ha.fullname" . }}-backup-pvc
       {{- end }}
   volumeClaimTemplates:
   - metadata:
