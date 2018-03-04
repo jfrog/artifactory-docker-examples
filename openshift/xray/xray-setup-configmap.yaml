@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Template
+metadata:
+    name: xray-conf-configmap-template
+    annotations:
+        openshift.io/provider-display-name: "JFrog"
+        openshift.io/display-name: "Xray ConfigMap"
+        description: |-
+          This template creates a ConfigMap to be used to bootstrap Xray
+        tags: "ci-cd"
+
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: xray-conf-setup
+    namespace: ${NAMESPACE}
+  data:
+    xray_config.yaml: |
+      ---
+           ver:                  1.0
+           XrayServerPort:       8000
+           mqBaseUrl:            amqp://guest:guest@rabbitmq:5672/
+           mongoUrl:             mongodb://xray:password@mongodb:27017/?authSource=xray&authMechanism=SCRAM-SHA-1
+           postgresqlUrl:        postgres://xray:xray@postgres:5432/xraydb?sslmode=disable
+           sslInsecure:          false
+
+parameters:
+  - name: NAMESPACE
+    description: Namespace
+    displayName: Namespace
+    required: true
