@@ -19,7 +19,7 @@ processTemplates() {
 
 export PERSISTENT_VOLUME_CLAIMS="xray-data-pvc.yaml xray-postgres/xray-postgres-pvc.yaml xray-mongodb/xray-mongodb-pvc.yaml xray-rabbitmq/xray-rabbitmq-pvc.yaml"
 
-export CONFIG_MAPS="xray-mongodb/xray-mongodb-setup-configmap.yaml xray-rabbitmq/xray-rabbitmq-configmap.yaml"
+export CONFIG_MAPS="xray-mongodb/xray-mongodb-setup-configmap.yaml xray-rabbitmq/xray-rabbitmq-configmap.yaml xray-setup-configmap.yaml"
 
 export IMAGE_STREAMS="xray-imagestream.yaml"
 
