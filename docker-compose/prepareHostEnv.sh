@@ -163,7 +163,12 @@ copyFiles () {
     if [[ ${type} =~ ^ha ]]; then type=ha; fi
 
     echo "Nginx Artifactory configuration"
-    cp -fr ${SCRIPT_DIR}/../files/nginx/conf.d/${type}/* ${ROOT_DATA_DIR}/nginx/conf.d/
+    if [ "$TYPE" == "oss" ]; then
+        cp -fr ${SCRIPT_DIR}/../files/nginx/conf.d/pro/* ${ROOT_DATA_DIR}/nginx/conf.d/
+    else
+        cp -fr ${SCRIPT_DIR}/../files/nginx/conf.d/${type}/* ${ROOT_DATA_DIR}/nginx/conf.d/
+    fi
+
 }
 
 showNotes () {
