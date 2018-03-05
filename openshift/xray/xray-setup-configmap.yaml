@@ -23,6 +23,7 @@ objects:
            mqBaseUrl:            amqp://guest:guest@rabbitmq:5672/
            mongoUrl:             mongodb://xray:password@mongodb:27017/?authSource=xray&authMechanism=SCRAM-SHA-1
            postgresqlUrl:        postgres://xray:xray@postgres:5432/xraydb?sslmode=disable
+           stdOutEnabled:        true
            sslInsecure:          false
 
 parameters:
