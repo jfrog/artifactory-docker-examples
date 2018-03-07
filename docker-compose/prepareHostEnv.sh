@@ -145,8 +145,6 @@ copyFiles () {
     if [ "$TYPE" == "pro" ] || [ "$TYPE" == "oss" ]; then
         cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/etc
         cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/
-#    elif [ "$TYPE" == "oss" ]; then
-#         cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/
     else
         cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/node1
         cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node1/
