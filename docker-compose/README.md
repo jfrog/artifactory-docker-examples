@@ -207,6 +207,8 @@ Artifactory data is shared on a common NFS mount.
 
 ### Artifactory OSS standalone with built in Derby database
 ```bash
+### Linux
+$ sudo ./prepareHostEnv.sh -t oss -c
 $ sudo docker-compose -f artifactory-oss.yml up -d
 ```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
@@ -220,6 +222,8 @@ Artifactory uses the embedded DerbyDB database.
 
 ### Artifactory OSS with PostgreSQL
 ```bash
+### Linux
+$ sudo ./prepareHostEnv.sh -t oss -c
 $ sudo docker-compose -f artifactory-oss-postgresql.yml up -d
 ```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
