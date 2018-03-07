@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   artifactory:
     image: docker.bintray.io/jfrog/artifactory-oss:5.9.1
