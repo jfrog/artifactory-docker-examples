@@ -1,4 +1,4 @@
-export XRAY_TO_VERSION=1.10
+export XRAY_TO_VERSION=1.11.0
 # Current Xray version can be fetched via curl XRAY_URL/api/v1/system/version
 
 
@@ -35,4 +35,3 @@ for i in $DC; do
  upgrade $i $XRAY_TO_VERSION
  start $i
 done
-
