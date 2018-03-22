@@ -138,16 +138,6 @@ copyFiles () {
     echo "Copying needed files to directories"
 
     echo "Artifactory configuration files"
-    if [ "$TYPE" == "pro" ]; then
-        cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/etc
-        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/
-    else
-        cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/node1
-        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node1/
-        cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/node2
-        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node2/
-
-        # Copy the binarystore.xml which has configuration for no-shared storage
         if [ "$TYPE" == "ha" ]; then
             cp -f ${SCRIPT_DIR}/../files/binarystore.xml ${ROOT_DATA_DIR}/artifactory/node1/etc
         fi
@@ -161,16 +151,29 @@ copyFiles () {
 }
 
 showNotes () {
-    cat << END_NOTES1
+
+if [ "$TYPE" == "pro" ]; then
+    cat << PRO_NOTES
 
 ======================================
 IMPORTANT
 * Before starting, it is recommended to place the license file(s) (artifactory.lic) in the Artifactory etc directory
   - Artifactory pro:   ${ROOT_DATA_DIR}/artifactory/etc
+* The access keys used in these examples SHOULD NOT be used for production!
+PRO_NOTES
+fi
+
+if [ "$TYPE" == "ha" ]; then
+
+cat <<HA_NOTES
+======================================
+IMPORTANT
+* Before starting, it is recommended to place the license file(s) (artifactory.lic) in the Artifactory etc directory of the primary node
   - Artifactory HA :   ${ROOT_DATA_DIR}/artifactory/node1/etc
                        ${ROOT_DATA_DIR}/artifactory/node2/etc
-* The communication and access keys used in these examples SHOULD NOT be used for production!
-END_NOTES1
+* The access keys used in these examples SHOULD NOT be used for production!
+HA_NOTES
+fi
 
     local extra_msg=""
     if [ "$DEFAULT_ROOT_DATA_DIR" != "$ROOT_DATA_DIR" ]; then
@@ -179,7 +182,8 @@ END_NOTES1
     if [ "$OS_TYPE" == "Darwin" ]; then
         extra_msg="$extra_msg* Since you are running on Mac, you have to update the docker-compose yaml file (replace $LINUX_ROOT_DATA_DIR with $ROOT_DATA_DIR)."
     fi
-    cat << END_NOTES2
+    
+cat << END_NOTES2
 $extra_msg
 ======================================
 
