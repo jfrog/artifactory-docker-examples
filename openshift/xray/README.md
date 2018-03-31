@@ -52,10 +52,23 @@ For more information about ulimits, refer [here](https://www.jfrog.com/confluenc
    oc new-project test-proj-2
    oc create serviceaccount xray-user
 ```
-This service account will be referred in the DeploymentConfig of Xray microservices. Make sure that this service account is assigned a SCC policy that allows RW operations to NFS. The policy can be assigned using -
+This service account will be referred in the DeploymentConfig of Xray microservices.  
+Xray docker images require root access.
+One way to achieve this in OpenShift is to assign a scc that has 'RUNASUSER' policy set as 'RunAsAny'.  
+OpenShift has builtin scc called 'anyuid' that can be used. 
+ 
+To assign scc to the service account use following command -
 ```
 oc adm policy add-scc-to-user $POLICY_NAME -z $SERVICE_ACCOUNT
 ```
+
+Example for 'anyuid' scc will be as follows:
+```
+oc adm policy add-scc-to-user anyuid -z xray-user
+```
+ 
+Also, ssc linked to the service account should have ReadWrite access to the persistent volume type being used.
+Example persistent volume types are 'nfs', 'awsElasticBlockStore'.
 
 
 ## Step 3: Deploy templates ##
