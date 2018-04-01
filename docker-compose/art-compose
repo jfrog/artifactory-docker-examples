@@ -384,7 +384,6 @@ checkDocker
 validateActions
 clean
 createDirectories
-setDbPassword
 getArtifactoryComposeYaml
 
 eval ${ACTION}
