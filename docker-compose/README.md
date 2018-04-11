@@ -1,8 +1,5 @@
 # Artifactory Docker Compose Examples
 This directory provides some examples that show different ways to run Artifactory with Docker Compose.  
-
-
-## Docker and Docker Compose
 To learn more about Docker and how to set it up, please refer to the [Docker](https://docs.docker.com) and [Docker Compose](https://docs.docker.com/compose/overview/) documentation.  
  
 
@@ -28,27 +25,27 @@ $ docker-compose -f <compose-file> <options>
 
 - Start  
 ```bash
-$ sudo docker-compose -f <compose-file> up -d
+$ sudo docker-compose -f <compose-file> up -d  => Create and start containers
 ```
 - Stop  
 ```bash
-$ sudo docker-compose -f <compose-file> stop
+$ sudo docker-compose -f <compose-file> stop  => Stop services
 ```
 - Restart  
 ```bash
-$ sudo docker-compose -f <compose-file> restart
+$ sudo docker-compose -f <compose-file> restart => Restart services
 ```
 - Status  
 ```bash
-$ sudo docker-compose -f <compose-file> ps
+$ sudo docker-compose -f <compose-file> ps => List containers
 ```
 - Logs  
 ```bash
-$ sudo docker-compose -f <compose-file> logs
+$ sudo docker-compose -f <compose-file> logs => View output from containers
 ```
 - Remove  
 ```bash
-$ sudo docker-compose -f <compose-file> rm
+$ sudo docker-compose -f <compose-file> rm => Remove stopped containers
 ```
  
 --- 
@@ -74,7 +71,7 @@ After executing the script, the needed set of data directories for Artifactory P
 
 ---
 ### Database Driver
-The database used in these examples is PostgreSQL.  
+The database used in these examples is PostgreSQL 9.5.2.  
 The PostgreSQL database driver comes pre-loaded into the Artifactory Docker image, but you can still use other databases without any conflicts. 
 
 #### Using Different Databases
@@ -87,17 +84,20 @@ Below is a list of included examples. You are welcome to contribute.
 **IMPORTANT:** The files under the `files` directory included in this repository are for example purposes only and should NOT be used for any production deployments!  
 
 ---
-### Artifactory Pro
+## Artifactory Pro
 
-#### Artifactory Pro with PostgreSQL and Nginx for Docker registry support
+#### Artifactory Pro with PostgreSQL 9.5.2 and Nginx for Docker registry support
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
+#
 $ sudo docker-compose -f artifactory-pro.yml up -d
-
-### OSX
+#
+### MAC OSX
 $ ./prepareHostEnv.sh -t pro -c
-$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-pro.yml
+#
+$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-pro.yml #Backup the config file and changes the home directory to MAC OS default 
+#
 $ docker-compose -f artifactory-pro.yml up -d
 
 ```  
@@ -108,25 +108,28 @@ This example starts the following containers
   - You can disable port 80 in Nginx's configuration files
   - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
 - Artifactory Pro exposed on port 8081
-- PostgreSQL database serving Artifactory   
+- PostgreSQL 9.5.2 database serving Artifactory exposed on port 5432 
 
 
 #### Artifactory Pro with PostgreSQL only 
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
+#
 $ sudo docker-compose -f artifactory-pro-postgresql.yml up -d
-
-### OSX
+#
+### MAC OSX
 $ ./prepareHostEnv.sh -t pro -c
+#
 $ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-pro-postgresql.yml
+#
 $ docker-compose -f artifactory-pro-postgresql.yml up -d
 ```  
 
 This example starts the following containers
 
 - Artifactory Pro exposed on port 80
-- PostgreSQL database serving Artifactory   
+- PostgreSQL 9.5.2 database serving Artifactory exposed on port 5432  
 
 Artifactory uses the PostgreSQL database running in another container.
 
@@ -134,6 +137,7 @@ Artifactory uses the PostgreSQL database running in another container.
 #### Artifactory Pro with Derby and Nginx for Docker registry support
 ```bash
 $ sudo ./prepareHostEnv.sh -t pro -c
+#
 $ sudo docker-compose -f artifactory-pro-nginx-derby.yml up -d
 ```  
 
@@ -144,19 +148,22 @@ This example starts the following containers
   - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
 - Artifactory Pro exposed on port 8081  
 
-Artifactory uses the Derby database at it container.
+Artifactory uses the embedded Derby as it's database.
 
-### Artifactory HA
+## Artifactory HA
 
 #### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t ha -c
+#
 $ sudo docker-compose -f artifactory-ha.yml up -d
 
-### OSX
+### MAC OSX
 $ ./prepareHostEnv.sh -t ha -c
+#
 $ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-ha.yml
+#
 $ docker-compose -f artifactory-ha.yml up -d
 ```  
 
