@@ -62,7 +62,7 @@ setOS () {
 }
 
 validateSudo () {
-    if [ "$OS_NAME" = "Linux" ] && [ "$EUID" = 0 ]; then
+    if [ "$OS_NAME" = "Linux" ] && [ "$EUID" != 0 ]; then
         errorExit "This script must be run as root or with sudo"
     fi
 }
