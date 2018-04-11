@@ -8,7 +8,7 @@ To learn more about Docker and how to set it up, please refer to the [Docker](ht
 
 ## Artifactory Docker Images
 Artifactory is available as different Docker images for:
-- [Artifactory Pro](#artifactory-pro-and-ha)
+- [Artifactory Pro](#artifactory-pro)
 - [Artifactory OSS](#artifactory-oss)
 
 These images are available for download from [JFrog Bintray](https://bintray.com/jfrog).
@@ -87,11 +87,9 @@ Below is a list of included examples. You are welcome to contribute.
 **IMPORTANT:** The files under the `files` directory included in this repository are for example purposes only and should NOT be used for any production deployments!  
 
 ---
-### Artifactory Pro and HA
-Artifactory Pro and HA require some more setup due to the built in support for simple and complex configurations.  
+### Artifactory Pro
 
-
-### Artifactory Pro with PostgreSQL and Nginx for Docker registry support
+#### Artifactory Pro with PostgreSQL and Nginx for Docker registry support
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
@@ -113,7 +111,7 @@ This example starts the following containers
 - PostgreSQL database serving Artifactory   
 
 
-### Artifactory Pro with PostgreSQL only 
+#### Artifactory Pro with PostgreSQL only 
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
@@ -133,7 +131,7 @@ This example starts the following containers
 Artifactory uses the PostgreSQL database running in another container.
 
 
-### Artifactory Pro with Derby and Nginx for Docker registry support
+#### Artifactory Pro with Derby and Nginx for Docker registry support
 ```bash
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-nginx-derby.yml up -d
@@ -148,7 +146,9 @@ This example starts the following containers
 
 Artifactory uses the Derby database at it container.
 
-### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support
+### Artifactory HA
+
+#### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t ha -c
@@ -175,7 +175,7 @@ In this example, the HA nodes use their local storage and sync data between the 
 
 **NOTE:** You must complete the onboarding process to have a fully functional Artifactory HA cluster!
 
-### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support with shared data storage (NFS)
+#### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support with shared data storage (NFS)
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t ha-shared-data -c
@@ -205,8 +205,10 @@ Artifactory data is shared on a common NFS mount.
 ---
 ### Artifactory OSS
 
-### Artifactory OSS standalone with built in Derby database
+#### Artifactory OSS standalone with built in Derby database
 ```bash
+### Linux
+$ sudo ./prepareHostEnv.sh -t oss -c
 $ sudo docker-compose -f artifactory-oss.yml up -d
 ```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
@@ -218,8 +220,10 @@ This example starts the following containers
 Artifactory uses the embedded DerbyDB database.
 
 
-### Artifactory OSS with PostgreSQL
+#### Artifactory OSS with PostgreSQL
 ```bash
+### Linux
+$ sudo ./prepareHostEnv.sh -t oss -c
 $ sudo docker-compose -f artifactory-oss-postgresql.yml up -d
 ```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!

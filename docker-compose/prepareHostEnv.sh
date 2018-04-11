@@ -27,6 +27,7 @@ Supported options
        - oss            : Single OSS node
        - ha             : HA with two nodes
        - ha-shared-data : HA that uses a shared data mount
+       - oss            : Single OSS node
 -d   : Custom root data directory (defaults to /data)
 -c   : Clean local data directory. Delete the data directory on the host before creating the new ones
 -f   : Force removal if -c is passed (do not prompt)
@@ -35,6 +36,9 @@ Supported options
 Examples
 Prepare directories for Artifactory pro with default data directory
 Start : sudo $0 -t pro -c
+
+Prepare directories for Artifactory OSS with default data directory
+Start : sudo $0 -t oss -c
 
 Prepare a default HA deployment directories
 Start : sudo $0 -t ha -c
@@ -69,7 +73,7 @@ processOptions() {
         case $opt in
             t)  # Run type
                 TYPE=$OPTARG
-                if [ $TYPE != "pro" ] && [ $TYPE != "ha" ] && [ $TYPE != "ha-shared-data" ] && [ $TYPE != "oss"]; then
+                if [ $TYPE != "pro" ] && [ $TYPE != "ha" ] && [ $TYPE != "ha-shared-data" ] && [ $TYPE != "oss" ]; then
                     echo "ERROR: Deployment type $TYPE is not supported"
                     usage
                 fi
@@ -96,7 +100,7 @@ processOptions() {
 
     # Make sure mandatory parameters are set
     if [ -z "$TYPE" ]; then
-        echo "You must pass a deployment type (-t <pro|ha|ha-shared-data>)"
+        echo "You must pass a deployment type (-t <pro|ha|ha-shared-data|oss>)"
         usage
     fi
 
@@ -125,7 +129,8 @@ cleanDataDir () {
 createDirectories () {
     echo "Creating ${ROOT_DATA_DIR}"
     mkdir -p ${ROOT_DATA_DIR}/postgresql
-    if [ "$TYPE" = "pro" ]; then
+    
+    if [ "$TYPE" = "pro" ] || [  "$TYPE" == "oss" ]; then
         mkdir -p ${ROOT_DATA_DIR}/artifactory/etc
     else
         mkdir -p ${ROOT_DATA_DIR}/artifactory/node{1,2}/etc
@@ -142,6 +147,13 @@ copyFiles () {
     echo "Copying needed files to directories"
 
     echo "Artifactory configuration files"
+    if [ "$TYPE" = "pro" ] || [ "$TYPE" = "oss" ]; then
+        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/
+    else
+        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node1/
+        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node2/
+    fi
+        # Copy the binarystore.xml which has configuration for no-shared storage
         if [ "$TYPE" = "ha" ]; then
             cp -f ${SCRIPT_DIR}/../files/binarystore.xml ${ROOT_DATA_DIR}/artifactory/node1/etc
         fi
@@ -151,6 +163,7 @@ copyFiles () {
 
     echo "Nginx Artifactory configuration"
     cp -fr ${SCRIPT_DIR}/../files/nginx/conf.d/${type}/* ${ROOT_DATA_DIR}/nginx/conf.d/
+
 }
 
 showNotes () {
@@ -177,6 +190,20 @@ IMPORTANT
 * The access keys used in these examples SHOULD NOT be used for production!
 HA_NOTES
 fi
+
+
+if [ "$TYPE" = "oss" ]; then
+    cat << OSS_NOTES
+
+======================================
+
+INSTALLATION DIRECTORY
+  - Artifactory OSS:   ${ROOT_DATA_DIR}/artifactory/etc
+* The access keys used in these examples SHOULD NOT be used for production!
+OSS_NOTES
+fi
+
+
 
     local extra_msg=""
     if [ "$DEFAULT_ROOT_DATA_DIR" != "$ROOT_DATA_DIR" ]; then
