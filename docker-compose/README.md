@@ -12,7 +12,7 @@ These images are available for download from [JFrog Bintray](https://bintray.com
 
  
 
-## Docker Compose Examples
+## Docker-Compose Usage
 To run any of the examples, you should execute:  
 ```bash
 $ docker-compose -f <compose-file> <options>
@@ -20,7 +20,7 @@ $ docker-compose -f <compose-file> <options>
 
 
 ### Docker Compose Control Commands
-**NOTE:** On **OSX**, you should omit the `sudo` from all your `docker-compose` commands
+**NOTE:** On **MAC OSX**, you should omit the `sudo` from all your `docker-compose` commands
 
 
 - Start  
@@ -78,10 +78,10 @@ The PostgreSQL database driver comes pre-loaded into the Artifactory Docker imag
 Artifactory can run with other databases. For more details on supported databases and how to set them up for use with Artifactory, please refer to [Changing the Database](https://www.jfrog.com/confluence/display/RTF/Changing+the+Database) in the JFrog Artifactory Use Guide.
 
 ---
-### Examples
+# Docker Compose Examples
 Below is a list of included examples. You are welcome to contribute.
 
-**IMPORTANT:** The files under the `files` directory included in this repository are for example purposes only and should NOT be used for any production deployments!  
+**IMPORTANT:** This is an example setup purposes only and should NOT be used for any production deployments!  
 
 ---
 ## Artifactory Pro
@@ -186,11 +186,14 @@ In this example, the HA nodes use their local storage and sync data between the 
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t ha-shared-data -c
+#
 $ sudo docker-compose -f artifactory-ha-shared-data.yml up -d
 
-### OSX
+### MAC OSX
 $ ./prepareHostEnv.sh -t ha-shared-data -c
+#
 $ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-ha-shared-data.yml
+#
 $ docker-compose -f artifactory-ha-shared-data.yml up -d
 ```
 
@@ -216,6 +219,7 @@ Artifactory data is shared on a common NFS mount.
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t oss -c
+#
 $ sudo docker-compose -f artifactory-oss.yml up -d
 ```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
@@ -231,6 +235,7 @@ Artifactory uses the embedded DerbyDB database.
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t oss -c
+#
 $ sudo docker-compose -f artifactory-oss-postgresql.yml up -d
 ```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
