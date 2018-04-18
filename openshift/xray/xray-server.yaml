@@ -55,6 +55,7 @@ objects:
               mkdir -p /var/opt/jfrog/xray/data/config;
               chmod 777 /var/opt/jfrog/xray/data/config;
               cp /xray-config/xray_config.yaml /var/opt/jfrog/xray/data/config/xray_config.yaml;
+              chmod 777 /var/opt/jfrog/xray/data/config/xray_config.yaml;
           imagePullPolicy: IfNotPresent
           volumeMounts:
           - mountPath: /var/opt/jfrog/xray/data
