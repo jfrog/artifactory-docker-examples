@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   postgresql:
     image: docker.bintray.io/postgres:9.5.2
@@ -9,7 +9,7 @@ services:
      - POSTGRES_DB=artifactory
      # The following must match the DB_USER and DB_PASSWORD values passed to Artifactory
      - POSTGRES_USER=artifactory
-     - POSTGRES_PASSWORD=password
+     - POSTGRES_PASSWORD=${POSTGRES_PSWRD}
     volumes:
      - /data/postgresql:/var/lib/postgresql/data
     restart: always
@@ -33,7 +33,7 @@ services:
      - DB_TYPE=postgresql
      # The following must match the POSTGRES_USER and POSTGRES_PASSWORD values passed to PostgreSQL
      - DB_USER=artifactory
-     - DB_PASSWORD=password
+     - DB_PASSWORD=${POSTGRES_PSWRD}
      # Add extra Java options by uncommenting the following line
      #- EXTRA_JAVA_OPTIONS=-Xmx4g
     restart: always

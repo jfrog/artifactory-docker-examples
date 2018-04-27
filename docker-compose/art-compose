@@ -15,7 +15,6 @@ MAC_DEFAULT_ROOT_DATA_DIR=~/.jfrog/artifactory
 ARTIFACTORY_VERSION=5.10.4
 ART_COMPOSE_YML=https://jfrog.bintray.com/run/artifactory-pro/${ARTIFACTORY_VERSION}/compose/artifactory-pro.yml
 COMPOSE_FILE=artifactory-pro.yml
-DB_PASSWORD_FILE=.dbpassword
 FRESH_YML=false
 DATA_REMOVED=false
 
@@ -162,18 +161,6 @@ createDirectories () {
             echo "Changing ownership of ${ROOT_DATA_DIR} to ${SUDO_USER}"
             chown -R ${SUDO_USER} ${ROOT_DATA_DIR}
         fi
-    fi
-}
-
-setDbPassword () {
-    if [ "$ACTION" == "start" ] && [ ! -f ${ROOT_DATA_DIR}/.dbpasswordcreated ] ; then
-        echo "Creating a new DB password"
-        TEMP_DB_PASSWORD=$(date +%s%N | shasum 2> /dev/null)
-        TEMP_DB_PASSWORD=${TEMP_DB_PASSWORD:0:12}
-        echo "Writing DB password to ${ROOT_DATA_DIR}/${DB_PASSWORD_FILE}"
-        echo -n "$TEMP_DB_PASSWORD" > ${ROOT_DATA_DIR}/${DB_PASSWORD_FILE}
-        touch ${ROOT_DATA_DIR}/.dbpasswordcreated
-        EXTRA_MSG="$EXTRA_MSG\nA password has been generated for the DB and saved in ${ROOT_DATA_DIR}/${DB_PASSWORD_FILE}"
     fi
 }
 
@@ -397,7 +384,6 @@ checkDocker
 validateActions
 clean
 createDirectories
-setDbPassword
 getArtifactoryComposeYaml
 
 eval ${ACTION}
