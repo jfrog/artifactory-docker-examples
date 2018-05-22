@@ -63,9 +63,6 @@ objects:
                     volumeMounts:
                       - name: artifactory-data
                         mountPath: /var/opt/jfrog/artifactory
-                      - name: artifactory-master-key
-                        mountPath: /var/opt/jfrog/artifactory/etc/security/master.key
-                        subPath: master.key
                     env:
                       - name: DB_TYPE
                         valueFrom:
@@ -92,6 +89,11 @@ objects:
                             secretKeyRef:
                                 name: ${DATABASE_CREDENTIALS_SECRET_NAME}
                                 key: password
+                      - name: ARTIFACTORY_MASTER_KEY
+                        valueFrom:
+                            secretKeyRef:
+                                name: ${MASTER_KEY_SECRET_NAME}
+                                key: master.key
                       - name: HA_NODE_ID
                         value: "${NAME}-secondary"
                       - name: HA_IS_PRIMARY
@@ -128,9 +130,6 @@ objects:
                   - name: artifactory-data
                     persistentVolumeClaim:
                         claimName: ${NAME}-secondary
-                  - name: artifactory-master-key
-                    secret:
-                        secretName: ${MASTER_KEY_SECRET_NAME}
         triggers:
           - type: ImageChange
             imageChangeParams:
