@@ -13,7 +13,7 @@ These templates have been tested with OpenShift Container Platform 3.6 (single n
 
 ## Step 1: Setup PersistentVolume ##
 
-There are atleast two ways to setup persistent volume -
+There are at least two ways to setup persistent volume -
 
 ### NFS as PersistentVolume for Xray microservices and Third party microservices ###
 
@@ -45,7 +45,7 @@ The files below can be used as a reference:
 It is recommended to setup a high nofile limit by updating `/etc/security/limits.conf` file. At the docker daemon and node level, this number is set to a higher value. But make sure that this value is set to a high number on the file system side.
 For more information about ulimits, refer [here](https://www.jfrog.com/confluence/display/XRAY/Installing+Xray#InstallingXray-FileHandleAllocationLimit).
 
-
+Make sure that Xray user (UID 1035) is the owner of the root path used to create xray-data-pv volume.
 
 ## Step 2: Create a project (or use existing project) and create a service account
 ```
@@ -55,8 +55,8 @@ For more information about ulimits, refer [here](https://www.jfrog.com/confluenc
 This service account will be referred in the DeploymentConfig of Xray microservices.  
 Xray docker images require root access.
 One way to achieve this in OpenShift is to assign a scc that has 'RUNASUSER' policy set as 'RunAsAny'.  
-OpenShift has builtin scc called 'anyuid' that can be used. 
- 
+OpenShift has builtin scc called 'anyuid' that can be used.
+
 To assign scc to the service account use following command -
 ```
 oc adm policy add-scc-to-user $POLICY_NAME -z $SERVICE_ACCOUNT
@@ -66,7 +66,7 @@ Example for 'anyuid' scc will be as follows:
 ```
 oc adm policy add-scc-to-user anyuid -z xray-user
 ```
- 
+
 Also, ssc linked to the service account should have ReadWrite access to the persistent volume type being used.
 Example persistent volume types are 'nfs', 'awsElasticBlockStore'.
 
@@ -81,7 +81,9 @@ Example persistent volume types are 'nfs', 'awsElasticBlockStore'.
 
 * Once the templates are updated, run the xray-wrapper script. The xray-wrapper.sh script creates ConfigMaps, PersistentVolumeClaims, ImageStreams and the DeploymentConfig templates of Xray and third party microservices.
 
-``` ./xray-wrapper.sh $USERNAME $PARAMETERS_FILE ```
+```
+./xray-wrapper.sh $USERNAME $PARAMETERS_FILE
+```
 
 
 
@@ -122,10 +124,12 @@ Set XRAY_TO_VERSION to point to a newer version
 
 ```
 
-The upgrade script stops all Xray microservices, update ImageTrigger to point to the new version of Xray and then starts all Xray microservices. 
-The new Xray version is set in `xray-upgrade.sh` script. 
+The upgrade script stops all Xray microservices, update ImageTrigger to point to the new version of Xray and then starts all Xray microservices.
+The new Xray version is set in `xray-upgrade.sh` script.
 
 *Note that the value of `automatic` in ConfigTrigger will be set to `false` after running the upgrade script.*
+
+*Note: event microservice has been deprecated in version 2.0.0. If you are upgrading from a previous version, delete the xray-event DeploymentConfig before running the upgrade script.
 
 
 
@@ -147,12 +151,10 @@ Update etc/security/limits.conf file and add following two lines
 ### Offline DB Sync ###
 * JFrog Xray supports [offline DB sync](https://www.jfrog.com/confluence/display/XRAY/Configuring+Xray#ConfiguringXray-OfflineSynchronization)
 * The offline DB sync command downloads files from jxray and bintray. These files can be copied to the PV.
-* The best approach will be the usage of a sidecar container pattern that shares the same PVC as Xray microservice and copies the data directly to volume. 
+* The best approach will be the usage of a sidecar container pattern that shares the same PVC as Xray microservice and copies the data directly to volume.
 
 ### Installing Xray if a direct access to bintray is not allowed ###
 Update DOCKER_REGISTRY value in [PARAMETERS_FILE](xray-params.env) to point to Artifactory's docker registry
 
 ### Updating credentials of third party microservices ###
 Credentials of MongoDB, RabbitMQ and PostGres can be modified by following these [instructions](https://www.jfrog.com/confluence/display/XRAY/Configuring+Xray#ConfiguringXray-ChangingThirdPartyServiceCredentials)
-
-

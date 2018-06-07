@@ -25,7 +25,7 @@ export IMAGE_STREAMS="xray-imagestream.yaml"
 
 export THIRDPARTY_MICROSERVICES="xray-postgres/xray-postgres.yaml xray-mongodb/xray-mongodb.yaml xray-rabbitmq/xray-rabbitmq.yaml"
 
-export XRAY_MICROSERVICES="xray-indexer.yaml xray-analysis.yaml xray-event.yaml xray-persist.yaml xray-server.yaml"
+export XRAY_MICROSERVICES="xray-indexer.yaml xray-analysis.yaml xray-persist.yaml xray-server.yaml"
 
 export PROCESS_TEMPLATES="$CONFIG_MAPS $PERSISTENT_VOLUME_CLAIMS $IMAGE_STREAMS $THIRDPARTY_MICROSERVICES"
 

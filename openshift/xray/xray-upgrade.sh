@@ -1,4 +1,4 @@
-export XRAY_TO_VERSION=1.12.0
+export XRAY_TO_VERSION=2.1.0
 # Current Xray version can be fetched via curl XRAY_URL/api/v1/system/version
 
 
@@ -23,7 +23,7 @@ upgrade() {
 }
 
 
-export DC="server persist analysis indexer event"
+export DC="server persist analysis indexer"
 
 for i in $DC; do
  shutdown $i
