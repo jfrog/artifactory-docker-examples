@@ -8,7 +8,7 @@ print_help() {
 }
 
 COMMON_TEMPLATES=("../artifactory-ha-common/config/database-config-map.yaml" "../artifactory-ha-common/secrets/artifactory-licenses-secret.yaml" "../artifactory-ha-common/secrets/artifactory-master-key-secret.yaml" "../artifactory-ha-common/artifactory-imagestream.yaml" "../artifactory-ha-common/artifactory-primary-pvc.yaml" "../artifactory-ha-common/artifactory-secondary-pvc.yaml" "../artifactory-ha-common/artifactory-service.yaml")
-SPECIFIC_TEMPLATES=("artifactory-primary-deployment.yaml" "artifactory-secondary-deployment.yaml")
+SPECIFIC_TEMPLATES=("artifactory-primary-deployment.yaml" "artifactory-secondary-deployment.yaml" "config/binarystore-config-map.yaml")
 
 install_template() {
     oc $OPERATION -f $1

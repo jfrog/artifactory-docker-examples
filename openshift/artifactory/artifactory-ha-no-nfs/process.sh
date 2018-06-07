@@ -9,7 +9,7 @@ print_help() {
 }
 
 COMMON_TEMPLATES=("artifactory-database-config-map-template" "artifactory-imagestream-template" "artifactory-primary-pvc-template" "artifactory-secondary-pvc-template" "artifactory-service-template")
-SPECIFIC_TEMPLATES=("artifactory-primary-deployment-template" "artifactory-secondary-deployment-template")
+SPECIFIC_TEMPLATES=("artifactory-binarystore-no-nfs-config-map-template" "artifactory-primary-deployment-template" "artifactory-secondary-deployment-template")
 
 process_template() {
     printenv | oc process $1 --ignore-unknown-parameters --param-file=- | oc $OPERATION -f -
