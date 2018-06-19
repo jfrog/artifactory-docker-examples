@@ -125,15 +125,15 @@ This example starts the following containers
 
 Artifactory uses the PostgreSQL database running in another container.
 
-#### Upgrade Artifactory Pro with PostgreSQL only
+#### Upgrade Artifactory Pro with PostgreSQL
 ```bash
 ### Linux
-1. $ sudo docker-compose -f artifactory-pro-postgresql.yml stop
-2. Edit the artifactory-pro-postgresql.yml file and change the artifactroy image version to the version you would like to upgrade to
+1. Edit the artifactory-pro-postgresql.yml file and change the artifactroy image version to the version you would like to upgrade to
+2. $ sudo docker-compose -f artifactory-pro-postgresql.yml stop
 3. $ sudo docker-compose -f artifactory-pro-postgresql.yml up -d
 ### MAC OSX
-1. $ docker-compose -f artifactory-pro-postgresql.yml stop
-2. Edit the artifactory-pro-postgresql.yml file and change the artifactroy image version to the version you would like to upgrade to
+1. Edit the artifactory-pro-postgresql.yml file and change the artifactroy image version to the version you would like to upgrade to
+2. $ docker-compose -f artifactory-pro-postgresql.yml stop
 3. $ docker-compose -f artifactory-pro-postgresql.yml up -d
 ```
 
