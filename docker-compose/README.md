@@ -86,7 +86,7 @@ Below is a list of included examples. You are welcome to contribute.
 ---
 ## Artifactory Pro
 
-#### Artifactory Pro with PostgreSQL and Nginx for Docker registry support
+#### Run Artifactory Pro with PostgreSQL and Nginx for Docker registry support
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
@@ -107,7 +107,7 @@ This example starts the following containers
 - PostgreSQL database serving Artifactory exposed on port 5432 
 
 
-#### Artifactory Pro with PostgreSQL only 
+#### Run Artifactory Pro with PostgreSQL 
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
@@ -125,8 +125,26 @@ This example starts the following containers
 
 Artifactory uses the PostgreSQL database running in another container.
 
+#### Upgrade Artifactory Pro with PostgreSQL
+```bash
+### Linux
+1. Edit the artifactory-pro-postgresql.yml file and change the artifactroy image version to the version you would like to upgrade to
+2. $ sudo docker-compose -f artifactory-pro-postgresql.yml stop
+3. $ sudo docker-compose -f artifactory-pro-postgresql.yml up -d
+### MAC OSX
+1. Edit the artifactory-pro-postgresql.yml file and change the artifactroy image version to the version you would like to upgrade to
+2. $ docker-compose -f artifactory-pro-postgresql.yml stop
+3. $ docker-compose -f artifactory-pro-postgresql.yml up -d
+```
 
-#### Artifactory Pro with Derby and Nginx for Docker registry support
+This example upgrades Artifactory and starts the following containers
+
+- Artifactory Pro exposed on port 80
+- PostgreSQL database serving Artifactory exposed on port 5432
+
+Artifactory uses the PostgreSQL database running in another container.
+
+#### Run Artifactory Pro with Derby and Nginx for Docker registry support
 ```bash
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-nginx-derby.yml up -d
