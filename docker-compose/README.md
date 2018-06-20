@@ -107,7 +107,7 @@ This example starts the following containers
 - PostgreSQL database serving Artifactory exposed on port 5432 
 
 
-#### Run Artifactory Pro with PostgreSQL only 
+#### Run Artifactory Pro with PostgreSQL 
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
