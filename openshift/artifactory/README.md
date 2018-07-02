@@ -1,10 +1,10 @@
 # Artifactory HA templates for Openshift Container Platform #
 
-These templates can be used to deploy Artifactory HA on Openshift Container Platform. 
+These templates can be used to deploy Artifactory HA on Openshift Container Platform.
 
 You can find two sets of templates on this repository. `artifactory-ha-nfs` set should be used when you have a NFS server available and want to have shared data folders on your Artifactory nodes. If you do not have or do not intend to use NFS, `artifactory-ha-no-nfs` set must be used.
 
-These templates have been tested with Artifactory 5.8.x and Openshift 3.6 running on a single node. To process the templates using the provided helper scripts, Openshift CLI 3.7.17 or newer is required. 
+These templates have been tested with Artifactory 5.8.x and Openshift 3.6 running on a single node. To process the templates using the provided helper scripts, Openshift CLI 3.7.17 or newer is required.
 
 # Installing templates #
 
@@ -30,6 +30,20 @@ To remove the templates use:
 
 # Usage #
 
+## Create service account ##
+
+Artifactory docker image needs root access. During startup it will verify if all the needed folders exist, it will make sure that all these folders are owned by artifactory user and then Artifactory server will be initiated.
+
+One way to provide that is running the pods using an Openshift Service Account asociated to a Security Context Constraint (scc) that can run container as any user. Openshift Container Platform has a built in scc called `anyuid` that can be used, or you can create your own scc to be used with your Service Account.
+
+To create a Service Account and grant it the desired scc use the following commands:
+
+```
+oc project <NAMESPACE>
+oc create serviceaccount <SERVICE_ACCOUNT_NAME>
+oc adm policy add-scc-to-user <SCC_NAME> -z <SERVICE_ACCOUNT_NAME>
+```
+
 ## Deploy database service ##
 
 Artifactory HA needs a dedicated database service. To see the list of supported databases visit [Configuring the Database](https://www.jfrog.com/confluence/display/RTF/Configuring+the+Database) Artifactory wiki page.
@@ -46,25 +60,11 @@ chmod +x ./install.sh
 ./install.sh -o create
 ```
 
-#### Create service account ####
-
-PostgreSQL docker image needs root access. One way to provide that is running the pods using an Openshift Service Account asociated to a Security Context Constraint (scc) that can run container as any user. Openshift Container Platform has a built in scc called `anyuid` that can be used, or you can create your own scc to be used with your Service Account.
-
-To create a Service Account and grant it the desired scc use the following commands:
-
-```
-oc project <NAMESPACE>
-oc create serviceaccount <SERVICE_ACCOUNT_NAME>
-oc adm policy add-scc-to-user <SCC_NAME> -z <SERVICE_ACCOUNT_NAME>
-```
-
-#### Usage ####
-
-- Create a basic authentication Secret to store the PostgreSQL credentials. You can create this Secret through the Secrets UI or using the provided `postgresql-secret-template`. This Secret is going to be used by both PostgreSQL templates and Artifactory HA templates. 
+- Create a basic authentication Secret to store the PostgreSQL credentials. You can create this Secret through the Secrets UI or using the provided `postgresql-secret-template`. This Secret is going to be used by both PostgreSQL templates and Artifactory HA templates.
 
 - Make sure you have a Persistent Volume available to be used by the PostgreSQL service.
 
-- Create a parameters file to store information about the PostgreSQL service. You can use provided `sample-params.env` file as a reference. 
+- Create a parameters file to store information about the PostgreSQL service. You can use provided `sample-params.env` file as a reference.
 
 The required parameters are:
 
@@ -127,7 +127,7 @@ command: ["sh", "-c", "mv -fv /var/opt/jfrog/artifactory/<JDBC_DRIVER_FILENAME> 
 
 ## Create Persistent Volumes ##
 
-Before deploying Artifactory nodes, make sure you have Persistent Volumes (PV) or a Dynamic Provisioner available for the following Persistent Volume Claims (PVC). 
+Before deploying Artifactory nodes, make sure you have Persistent Volumes (PV) or a Dynamic Provisioner available for the following Persistent Volume Claims (PVC).
 
 | Name | Access Mode | Description |
 | ---- | ---- | ---- |
@@ -140,8 +140,6 @@ If you intend to use **NFS**, you also going to need Persistent Volumes for the 
 | ---- | ---- | ---- |
 | ${NAME}-data | ReadWriteMany | Shared mount containing artifacts data |
 | ${NAME}-backup | ReadWriteMany | Shared mount containing backup data |
-
-**Note: Artifactory runs with UID `1030` and requires this user to be the owner of the volumes mount point. The deployment templates have init-containers in place to set the ownership of the volumes properly before starting Artifactory container.**
 
 ## Create Artifactory Licenses Secret ##
 
@@ -213,7 +211,7 @@ If you intend to use the **NFS** version you also need to provide the following 
 
 ## Process templates ##
 
-After installing the templates, you can use them from the Openshift UI. 
+After installing the templates, you can use them from the Openshift UI.
 
 In order to make automation easier, you can also use the provided `process.sh` script present on the template set folder to process the templates and perform operations on the resulting objects list.
 
@@ -233,7 +231,7 @@ To process the templates and update the objects list use:
 ./process.sh -p <PARAMETERS_FILE_PATH> -o replace
 ```
 
-Note that some of the objects, like PVCs, are immutable and will not be recreated by this command. 
+Note that some of the objects, like PVCs, are immutable and will not be recreated by this command.
 
 To remove all the objects use:
 ```
