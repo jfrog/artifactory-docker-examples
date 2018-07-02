@@ -30,20 +30,6 @@ To remove the templates use:
 
 # Usage #
 
-## Create service account ##
-
-Artifactory docker image needs root access. During startup it will verify if all the needed folders exist, it will make sure that all these folders are owned by artifactory user and then Artifactory server will be initiated.
-
-One way to provide that is running the pods using an Openshift Service Account asociated to a Security Context Constraint (scc) that can run container as any user. Openshift Container Platform has a built in scc called `anyuid` that can be used, or you can create your own scc to be used with your Service Account.
-
-To create a Service Account and grant it the desired scc use the following commands:
-
-```
-oc project <NAMESPACE>
-oc create serviceaccount <SERVICE_ACCOUNT_NAME>
-oc adm policy add-scc-to-user <SCC_NAME> -z <SERVICE_ACCOUNT_NAME>
-```
-
 ## Deploy database service ##
 
 Artifactory HA needs a dedicated database service. To see the list of supported databases visit [Configuring the Database](https://www.jfrog.com/confluence/display/RTF/Configuring+the+Database) Artifactory wiki page.
@@ -59,6 +45,20 @@ To do so, execute the following steps:
 chmod +x ./install.sh
 ./install.sh -o create
 ```
+
+#### Create service account ####
+
+PostgreSQL docker image needs root access. One way to provide that is running the pods using an Openshift Service Account asociated to a Security Context Constraint (scc) that can run container as any user. Openshift Container Platform has a built in scc called `anyuid` that can be used, or you can create your own scc to be used with your Service Account.
+
+To create a Service Account and grant it the desired scc use the following commands:
+
+```
+oc project <NAMESPACE>
+oc create serviceaccount <SERVICE_ACCOUNT_NAME>
+oc adm policy add-scc-to-user <SCC_NAME> -z <SERVICE_ACCOUNT_NAME>
+```
+
+#### Usage ####
 
 - Create a basic authentication Secret to store the PostgreSQL credentials. You can create this Secret through the Secrets UI or using the provided `postgresql-secret-template`. This Secret is going to be used by both PostgreSQL templates and Artifactory HA templates. 
 
@@ -127,7 +127,7 @@ command: ["sh", "-c", "mv -fv /var/opt/jfrog/artifactory/<JDBC_DRIVER_FILENAME> 
 
 ## Create Persistent Volumes ##
 
-Before deploying Artifactory nodes, make sure you have Persistent Volumes (PV) or a Dynamic Provisioner available for the following Persistent Volume Claims (PVC).
+Before deploying Artifactory nodes, make sure you have Persistent Volumes (PV) or a Dynamic Provisioner available for the following Persistent Volume Claims (PVC). 
 
 | Name | Access Mode | Description |
 | ---- | ---- | ---- |
@@ -140,6 +140,8 @@ If you intend to use **NFS**, you also going to need Persistent Volumes for the 
 | ---- | ---- | ---- |
 | ${NAME}-data | ReadWriteMany | Shared mount containing artifacts data |
 | ${NAME}-backup | ReadWriteMany | Shared mount containing backup data |
+
+**Note: Artifactory runs with UID `1030` and requires this user to be the owner of the volumes mount point. The deployment templates have init-containers in place to set the ownership of the volumes properly before starting Artifactory container.**
 
 ## Create Artifactory Licenses Secret ##
 
