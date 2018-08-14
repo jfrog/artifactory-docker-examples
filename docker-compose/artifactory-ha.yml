@@ -30,6 +30,7 @@ services:
     volumes:
      - /data/artifactory/node1:/var/opt/jfrog/artifactory
     environment:
+     - ARTIFACTORY_MASTER_KEY=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
      - HA_IS_PRIMARY=true
      - HA_MEMBERSHIP_PORT=10017
      - DB_TYPE=postgresql
@@ -59,6 +60,7 @@ services:
     volumes:
      - /data/artifactory/node2:/var/opt/jfrog/artifactory
     environment:
+     - ARTIFACTORY_MASTER_KEY=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
      - HA_IS_PRIMARY=false
      - HA_MEMBERSHIP_PORT=10017
      - DB_TYPE=postgresql
