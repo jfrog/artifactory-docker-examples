@@ -8,6 +8,9 @@ DEFAULT_ROOT_DATA_DIR=/data
 LINUX_ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
 MAC_DEFAULT_ROOT_DATA_DIR=~/.artifactory
 OS_NAME=$(uname)
+ARTIFACTORY_USER_ID=1030
+NGINX_USER_ID=104
+NGINX_GROUP_ID=107
 
 errorExit () {
     echo; echo "ERROR: $1"; echo
@@ -50,19 +53,19 @@ END_USAGE
 
 setOS () {
     
-    if [ $OS_NAME != "Darwin" ] && [ $OS_NAME != "Linux" ]; then
+    if [ ${OS_NAME} != "Darwin" ] && [ ${OS_NAME} != "Linux" ]; then
         echo "This script can run on Mac or Linux only!"
     fi
 
     # On Mac, set DEFAULT_ROOT_DATA_DIR to ~/.artifactory
-    if [ "$OS_NAME" = "Darwin" ]; then
+    if [ "${OS_NAME}" = "Darwin" ]; then
         echo "On Mac. Setting DEFAULT_ROOT_DATA_DIR to $MAC_DEFAULT_ROOT_DATA_DIR"
         DEFAULT_ROOT_DATA_DIR=${MAC_DEFAULT_ROOT_DATA_DIR}
     fi
 }
 
 validateSudo () {
-    if [ "$OS_NAME" = "Linux" ] && [ "$EUID" != 0 ]; then
+    if [ "${OS_NAME}" = "Linux" ] && [ "$EUID" != 0 ]; then
         errorExit "This script must be run as root or with sudo"
     fi
 }
@@ -73,8 +76,8 @@ processOptions() {
         case $opt in
             t)  # Run type
                 TYPE=$OPTARG
-                if [ $TYPE != "pro" ] && [ $TYPE != "ha" ] && [ $TYPE != "ha-shared-data" ] && [ $TYPE != "oss" ]; then
-                    echo "ERROR: Deployment type $TYPE is not supported"
+                if [ ${TYPE} != "pro" ] && [ ${TYPE} != "ha" ] && [ ${TYPE} != "ha-shared-data" ] && [ ${TYPE} != "oss" ]; then
+                    echo "ERROR: Deployment type ${TYPE} is not supported"
                     usage
                 fi
             ;;
@@ -99,7 +102,7 @@ processOptions() {
     done
 
     # Make sure mandatory parameters are set
-    if [ -z "$TYPE" ]; then
+    if [ -z "${TYPE}" ]; then
         echo "You must pass a deployment type (-t <pro|ha|ha-shared-data|oss>)"
         usage
     fi
@@ -130,11 +133,11 @@ createDirectories () {
     echo "Creating ${ROOT_DATA_DIR}"
     mkdir -p ${ROOT_DATA_DIR}/postgresql
     
-    if [ "$TYPE" = "pro" ] || [  "$TYPE" == "oss" ]; then
+    if [ "${TYPE}" = "pro" ] || [  "${TYPE}" == "oss" ]; then
         mkdir -p ${ROOT_DATA_DIR}/artifactory/etc
     else
         mkdir -p ${ROOT_DATA_DIR}/artifactory/node{1,2}/etc
-        if [ "$TYPE" = "ha-shared-data" ]; then
+        if [ "${TYPE}" = "ha-shared-data" ]; then
             mkdir -p ${ROOT_DATA_DIR}/artifactory/{ha,backup}
         fi
     fi
@@ -147,28 +150,37 @@ copyFiles () {
     echo "Copying needed files to directories"
 
     echo "Artifactory configuration files"
-    if [ "$TYPE" = "pro" ] || [ "$TYPE" = "oss" ]; then
+    if [ "${TYPE}" = "pro" ] || [ "${TYPE}" = "oss" ]; then
         cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/
     else
         cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node1/
         cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node2/
     fi
-        # Copy the binarystore.xml which has configuration for no-shared storage
-        if [ "$TYPE" = "ha" ]; then
-            cp -f ${SCRIPT_DIR}/../files/binarystore.xml ${ROOT_DATA_DIR}/artifactory/node1/etc
-        fi
+
+    # Copy the binarystore.xml which has configuration for no-shared storage
+    if [ "${TYPE}" = "ha" ]; then
+        cp -f ${SCRIPT_DIR}/../files/binarystore.xml ${ROOT_DATA_DIR}/artifactory/node1/etc
+    fi
 
     local type=${TYPE}
     if [ ${type} = "ha" ]; then type=ha; fi
 
     echo "Nginx Artifactory configuration"
     cp -fr ${SCRIPT_DIR}/../files/nginx/conf.d/${type}/* ${ROOT_DATA_DIR}/nginx/conf.d/
+}
 
+setPermissions () {
+    # Fix directories ownerships only on Linux
+    if [ ${OS_NAME} == "Linux" ]; then
+        echo "Setting needed ownerships on ${ROOT_DATA_DIR}"
+        chown -R ${ARTIFACTORY_USER_ID}:${ARTIFACTORY_USER_ID} ${ROOT_DATA_DIR}/artifactory || errorExit "Setting ownership of ${ROOT_DATA_DIR}/artifactory to ${ARTIFACTORY_USER_ID} failed"
+        chown -R ${NGINX_USER_ID}:${NGINX_GROUP_ID} ${ROOT_DATA_DIR}/nginx || errorExit "Setting ownership of ${ROOT_DATA_DIR}/nginx ${NGINX_USER_ID}:${NGINX_GROUP_ID} failed"
+    fi
 }
 
 showNotes () {
 
-if [ "$TYPE" = "pro" ]; then
+if [ "${TYPE}" = "pro" ]; then
     cat << PRO_NOTES
 
 ======================================
@@ -179,7 +191,7 @@ IMPORTANT
 PRO_NOTES
 fi
 
-if [ "$TYPE" = "ha" ]; then
+if [ "${TYPE}" = "ha" ]; then
 
 cat <<HA_NOTES
 ======================================
@@ -192,7 +204,7 @@ HA_NOTES
 fi
 
 
-if [ "$TYPE" = "oss" ]; then
+if [ "${TYPE}" = "oss" ]; then
     cat << OSS_NOTES
 
 ======================================
@@ -226,5 +238,6 @@ processOptions $*
 cleanDataDir
 createDirectories
 copyFiles
+setPermissions
 
 showNotes

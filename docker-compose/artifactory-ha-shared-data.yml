@@ -32,6 +32,7 @@ services:
      - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
      - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
     environment:
+     - ARTIFACTORY_MASTER_KEY=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
      - HA_IS_PRIMARY=true
      - HA_DATA_DIR=/var/opt/jfrog/artifactory-ha
      - HA_BACKUP_DIR=/var/opt/jfrog/artifactory-backup
@@ -65,6 +66,7 @@ services:
      - /data/artifactory/ha:/var/opt/jfrog/artifactory-ha
      - /data/artifactory/backup:/var/opt/jfrog/artifactory-backup
     environment:
+     - ARTIFACTORY_MASTER_KEY=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
      - HA_IS_PRIMARY=false
      - HA_DATA_DIR=/var/opt/jfrog/artifactory-ha
      - HA_BACKUP_DIR=/var/opt/jfrog/artifactory-backup
