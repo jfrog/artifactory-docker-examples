@@ -34,6 +34,10 @@ To remove the templates use:
 
 Artifactory HA needs a dedicated database service. To see the list of supported databases visit [Configuring the Database](https://www.jfrog.com/confluence/display/RTF/Configuring+the+Database) Artifactory wiki page.
 
+### Using Openshift PostgreSQL example templates ###
+
+Openshift provides [PostgreSQL example templates](https://github.com/openshift/origin/blob/master/examples/db-templates/postgresql-persistent-template.json) that can be used to deploy a PostgreSQL service in your Openshift cluster.  
+
 ### Using the provided PostgreSQL templates ###
 
 Besides Artifactory HA templates, this repository has a PostgreSQL template set at `database/postgresql` that can be used to install a PostgreSQL instance to be used by your Artifactory cluster.
