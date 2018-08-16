@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ $# -lt 2 ]
         then
                 echo "Usage: ./xray-wrapper.sh USER PARAMETERS_FILE"

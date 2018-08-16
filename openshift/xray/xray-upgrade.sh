@@ -1,3 +1,4 @@
+#!/bin/bash
 export XRAY_TO_VERSION=2.2.1
 # Current Xray version can be fetched via curl XRAY_URL/api/v1/system/version
 
