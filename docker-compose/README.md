@@ -248,4 +248,5 @@ This example starts the following containers
 
 Artifactory uses the PostgreSQL database running in another container.
 
+Read additional information on how to [Set up a secure private Docker registry](https://www.jfrog.com/confluence/display/RTF/Docker+Registry) and how Artifactory can be used as a [Docker Registry](https://jfrog.com/integration/docker-registry/). 
 
