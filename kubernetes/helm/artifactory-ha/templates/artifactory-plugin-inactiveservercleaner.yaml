@@ -1,9 +1,9 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: artifactory-inactiveservercleaner
+  name: {{ template "artifactory-ha.fullname" . }}-isc
   labels:
-    app: {{ template "artifactory.name" . }}
+    app: {{ template "artifactory-ha.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
@@ -17,7 +17,7 @@ data:
     import java.util.concurrent.TimeUnit
 
     jobs {
-        clean(cron: "0 * * * * ?") {
+        clean(interval: 60000, delay: 600000) {
             def artifactoryServersCommonService = ctx.beanForType(ArtifactoryServersCommonService)
             def artifactoryInactiveServerCleaner = new ArtifactoryInactiveServersCleaner(artifactoryServersCommonService, log)
             artifactoryInactiveServerCleaner.cleanInactiveArtifactoryServers()

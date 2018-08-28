@@ -1,21 +1,18 @@
 # Artifactory Docker Compose Examples
 This directory provides some examples that show different ways to run Artifactory with Docker Compose.  
-
-
-## Docker and Docker Compose
 To learn more about Docker and how to set it up, please refer to the [Docker](https://docs.docker.com) and [Docker Compose](https://docs.docker.com/compose/overview/) documentation.  
  
 
 ## Artifactory Docker Images
 Artifactory is available as different Docker images for:
-- [Artifactory Pro](#artifactory-pro-and-ha)
+- [Artifactory Pro](#artifactory-pro)
 - [Artifactory OSS](#artifactory-oss)
 
 These images are available for download from [JFrog Bintray](https://bintray.com/jfrog).
 
  
 
-## Docker Compose Examples
+## Docker-Compose Usage
 To run any of the examples, you should execute:  
 ```bash
 $ docker-compose -f <compose-file> <options>
@@ -23,32 +20,32 @@ $ docker-compose -f <compose-file> <options>
 
 
 ### Docker Compose Control Commands
-**NOTE:** On **OSX**, you should omit the `sudo` from all your `docker-compose` commands
+**NOTE:** On **MAC OSX**, you should omit the `sudo` from all your `docker-compose` commands
 
 
 - Start  
 ```bash
-$ sudo docker-compose -f <compose-file> up -d
+$ sudo docker-compose -f <compose-file> up -d  # Create and start containers
 ```
 - Stop  
 ```bash
-$ sudo docker-compose -f <compose-file> stop
+$ sudo docker-compose -f <compose-file> stop  # Stop services
 ```
 - Restart  
 ```bash
-$ sudo docker-compose -f <compose-file> restart
+$ sudo docker-compose -f <compose-file> restart # Restart services
 ```
 - Status  
 ```bash
-$ sudo docker-compose -f <compose-file> ps
+$ sudo docker-compose -f <compose-file> ps # List containers
 ```
 - Logs  
 ```bash
-$ sudo docker-compose -f <compose-file> logs
+$ sudo docker-compose -f <compose-file> logs # View output from containers
 ```
 - Remove  
 ```bash
-$ sudo docker-compose -f <compose-file> rm
+$ sudo docker-compose -f <compose-file> rm # Remove stopped containers
 ```
  
 --- 
@@ -81,25 +78,22 @@ The PostgreSQL database driver comes pre-loaded into the Artifactory Docker imag
 Artifactory can run with other databases. For more details on supported databases and how to set them up for use with Artifactory, please refer to [Changing the Database](https://www.jfrog.com/confluence/display/RTF/Changing+the+Database) in the JFrog Artifactory Use Guide.
 
 ---
-### Examples
+# Docker Compose Examples
 Below is a list of included examples. You are welcome to contribute.
 
-**IMPORTANT:** The files under the `files` directory included in this repository are for example purposes only and should NOT be used for any production deployments!  
+**IMPORTANT:** The files under the `files` directory included in this repository are for example purposes only and should NOT be used for any production deployments ! 
 
 ---
-### Artifactory Pro and HA
-Artifactory Pro and HA require some more setup due to the built in support for simple and complex configurations.  
+## Artifactory Pro
 
-
-### Artifactory Pro with PostgreSQL and Nginx for Docker registry support
+#### Run Artifactory Pro with PostgreSQL and Nginx for Docker registry support
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro.yml up -d
-
-### OSX
+### MAC OSX
 $ ./prepareHostEnv.sh -t pro -c
-$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-pro.yml
+$ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-pro.yml #Backup the config file and changes the home directory to MAC OS default 
 $ docker-compose -f artifactory-pro.yml up -d
 
 ```  
@@ -110,16 +104,15 @@ This example starts the following containers
   - You can disable port 80 in Nginx's configuration files
   - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
 - Artifactory Pro exposed on port 8081
-- PostgreSQL database serving Artifactory   
+- PostgreSQL database serving Artifactory exposed on port 5432 
 
 
-### Artifactory Pro with PostgreSQL only 
+#### Run Artifactory Pro with PostgreSQL 
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-postgresql.yml up -d
-
-### OSX
+### MAC OSX
 $ ./prepareHostEnv.sh -t pro -c
 $ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-pro-postgresql.yml
 $ docker-compose -f artifactory-pro-postgresql.yml up -d
@@ -128,12 +121,30 @@ $ docker-compose -f artifactory-pro-postgresql.yml up -d
 This example starts the following containers
 
 - Artifactory Pro exposed on port 80
-- PostgreSQL database serving Artifactory   
+- PostgreSQL database serving Artifactory exposed on port 5432  
 
 Artifactory uses the PostgreSQL database running in another container.
 
+#### Upgrade Artifactory Pro with PostgreSQL
+```bash
+### Linux
+1. Edit the artifactory-pro-postgresql.yml file and change the artifactroy image version to the version you would like to upgrade to
+2. $ sudo docker-compose -f artifactory-pro-postgresql.yml stop
+3. $ sudo docker-compose -f artifactory-pro-postgresql.yml up -d
+### MAC OSX
+1. Edit the artifactory-pro-postgresql.yml file and change the artifactroy image version to the version you would like to upgrade to
+2. $ docker-compose -f artifactory-pro-postgresql.yml stop
+3. $ docker-compose -f artifactory-pro-postgresql.yml up -d
+```
 
-### Artifactory Pro with Derby and Nginx for Docker registry support
+This example upgrades Artifactory and starts the following containers
+
+- Artifactory Pro exposed on port 80
+- PostgreSQL database serving Artifactory exposed on port 5432
+
+Artifactory uses the PostgreSQL database running in another container.
+
+#### Run Artifactory Pro with Derby and Nginx for Docker registry support
 ```bash
 $ sudo ./prepareHostEnv.sh -t pro -c
 $ sudo docker-compose -f artifactory-pro-nginx-derby.yml up -d
@@ -146,15 +157,17 @@ This example starts the following containers
   - Nginx comes with self signed SSL certificates [that can be overwritten](NginxSSL.md)
 - Artifactory Pro exposed on port 8081  
 
-Artifactory uses the Derby database at it container.
+Artifactory uses the embedded Derby as its database.
 
-### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support
+## Artifactory HA
+
+#### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t ha -c
 $ sudo docker-compose -f artifactory-ha.yml up -d
 
-### OSX
+### MAC OSX
 $ ./prepareHostEnv.sh -t ha -c
 $ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-ha.yml
 $ docker-compose -f artifactory-ha.yml up -d
@@ -175,13 +188,13 @@ In this example, the HA nodes use their local storage and sync data between the 
 
 **NOTE:** You must complete the onboarding process to have a fully functional Artifactory HA cluster!
 
-### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support with shared data storage (NFS)
+#### Artifactory HA with PostgreSQL and Nginx for Docker registry and load balancing support with shared data storage (NFS)
 ```bash
 ### Linux
 $ sudo ./prepareHostEnv.sh -t ha-shared-data -c
 $ sudo docker-compose -f artifactory-ha-shared-data.yml up -d
 
-### OSX
+### MAC OSX
 $ ./prepareHostEnv.sh -t ha-shared-data -c
 $ sed -i.bk "s,/data/,~/.artifactory/,g" artifactory-ha-shared-data.yml
 $ docker-compose -f artifactory-ha-shared-data.yml up -d
@@ -205,8 +218,10 @@ Artifactory data is shared on a common NFS mount.
 ---
 ### Artifactory OSS
 
-### Artifactory OSS standalone with built in Derby database
+#### Artifactory OSS standalone with built in Derby database
 ```bash
+### Linux
+$ sudo ./prepareHostEnv.sh -t oss -c
 $ sudo docker-compose -f artifactory-oss.yml up -d
 ```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
@@ -218,8 +233,10 @@ This example starts the following containers
 Artifactory uses the embedded DerbyDB database.
 
 
-### Artifactory OSS with PostgreSQL
+#### Artifactory OSS with PostgreSQL
 ```bash
+### Linux
+$ sudo ./prepareHostEnv.sh -t oss -c
 $ sudo docker-compose -f artifactory-oss-postgresql.yml up -d
 ```
 **IMPORTANT:** Make sure to prepare the needed [storage for persistent data](#persistent-storage)!
@@ -231,4 +248,5 @@ This example starts the following containers
 
 Artifactory uses the PostgreSQL database running in another container.
 
+Read additional information on how to [Set up a secure private Docker registry](https://www.jfrog.com/confluence/display/RTF/Docker+Registry) and how Artifactory can be used as a [Docker Registry](https://jfrog.com/integration/docker-registry/). 
 

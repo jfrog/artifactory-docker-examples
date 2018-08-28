@@ -31,6 +31,24 @@ objects:
                 serviceAccountName: ${SERVICE_ACCOUNT}
 
                 initContainers:
+                  - name: set-volume-ownership
+                    image: ${INIT_CONTAINER_IMAGE}
+                    command: ["sh", "-c", "chown -R 1030:1030 /var/opt/jfrog/artifactory"]
+                    volumeMounts:
+                      - name: artifactory
+                        mountPath: /var/opt/jfrog/artifactory
+                  - name: set-data-volume-ownership
+                    image: ${INIT_CONTAINER_IMAGE}
+                    command: ["sh", "-c", "chown -R 1030:1030 /var/opt/jfrog/data"]
+                    volumeMounts:
+                      - name: artifactory-data
+                        mountPath: /var/opt/jfrog/data
+                  - name: set-backup-volume-ownership
+                    image: ${INIT_CONTAINER_IMAGE}
+                    command: ["sh", "-c", "chown -R 1030:1030 /var/opt/jfrog/backup"]
+                    volumeMounts:
+                      - name: artifactory-backup
+                        mountPath: /var/opt/jfrog/backup
                   - name: remove-lost-found
                     image: ${INIT_CONTAINER_IMAGE}
                     command: ["sh", "-c", "rm -rf /var/opt/jfrog/artifactory/lost+found"]
@@ -69,13 +87,10 @@ objects:
                       - name: artifactory-backup
                         mountPath: ${HA_BACKUP_DIR}
                       - name: artifactory-licenses
-                        mountPath: /var/opt/jfrog/artifactory/etc/artifactory.cluster.license
+                        mountPath: /artifactory_extra_conf/artifactory.cluster.license
                         subPath: artifactory.cluster.license
-                      - name: artifactory-master-key
-                        mountPath: /var/opt/jfrog/artifactory/etc/security/master.key
-                        subPath: master.key
                       - name: artifactory-binarystore
-                        mountPath: /var/opt/jfrog/artifactory/etc/binarystore.xml
+                        mountPath: /artifactory_extra_conf/binarystore.xml
                         subPath: binarystore.xml
                     env:
                       - name: DB_TYPE
@@ -103,6 +118,11 @@ objects:
                             secretKeyRef:
                                 name: ${DATABASE_CREDENTIALS_SECRET_NAME}
                                 key: password
+                      - name: ARTIFACTORY_MASTER_KEY
+                        valueFrom:
+                            secretKeyRef:
+                                name: ${MASTER_KEY_SECRET_NAME}
+                                key: master.key
                       - name: HA_NODE_ID
                         value: "${NAME}-primary"
                       - name: HA_IS_PRIMARY
@@ -150,9 +170,6 @@ objects:
                   - name: artifactory-licenses
                     secret:
                         secretName: ${LICENSES_SECRET_NAME}
-                  - name: artifactory-master-key
-                    secret:
-                        secretName: ${MASTER_KEY_SECRET_NAME}
                   - name: artifactory-binarystore
                     configMap:
                         name: ${BINARYSTORE_CONFIG_MAP_NAME}

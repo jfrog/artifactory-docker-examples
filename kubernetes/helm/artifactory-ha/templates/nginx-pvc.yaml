@@ -3,9 +3,9 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "artifactory.nginx.fullname" . }}
+  name: {{ template "artifactory-ha.nginx.fullname" . }}
   labels:
-    app: {{ template "artifactory.name" . }}
+    app: {{ template "artifactory-ha.name" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"

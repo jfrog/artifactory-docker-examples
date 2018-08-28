@@ -19,7 +19,7 @@ services:
         soft: 32000
         hard: 40000
   artifactory-node1:
-    image: docker.bintray.io/jfrog/artifactory-pro:5.8.3
+    image: docker.bintray.io/jfrog/artifactory-pro:6.3.0
     container_name: artifactory-node1
     ports:
      - 8081:8081
@@ -30,6 +30,7 @@ services:
     volumes:
      - /data/artifactory/node1:/var/opt/jfrog/artifactory
     environment:
+     - ARTIFACTORY_MASTER_KEY=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
      - HA_IS_PRIMARY=true
      - HA_MEMBERSHIP_PORT=10017
      - DB_TYPE=postgresql
@@ -45,7 +46,7 @@ services:
         soft: 32000
         hard: 40000
   artifactory-node2:
-    image: docker.bintray.io/jfrog/artifactory-pro:5.8.3
+    image: docker.bintray.io/jfrog/artifactory-pro:6.3.0
     container_name: artifactory-node2
     ports:
      - 8082:8081
@@ -59,6 +60,7 @@ services:
     volumes:
      - /data/artifactory/node2:/var/opt/jfrog/artifactory
     environment:
+     - ARTIFACTORY_MASTER_KEY=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
      - HA_IS_PRIMARY=false
      - HA_MEMBERSHIP_PORT=10017
      - DB_TYPE=postgresql
@@ -74,7 +76,7 @@ services:
         soft: 32000
         hard: 40000
   nginx:
-    image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.8.3
+    image: docker.bintray.io/jfrog/nginx-artifactory-pro:6.3.0
     container_name: nginx
     ports:
      - 80:80

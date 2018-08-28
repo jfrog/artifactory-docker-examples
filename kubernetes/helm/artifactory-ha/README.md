@@ -80,6 +80,11 @@ Artifactory HA support a wide range of storage back ends. You can see more detai
 In this chart, you set the type of storage you want with `artifactory.persistence.type` and pass the required configuration settings.
 The default storage in this chart is the `file-system` replication, where the data is replicated to all nodes.
 
+> **IMPORTANT:** All storage configurations (except NFS) come with a default `artifactory.persistence.redundancy` parameter.
+This is used to set how many replicas of a binary should be stored in the cluster's nodes.
+Once this value is set on initial deployment, you can not update it using helm.
+It is recommended to set this to a number greater than half of your cluster's size, and never scale your cluster down to a size smaller than this number.
+
 #### NFS
 To use an NFS server as your cluster's storage, you need to
 - Setup an NFS server. Get its IP as `NFS_IP`
@@ -152,13 +157,22 @@ $ helm install --name artifactory-ha --set artifactory.license.secret=artifactor
 **NOTE:** You have to keep passing the license secret parameters as `--set artifactory.license.secret=artifactory-cluster-license,artifactory.license.dataKey=art.lic` on all future calls to `helm install` and `helm upgrade`!
 
 #### Scaling your Artifactory cluster
-A key feature in Artifactory HA ia the ability to set an initial cluster size with `--set artifactory.node.replicaCount=${CLUSTER_SIZE}` and if needed, resize it.
+A key feature in Artifactory HA is the ability to set an initial cluster size with `--set artifactory.node.replicaCount=${CLUSTER_SIZE}` and if needed, resize it.
+
+##### Before scaling
+**IMPORTANT:** When scaling, you need to explicitly pass the database password if it's an auto generated one (this is the default with the enclosed PostgreSQL helm chart).
+
+Get the current database password
+```bash
+$ export DB_PASSWORD=$(kubectl get $(kubectl get secret -o name | grep postgresql) -o jsonpath="{.data.postgres-password}" | base64 --decode)
+```
+Use `--set postgresql.postgresPassword=${DB_PASSWORD}` with every scale action to prevent a miss configured cluster!
 
 ##### Scale up
 Let's assume you have a cluster with **2** member nodes, and you want to scale up to **3** member nodes (a total of 4 nodes).
 ```bash
 # Scale to 4 nodes (1 primary and 3 member nodes)
-$ helm upgrade --install artifactory-ha --set artifactory.node.replicaCount=3 stable/artifactory-ha
+$ helm upgrade --install artifactory-ha --set artifactory.node.replicaCount=3 --set postgresql.postgresPassword=${DB_PASSWORD} stable/artifactory-ha
 ```
 
 ##### Scale down
@@ -166,7 +180,7 @@ Let's assume you have a cluster with **3** member nodes, and you want to scale d
 
 ```bash
 # Scale down to 2 member nodes
-$ helm upgrade --install artifactory-ha --set artifactory.node.replicaCount=2 stable/artifactory-ha
+$ helm upgrade --install artifactory-ha --set artifactory.node.replicaCount=2 --set postgresql.postgresPassword=${DB_PASSWORD} stable/artifactory-ha
 ```
 - **NOTE:** Since Artifactory is running as a Kubernetes Stateful Set, the removal of the node will **not** remove the persistent volume. You need to explicitly remove it
 ```bash
@@ -204,7 +218,7 @@ To delete the Artifactory HA cluster
 $ helm delete --purge artifactory-ha
 ```
 This will completely delete your Artifactory HA cluster.  
-**NOTE:** Since Artifactory and PostgreSQL are running as Kubernetes Stateful Sets, the removal of the helm release will **not** remove the persistent volumes. You need to explicitly remove them
+**NOTE:** Since Artifactory is running as Kubernetes Stateful Sets, the removal of the helm release will **not** remove the persistent volumes. You need to explicitly remove them
 ```bash
 $ kubectl delete pvc -l release=artifactory-ha
 ```
@@ -224,7 +238,7 @@ $ helm install --name artifactory-ha --set imagePullSecrets=regsecret stable/art
 
 ## Configuration
 
-The following tables lists the configurable parameters of the artifactory chart and their default values.
+The following table lists the configurable parameters of the artifactory chart and their default values.
 
 |         Parameter            |           Description             |                         Default                       |
 |------------------------------|-----------------------------------|-------------------------------------------------------|
@@ -232,7 +246,7 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `artifactory.name`                   | Artifactory name                     | `artifactory`                              |
 | `artifactory.image.pullPolicy`       | Container pull policy                | `IfNotPresent`                             |
 | `artifactory.image.repository`       | Container image                      | `docker.bintray.io/jfrog/artifactory-pro`  |
-| `artifactory.image.version`          | Container image tag                  | `5.8.3`                                    |
+| `artifactory.image.version`          | Container image tag                  | `5.10.1`                                    |
 | `artifactory.masterKey`      | Artifactory Master Key. Can be generated with `openssl rand -hex 32` |`FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF`|
 | `artifactory.license.secret` | Artifactory license secret name              |                                            |
 | `artifactory.license.dataKey`| Artifactory license secret data key          |                                            |
@@ -246,7 +260,7 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `artifactory.persistence.accessMode` | Artifactory persistence volume access mode      | `ReadWriteOnce`                 |
 | `artifactory.persistence.size`       | Artifactory persistence volume size             | `200Gi`                         |
 | `artifactory.persistence.type`       | Artifactory HA storage type                     | `file-system`                   |
-| `artifactory.persistence.redundancy` | Artifactory HA storage redundancy               | `2`                             |
+| `artifactory.persistence.redundancy` | Artifactory HA storage redundancy               | `3`                             |
 | `artifactory.persistence.nfs.ip`            | NFS server IP                        |                                     |
 | `artifactory.persistence.nfs.haDataMount`   | NFS data directory                   | `/data`                             |
 | `artifactory.persistence.nfs.haBackupMount` | NFS backup directory                 | `/backup`                           |
@@ -278,18 +292,24 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `artifactory.node.javaOpts.xms`                 | Artifactory member node java Xms size            |                     |
 | `artifactory.node.javaOpts.xmx`                 | Artifactory member node java Xms size            |                     |
 | `artifactory.node.javaOpts.other`               | Artifactory member node additional java options  |                     |
+| `ingress.enabled`           | If true, Artifactory Ingress will be created | `false` |
+| `ingress.annotations`       | Artifactory Ingress annotations     | `{}` |
+| `ingress.hosts`             | Artifactory Ingress hostnames       | `[]` |
+| `ingress.tls`               | Artifactory Ingress TLS configuration (YAML) | `[]` |
+| `nginx.enabled`             | Deploy nginx server                      | `true`                                               |
 | `nginx.name`                | Nginx name                        | `nginx`                                                |
 | `nginx.replicaCount`        | Nginx replica count               | `1`                                                    |
 | `nginx.image.repository`    | Container image                   | `docker.bintray.io/jfrog/nginx-artifactory-pro`        |
-| `nginx.image.version`       | Container version                 | `5.8.3`                                                |
+| `nginx.image.version`       | Container version                 | `5.10.1`                                                |
 | `nginx.image.pullPolicy`    | Container pull policy             | `IfNotPresent`                                         |
 | `nginx.service.type`        | Nginx service type                | `LoadBalancer`                                         |
 | `nginx.service.loadBalancerSourceRanges`| Nginx service array of IP CIDR ranges to whitelist (only when service type is LoadBalancer) |  |
-| `nginx.externalPortHttp`          | Nginx service external port                | `80`                                    |
-| `nginx.internalPortHttp`          | Nginx service internal port                | `80`                                    |
-| `nginx.externalPortHttps`         | Nginx service external port                | `443`                                   |
-| `nginx.internalPortHttps`         | Nginx service internal port                | `443`                                   |
-| `nginx.env.artUrl`                | Nginx Environment variable Artifactory URL | `"http://artifactory:8081/artifactory"` |
+| `nginx.loadBalancerIP`| Provide Static IP to to configure with Nginx |  |
+| `nginx.externalPortHttp` | Nginx service external port | `80`   |
+| `nginx.internalPortHttp` | Nginx service internal port | `80`   |
+| `nginx.externalPortHttps` | Nginx service external port | `443`   |
+| `nginx.internalPortHttps` | Nginx service internal port | `443`   |
+| `nginx.tlsSecretName` |  SSL secret that will be used by the Nginx pod |    |
 | `nginx.env.ssl`                   | Nginx Environment enable ssl               | `true`                                  |
 | `nginx.resources.requests.memory` | Nginx initial memory request               | `250Mi`                                 |
 | `nginx.resources.requests.cpu`    | Nginx initial cpu request                  | `100m`                                  |
@@ -298,7 +318,7 @@ The following tables lists the configurable parameters of the artifactory chart 
 | `postgresql.enabled`              | Use enclosed PostgreSQL as database        | `true`                                  |
 | `postgresql.postgresDatabase`     | PostgreSQL database name                   | `artifactory`                           |
 | `postgresql.postgresUser`         | PostgreSQL database user                   | `artifactory`                           |
-| `postgresql.postgresPassword`     | PostgreSQL database password               | `artIfakt0ri1973`                       |
+| `postgresql.postgresPassword`     | PostgreSQL database password               |                                         |
 | `postgresql.persistence.enabled`  | PostgreSQL use persistent storage          | `true`                                  |
 | `postgresql.persistence.size`     | PostgreSQL persistent storage size         | `50Gi`                                  |
 | `postgresql.service.port`         | PostgreSQL database port                   | `5432`                                  |
@@ -314,6 +334,49 @@ The following tables lists the configurable parameters of the artifactory chart 
 
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
+
+### Ingress and TLS
+To get Helm to create an ingress object with a hostname, add these two lines to your Helm command:
+```
+helm install --name artifactory-ha \
+  --set ingress.enabled=true \
+  --set ingress.hosts[0]="artifactory.company.com" \
+  --set artifactory.service.type=NodePort \
+  --set nginx.enabled=false \
+  stable/artifactory-ha
+```
+
+If your cluster allows automatic creation/retrieval of TLS certificates (e.g. [kube-lego](https://github.com/jetstack/kube-lego)), please refer to the documentation for that mechanism.
+
+To manually configure TLS, first create/retrieve a key & certificate pair for the address(es) you wish to protect. Then create a TLS secret in the namespace:
+
+```console
+kubectl create secret tls artifactory-tls --cert=path/to/tls.cert --key=path/to/tls.key
+```
+
+Include the secret's name, along with the desired hostnames, in the Artifactory Ingress TLS section of your custom `values.yaml` file:
+
+```
+  ingress:
+    ## If true, Artifactory Ingress will be created
+    ##
+    enabled: true
+
+    ## Artifactory Ingress hostnames
+    ## Must be provided if Ingress is enabled
+    ##
+    hosts:
+      - artifactory.domain.com
+    annotations:
+      kubernetes.io/tls-acme: "true"
+    ## Artifactory Ingress TLS configuration
+    ## Secrets must be manually created in the namespace
+    ##
+    tls:
+      - secretName: artifactory-tls
+        hosts:
+          - artifactory.domain.com
+```
 
 
 ## Useful links

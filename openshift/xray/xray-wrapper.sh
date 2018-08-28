@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ $# -lt 2 ]
         then
                 echo "Usage: ./xray-wrapper.sh USER PARAMETERS_FILE"
@@ -19,13 +19,13 @@ processTemplates() {
 
 export PERSISTENT_VOLUME_CLAIMS="xray-data-pvc.yaml xray-postgres/xray-postgres-pvc.yaml xray-mongodb/xray-mongodb-pvc.yaml xray-rabbitmq/xray-rabbitmq-pvc.yaml"
 
-export CONFIG_MAPS="xray-mongodb/xray-mongodb-setup-configmap.yaml xray-rabbitmq/xray-rabbitmq-configmap.yaml"
+export CONFIG_MAPS="xray-mongodb/xray-mongodb-setup-configmap.yaml xray-rabbitmq/xray-rabbitmq-configmap.yaml xray-setup-configmap.yaml"
 
 export IMAGE_STREAMS="xray-imagestream.yaml"
 
 export THIRDPARTY_MICROSERVICES="xray-postgres/xray-postgres.yaml xray-mongodb/xray-mongodb.yaml xray-rabbitmq/xray-rabbitmq.yaml"
 
-export XRAY_MICROSERVICES="xray-indexer.yaml xray-analysis.yaml xray-event.yaml xray-persist.yaml xray-server.yaml"
+export XRAY_MICROSERVICES="xray-indexer.yaml xray-analysis.yaml xray-persist.yaml xray-server.yaml"
 
 export PROCESS_TEMPLATES="$CONFIG_MAPS $PERSISTENT_VOLUME_CLAIMS $IMAGE_STREAMS $THIRDPARTY_MICROSERVICES"
 

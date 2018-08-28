@@ -7,6 +7,10 @@ SCRIPT_DIR=$(dirname $0)
 DEFAULT_ROOT_DATA_DIR=/data
 LINUX_ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
 MAC_DEFAULT_ROOT_DATA_DIR=~/.artifactory
+OS_NAME=$(uname)
+ARTIFACTORY_USER_ID=1030
+NGINX_USER_ID=104
+NGINX_GROUP_ID=107
 
 errorExit () {
     echo; echo "ERROR: $1"; echo
@@ -21,10 +25,12 @@ $0 - script for preparing the needed directories on the local host for mounting 
 
 Usage: $0 options
 Supported options
--t   : (Required) Deployment type. 'pro', 'ha' or 'ha-shared-data'
+-t   : (Required) Deployment type. 'pro', 'oss', 'ha' or 'ha-shared-data'
        - pro            : Single Pro node
+       - oss            : Single OSS node
        - ha             : HA with two nodes
        - ha-shared-data : HA that uses a shared data mount
+       - oss            : Single OSS node
 -d   : Custom root data directory (defaults to /data)
 -c   : Clean local data directory. Delete the data directory on the host before creating the new ones
 -f   : Force removal if -c is passed (do not prompt)
@@ -33,6 +39,9 @@ Supported options
 Examples
 Prepare directories for Artifactory pro with default data directory
 Start : sudo $0 -t pro -c
+
+Prepare directories for Artifactory OSS with default data directory
+Start : sudo $0 -t oss -c
 
 Prepare a default HA deployment directories
 Start : sudo $0 -t ha -c
@@ -43,20 +52,20 @@ END_USAGE
 }
 
 setOS () {
-    OS_TYPE=$(uname)
-    if [[ ! $OS_TYPE =~ Darwin|Linux ]]; then
-        errorExit "This script can run on Mac or Linux only!"
+    
+    if [ ${OS_NAME} != "Darwin" ] && [ ${OS_NAME} != "Linux" ]; then
+        echo "This script can run on Mac or Linux only!"
     fi
 
     # On Mac, set DEFAULT_ROOT_DATA_DIR to ~/.artifactory
-    if [ "$OS_TYPE" == "Darwin" ]; then
+    if [ "${OS_NAME}" = "Darwin" ]; then
         echo "On Mac. Setting DEFAULT_ROOT_DATA_DIR to $MAC_DEFAULT_ROOT_DATA_DIR"
         DEFAULT_ROOT_DATA_DIR=${MAC_DEFAULT_ROOT_DATA_DIR}
     fi
 }
 
 validateSudo () {
-    if [ "$OS_TYPE" == "Linux" ] && [ $EUID -ne 0 ]; then
+    if [ "${OS_NAME}" = "Linux" ] && [ "$EUID" != 0 ]; then
         errorExit "This script must be run as root or with sudo"
     fi
 }
@@ -67,8 +76,8 @@ processOptions() {
         case $opt in
             t)  # Run type
                 TYPE=$OPTARG
-                if [[ ! "$TYPE" =~ ^(pro|ha|ha-shared-data)$ ]]; then
-                    echo "ERROR: Deployment type $TYPE is not supported"
+                if [ ${TYPE} != "pro" ] && [ ${TYPE} != "ha" ] && [ ${TYPE} != "ha-shared-data" ] && [ ${TYPE} != "oss" ]; then
+                    echo "ERROR: Deployment type ${TYPE} is not supported"
                     usage
                 fi
             ;;
@@ -93,8 +102,8 @@ processOptions() {
     done
 
     # Make sure mandatory parameters are set
-    if [ -z "$TYPE" ]; then
-        echo "You must pass a deployment type (-t <pro|ha|ha-shared-data>)"
+    if [ -z "${TYPE}" ]; then
+        echo "You must pass a deployment type (-t <pro|ha|ha-shared-data|oss>)"
         usage
     fi
 
@@ -105,15 +114,15 @@ processOptions() {
 }
 
 cleanDataDir () {
-    if [ "$CLEAN" == "true" ] && [ -d ${ROOT_DATA_DIR} ]; then
+    if [ $CLEAN = "true" ] && [ -d ${ROOT_DATA_DIR} ]; then
         local sure='n'
 
-        if [ "$FORCE" == "true" ]; then
+        if [ "$FORCE" = "true" ]; then
             sure='y'
         else
             read -p "Are you sure you want to remove existing ${ROOT_DATA_DIR} [y/n]: " sure
         fi
-        if [ "$sure" == "y" ]; then
+        if [ "$sure" = "y" ]; then
             echo "Removing old ${ROOT_DATA_DIR}"
             rm -rf ${ROOT_DATA_DIR}
         fi
@@ -123,63 +132,100 @@ cleanDataDir () {
 createDirectories () {
     echo "Creating ${ROOT_DATA_DIR}"
     mkdir -p ${ROOT_DATA_DIR}/postgresql
-    if [ "$TYPE" == "pro" ]; then
+    
+    if [ "${TYPE}" = "pro" ] || [  "${TYPE}" == "oss" ]; then
         mkdir -p ${ROOT_DATA_DIR}/artifactory/etc
     else
         mkdir -p ${ROOT_DATA_DIR}/artifactory/node{1,2}/etc
-        if [ "$TYPE" == "ha-shared-data" ]; then
+        if [ "${TYPE}" = "ha-shared-data" ]; then
             mkdir -p ${ROOT_DATA_DIR}/artifactory/{ha,backup}
         fi
     fi
-    mkdir -p ${ROOT_DATA_DIR}/nginx/{conf.d,log,ssl}
+    mkdir -p ${ROOT_DATA_DIR}/nginx/conf.d
+    mkdir -p ${ROOT_DATA_DIR}/nginx/logs
+    mkdir -p ${ROOT_DATA_DIR}/nginx/ssl
 }
 
 copyFiles () {
     echo "Copying needed files to directories"
 
     echo "Artifactory configuration files"
-    if [ "$TYPE" == "pro" ]; then
-        cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/etc
+    if [ "${TYPE}" = "pro" ] || [ "${TYPE}" = "oss" ]; then
         cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/
     else
-        cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/node1
         cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node1/
-        cp -f ${SCRIPT_DIR}/../files/security/communication.key ${ROOT_DATA_DIR}/artifactory/node2
         cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node2/
+    fi
 
-        # Copy the binarystore.xml which has configuration for no-shared storage
-        if [ "$TYPE" == "ha" ]; then
-            cp -f ${SCRIPT_DIR}/../files/binarystore.xml ${ROOT_DATA_DIR}/artifactory/node1/etc
-        fi
+    # Copy the binarystore.xml which has configuration for no-shared storage
+    if [ "${TYPE}" = "ha" ]; then
+        cp -f ${SCRIPT_DIR}/../files/binarystore.xml ${ROOT_DATA_DIR}/artifactory/node1/etc
     fi
 
     local type=${TYPE}
-    if [[ ${type} =~ ^ha ]]; then type=ha; fi
+    if [ ${type} = "ha" ]; then type=ha; fi
 
     echo "Nginx Artifactory configuration"
     cp -fr ${SCRIPT_DIR}/../files/nginx/conf.d/${type}/* ${ROOT_DATA_DIR}/nginx/conf.d/
 }
 
+setPermissions () {
+    # Fix directories ownerships only on Linux
+    if [ ${OS_NAME} == "Linux" ]; then
+        echo "Setting needed ownerships on ${ROOT_DATA_DIR}"
+        chown -R ${ARTIFACTORY_USER_ID}:${ARTIFACTORY_USER_ID} ${ROOT_DATA_DIR}/artifactory || errorExit "Setting ownership of ${ROOT_DATA_DIR}/artifactory to ${ARTIFACTORY_USER_ID} failed"
+        chown -R ${NGINX_USER_ID}:${NGINX_GROUP_ID} ${ROOT_DATA_DIR}/nginx || errorExit "Setting ownership of ${ROOT_DATA_DIR}/nginx ${NGINX_USER_ID}:${NGINX_GROUP_ID} failed"
+    fi
+}
+
 showNotes () {
-    cat << END_NOTES1
+
+if [ "${TYPE}" = "pro" ]; then
+    cat << PRO_NOTES
 
 ======================================
 IMPORTANT
 * Before starting, it is recommended to place the license file(s) (artifactory.lic) in the Artifactory etc directory
   - Artifactory pro:   ${ROOT_DATA_DIR}/artifactory/etc
+* The access keys used in these examples SHOULD NOT be used for production!
+PRO_NOTES
+fi
+
+if [ "${TYPE}" = "ha" ]; then
+
+cat <<HA_NOTES
+======================================
+IMPORTANT
+* Before starting, it is recommended to place the license file(s) (artifactory.lic) in the Artifactory etc directory of the primary node
   - Artifactory HA :   ${ROOT_DATA_DIR}/artifactory/node1/etc
                        ${ROOT_DATA_DIR}/artifactory/node2/etc
-* The communication and access keys used in these examples SHOULD NOT be used for production!
-END_NOTES1
+* The access keys used in these examples SHOULD NOT be used for production!
+HA_NOTES
+fi
+
+
+if [ "${TYPE}" = "oss" ]; then
+    cat << OSS_NOTES
+
+======================================
+
+INSTALLATION DIRECTORY
+  - Artifactory OSS:   ${ROOT_DATA_DIR}/artifactory/etc
+* The access keys used in these examples SHOULD NOT be used for production!
+OSS_NOTES
+fi
+
+
 
     local extra_msg=""
     if [ "$DEFAULT_ROOT_DATA_DIR" != "$ROOT_DATA_DIR" ]; then
         extra_msg="* You changed the default root data directory to $ROOT_DATA_DIR, you have to update the docker-compose yaml file (replace $LINUX_ROOT_DATA_DIR with $ROOT_DATA_DIR)."$'\n'
     fi
-    if [ "$OS_TYPE" == "Darwin" ]; then
+    if [ "$OS_TYPE" = "Darwin" ]; then
         extra_msg="$extra_msg* Since you are running on Mac, you have to update the docker-compose yaml file (replace $LINUX_ROOT_DATA_DIR with $ROOT_DATA_DIR)."
     fi
-    cat << END_NOTES2
+    
+cat << END_NOTES2
 $extra_msg
 ======================================
 
@@ -192,5 +238,6 @@ processOptions $*
 cleanDataDir
 createDirectories
 copyFiles
+setPermissions
 
 showNotes

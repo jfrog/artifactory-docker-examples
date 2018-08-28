@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 print_help() {
     echo "Usage:"
     echo "  process.sh -o OPERATION -p PARAMETERS_FILE [options]"

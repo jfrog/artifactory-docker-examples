@@ -13,7 +13,7 @@ metadata:
 
       NOTE: Scaling to more than one replica is not supported. You must have persistent volumes available in your cluster to use this template.
     iconClass: icon-mysql-database
-    openshift.io/display-name: JFrog Xray Mongodb 
+    openshift.io/display-name: JFrog Xray Mongodb
     tags: datastore
   name: xray-mongodb
 objects:
@@ -37,7 +37,7 @@ objects:
   kind: ImageStream
   metadata:
     name: mongodb
-    namespace: ${NAMESPACE} 
+    namespace: ${NAMESPACE}
   spec:
     tags:
       - name: latest
@@ -62,7 +62,7 @@ objects:
             command:
             - '/bin/sh'
             - '-c'
-            - sleep 10 && chmod +x /scripts/setup.sh; /scripts/setup.sh > /data/db/setup-$(date +%Y%m%d%H%M%S).log 2>&1
+            - sleep 10 && bash /scripts/setup.sh > /data/db/setup-$(date +%Y%m%d%H%M%S).log 2>&1
             containerName: mongodb
             volumes:
               - xray-mongodb-setup
@@ -94,7 +94,7 @@ objects:
           - containerPort: 28017
             protocol: TCP
           volumeMounts:
-          - mountPath: /scripts 
+          - mountPath: /scripts
             name: xray-mongodb-setup
           - mountPath: /data/db
             name: mongodb-volume-db
@@ -126,7 +126,7 @@ objects:
         volumes:
         - name: mongodb-volume-db
           persistentVolumeClaim:
-            claimName: xray-mongodb-pvc 
+            claimName: xray-mongodb-pvc
         - name: xray-mongodb-setup
           configMap:
             name: xray-mongodb-setup

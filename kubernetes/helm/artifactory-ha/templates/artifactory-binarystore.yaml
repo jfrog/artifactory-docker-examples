@@ -1,9 +1,9 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: artifactory-binarystore
+  name: {{ template "artifactory-ha.fullname" . }}-bs
   labels:
-    app: {{ template "artifactory.name" . }}
+    app: {{ template "artifactory-ha.name" . }}
     chart: {{ .Chart.Name }}-{{ .Chart.Version }}
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
@@ -18,6 +18,7 @@ data:
                     <readBehavior>crossNetworkStrategy</readBehavior>
                     <writeBehavior>crossNetworkStrategy</writeBehavior>
                     <redundancy>{{ .Values.artifactory.persistence.redundancy }}</redundancy>
+                    <lenientLimit>2</lenientLimit>
                     <minSpareUploaderExecutor>2</minSpareUploaderExecutor>
                     <sub-provider id="state-aware" type="state-aware"/>
                     <dynamic-provider id="remote" type="remote"/>
@@ -64,7 +65,7 @@ data:
 
         <!-- Set max cache-fs size -->
         <provider id="cache-fs" type="cache-fs">
-              <maxCacheSize>50000000000</maxCacheSize>
+            <maxCacheSize>50000000000</maxCacheSize>
         </provider>
 
         <provider id="eventual-cluster" type="eventual-cluster">
@@ -115,7 +116,7 @@ data:
 
         <!-- Set max cache-fs size -->
         <provider id="cache-fs" type="cache-fs">
-              <maxCacheSize>50000000000</maxCacheSize>
+            <maxCacheSize>50000000000</maxCacheSize>
         </provider>
 
         <provider id="eventual-cluster" type="eventual-cluster">

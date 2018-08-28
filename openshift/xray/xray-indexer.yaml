@@ -47,8 +47,22 @@ objects:
         initContainers:
         - name: init-xray
           image: ${INIT_CONTAINER_IMAGE}
-          command: ['sh', '-c', 'until nc -z -w 2 rabbitmq 5672 && echo rabbitmq ok && nc -z -w 2 mongodb 27017 && echo mongodb ok && nc -z -w 2 postgres 5432 && echo postgres ok ; do sleep 2; done']
+          command:
+            - 'sh'
+            - '-c'
+            - >
+              until nc -z -w 2 rabbitmq 5672 && echo rabbitmq ok && nc -z -w 2 mongodb 27017 && echo mongodb ok && nc -z -w 2 postgres 5432 && echo postgres ok ; do sleep 2; done;
+              mkdir -p /var/opt/jfrog/xray/data/config;
+              chmod 777 /var/opt/jfrog/xray/data/config;
+              cp /xray-config/xray_config.yaml /var/opt/jfrog/xray/data/config/xray_config.yaml;
+              chmod 777 /var/opt/jfrog/xray/data/config/xray_config.yaml;
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+          - mountPath: /var/opt/jfrog/xray/data
+            name: volume-xray-indexer
+          - mountPath: /xray-config/xray_config.yaml
+            name: xray-conf-setup
+            subPath: xray_config.yaml
         containers:
         - env:
           - name: XRAYCONFIGPATH
@@ -95,6 +109,9 @@ objects:
         - name: volume-xray-indexer
           persistentVolumeClaim:
             claimName: xray-data-pvc
+        - name: xray-conf-setup
+          configMap:
+            name: xray-conf-setup
     triggers:
     - type: ConfigChange
     - type: ImageChange

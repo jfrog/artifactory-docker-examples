@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: nginx-k8s
-        image: docker.bintray.io/jfrog/nginx-artifactory-pro:5.8.3
+        image: docker.bintray.io/jfrog/nginx-artifactory-pro:6.3.0
         env:
         - name: ART_BASE_URL
           value: "http://artifactory-pro:8081/artifactory"

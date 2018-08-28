@@ -11,10 +11,10 @@ Artifactory Pro can be deployed and managed by the [Helm](https://helm.sh/) pack
 See the [helm/artifactory](helm/artifactory) directory for an example and usage.
 
 ## Kubectl
-The examples here are defines and deployed using the `kubectl` command line tool. See more details in the [kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) documentation.  
+The examples here are defined and deployed using the `kubectl` command line tool. See more details in the [kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) documentation.  
 Also see a useful [cheat sheet](https://kubernetes.io/docs/user-guide/kubectl-cheatsheet/) with a good summary of the useful commands and usage.
 
-In these examples Kubernetes objects are defines as Yaml files, so applying them is a simple call to `kubectl apply` or `kubectl create`.
+In these examples Kubernetes objects are defined as Yaml files, so applying them is a simple call to `kubectl apply` or `kubectl create`.
   
 --- 
 ## Persistent Storage

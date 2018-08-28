@@ -31,6 +31,12 @@ objects:
                 serviceAccountName: ${SERVICE_ACCOUNT}
 
                 initContainers:
+                  - name: set-volume-ownership
+                    image: ${INIT_CONTAINER_IMAGE}
+                    command: ["sh", "-c", "chown -R 1030:1030 /var/opt/jfrog/artifactory"]
+                    volumeMounts:
+                      - name: artifactory
+                        mountPath: /var/opt/jfrog/artifactory
                   - name: remove-lost-found
                     image: ${INIT_CONTAINER_IMAGE}
                     command: ["sh", "-c", "rm -rf /var/opt/jfrog/artifactory/lost+found"]
@@ -68,9 +74,6 @@ objects:
                         mountPath: ${HA_DATA_DIR}
                       - name: artifactory-backup
                         mountPath: ${HA_BACKUP_DIR}
-                      - name: artifactory-master-key
-                        mountPath: /var/opt/jfrog/artifactory/etc/security/master.key
-                        subPath: master.key
                     env:
                       - name: DB_TYPE
                         valueFrom:
@@ -97,6 +100,11 @@ objects:
                             secretKeyRef:
                                 name: ${DATABASE_CREDENTIALS_SECRET_NAME}
                                 key: password
+                      - name: ARTIFACTORY_MASTER_KEY
+                        valueFrom:
+                            secretKeyRef:
+                                name: ${MASTER_KEY_SECRET_NAME}
+                                key: master.key
                       - name: HA_NODE_ID
                         value: "${NAME}-secondary"
                       - name: HA_IS_PRIMARY
@@ -143,9 +151,6 @@ objects:
                   - name: artifactory-backup
                     persistentVolumeClaim:
                         claimName: ${NAME}-backup
-                  - name: artifactory-master-key
-                    secret:
-                        secretName: ${MASTER_KEY_SECRET_NAME}
         triggers:
           - type: ImageChange
             imageChangeParams:
