@@ -9,6 +9,10 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
     component: {{ .Values.nginx.name }}
+{{- if .Values.nginx.service.annotations }}
+  annotations:
+{{ toYaml .Values.nginx.service.annotations | indent 4 }}
+{{- end }}
 spec:
   type: {{ .Values.nginx.service.type }}
 {{- if eq .Values.nginx.service.type "LoadBalancer" }}
