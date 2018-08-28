@@ -8,7 +8,7 @@ This page assumes you have prior knowledge of Kubernetes and have a working clus
 ## Helm - a package manager for Kubernetes
 The recommended way to deploy your applications to Kubernetes is using [Helm](https://helm.sh/) charts (packages).  
 Artifactory Pro can be deployed and managed by the [Helm](https://helm.sh/) package manager (also [supported by Artifactory](https://github.com/JFrogDev/artifactory-user-plugins/tree/master/helm/helmRepoSupport))  
-See the [helm/artifactory](helm/artifactory) directory for an example and usage.
+See the [helm/artifactory](https://github.com/jfrog/charts/tree/master/stable/artifactory) directory for an example and usage.
 
 ## Kubectl
 The examples here are defined and deployed using the `kubectl` command line tool. See more details in the [kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) documentation.  
@@ -283,3 +283,5 @@ Now point your browser to **http://192.168.99.100:30002/artifactory/** or **http
 **NOTE**: When using `https`, you might need to confirm trusting the certificate and that will redirect you back to
 https://192.168.99.100/artifactory, resulting in an error. Just put the port **32600** again in the URL, refresh your page,
 and Artifactory should now load properly.
+
+**NOTE**: We have moved our Helm charts to [jfrog/charts](https://github.com/jfrog/charts).
