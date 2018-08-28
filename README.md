@@ -12,4 +12,7 @@ The following examples are available
 - [Docker compose](docker-compose)
 - [Docker Swarm](swarm)
 - [Kubernetes](kubernetes)
+- [Helm Charts](https://github.com/jfrog/charts)
 - [DC/OS](dc-os)
+
+**NOTE**: We have moved our Helm charts to [jfrog/charts](https://github.com/jfrog/charts).
