@@ -55,6 +55,8 @@ services:
      - 443:443
     depends_on:
      - artifactory
+    links:
+     - artifactory
     deploy:
       mode: replicated
       replicas: 1
