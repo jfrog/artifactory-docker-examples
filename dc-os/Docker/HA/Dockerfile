@@ -1,4 +1,4 @@
-FROM docker.bintray.io/jfrog/artifactory-pro:6.3.2
+FROM docker.bintray.io/jfrog/artifactory-pro:6.3.3
 
 MAINTAINER jainishs@jfrog.com
 
