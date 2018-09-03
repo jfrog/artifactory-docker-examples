@@ -1,0 +1,92 @@
+version: "2"
+
+services:
+  xray-server:
+    image: $XRAY_DOCKER_REPO/xray-server:$XRAY_VERSION
+    container_name: xray-server
+    ports:
+      - "$XRAY_SERVER_PORT:$XRAY_SERVER_PORT"
+    depends_on:
+      - mongodb
+      - postgres
+      - rabbitmq
+    volumes:
+      - "$XRAY_MOUNT_ROOT/xray:$XRAY_DATA"
+    environment:
+      - "XRAYCONFIGPATH=$XRAY_DATA"
+      - "DOCKER_COMPOSE_FLAGS=$DOCKER_COMPOSE_FLAGS"
+      - "DOCKER_COMPOSE_XRAY_FLAGS=$DOCKER_COMPOSE_XRAY_SERVER_FLAGS"
+    restart: always
+
+  xray-indexer:
+    image: $XRAY_DOCKER_REPO/xray-indexer:$XRAY_VERSION
+    container_name: xray-indexer
+    depends_on:
+      - postgres
+      - rabbitmq
+    volumes:
+      - "$XRAY_MOUNT_ROOT/xray:$XRAY_DATA"
+    environment:
+      - "XRAYCONFIGPATH=$XRAY_DATA"
+      - "DOCKER_COMPOSE_FLAGS=$DOCKER_COMPOSE_FLAGS"
+      - "DOCKER_COMPOSE_XRAY_FLAGS=$DOCKER_COMPOSE_XRAY_INDEXER_FLAGS"
+    restart: always
+
+  xray-analysis:
+    image: $XRAY_DOCKER_REPO/xray-analysis:$XRAY_VERSION
+    container_name: xray-analysis
+    depends_on:
+      - postgres
+      - rabbitmq
+    volumes:
+      - "$XRAY_MOUNT_ROOT/xray:$XRAY_DATA"
+    environment:
+      - "XRAYCONFIGPATH=$XRAY_DATA"
+      - "DOCKER_COMPOSE_FLAGS=$DOCKER_COMPOSE_FLAGS"
+      - "DOCKER_COMPOSE_XRAY_FLAGS=$DOCKER_COMPOSE_XRAY_ANALYSIS_FLAGS"
+    restart: always
+
+  xray-persist:
+    image: $XRAY_DOCKER_REPO/xray-persist:$XRAY_VERSION
+    container_name: xray-persist
+    depends_on:
+      - postgres
+      - rabbitmq
+    volumes:
+      - "$XRAY_MOUNT_ROOT/xray:$XRAY_DATA"
+    environment:
+      - "XRAYCONFIGPATH=$XRAY_DATA"
+      - "DOCKER_COMPOSE_FLAGS=$DOCKER_COMPOSE_FLAGS"
+      - "DOCKER_COMPOSE_XRAY_FLAGS=$DOCKER_COMPOSE_XRAY_PERSIST_FLAGS"
+    restart: always
+
+  rabbitmq:
+    image: $XRAYDB_DOCKER_REPO/xray-rabbitmq:$RABBITMQ_VERSION
+    container_name: xray-rabbitmq
+    hostname: $DOCKER_SERVER_HOSTNAME
+    volumes:
+      - "$XRAY_MOUNT_ROOT/rabbitmq:/var/lib/rabbitmq"
+    environment:
+      - "RABBITMQ_ERLANG_COOKIE=$RABBITMQ_ERLANG_COOKIE"
+    restart: always
+
+  postgres:
+    image: $XRAYDB_DOCKER_REPO/xray-postgres:$POSTGRES_VERSION
+    container_name: xray-postgres
+    environment:
+      - "POSTGRES_USER=$POSTGRES_USER"
+      - "POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
+      - "POSTGRES_DB=$POSTGRES_DB"
+    volumes:
+      - "$XRAY_MOUNT_ROOT/postgres:/var/lib/postgresql/data"
+    restart: always
+
+  mongodb:
+    image: $XRAYDB_DOCKER_REPO/xray-mongo:$MONGO_VERSION
+    container_name: xray-mongodb
+    entrypoint: /bin/bash -c "chmod 777 /data/logs; /entrypoint.sh --logpath /data/logs/xray-mongo.log --auth"
+    volumes:
+      - "$XRAY_MOUNT_ROOT/mongodb/logs:/data/logs"
+      - "$XRAY_MOUNT_ROOT/mongodb/configdb:/data/configdb"
+      - "$XRAY_MOUNT_ROOT/mongodb/db:/data/db"
+    restart: always
