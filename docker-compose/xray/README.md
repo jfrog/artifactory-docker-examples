@@ -1,6 +1,6 @@
 # Xray Docker Compose Examples
 
-This directory provides some examples that show different ways to run Xrazy with Docker Compose.
+This directory provides some examples that show different ways to run Xray with Docker Compose.
 To learn more about Docker and how to set it up, please refer to the [Docker](https://docs.docker.com) and [Docker Compose](https://docs.docker.com/compose/overview/) documentation.  
 
 Xray is available as different Docker images for:
