@@ -54,7 +54,7 @@ $ sudo ./prepareHostEnv.sh
 If it's the first installation, you have to create users first using [`createMongoUsers.js`](createMongoUsers.js) script.
 
 ```bash
-$ sudo docker-compose -f <compose_file> up -d mongo
+$ sudo docker-compose -f <compose_file> up -d mongodb
 $ sudo cat createMongoUsers.js | docker exec -i xray-mongodb mongo
 ```
 
