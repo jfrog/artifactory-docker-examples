@@ -45,29 +45,39 @@ Below is a list of included examples. You are welcome to contribute.
 ---
 ## Xray
 
-#### Run Xray with RabbitMQ, PostgreSQL and MongoDB
-
-Preparing all the needed files and directories on the host.
+Before starting with those examples, you have to prepare all the needed files and directories on the host.
 
 ```bash
 $ sudo ./prepareHostEnv.sh
 ```
 
-If it's the first installation, you have to create users first using [`createMongoUsers.js`](createMongoUsers.js) script :
+If it's the first installation, you have to create users first using [`createMongoUsers.js`](createMongoUsers.js) script.
 
 ```bash
-$ sudo docker-compose -f xray.xml up -d mongo
+$ sudo docker-compose -f <compose_file> up -d mongodb
 $ sudo cat createMongoUsers.js | docker exec -i xray-mongodb mongo
 ```
 
-Then you are ready to go :
+> Replace `<compose_file>` with one of those available in the examples.
+
+### Run Xray with RabbitMQ, PostgreSQL and MongoDB
 
 ```bash
 $ sudo docker-compose -f xray.yml up -d
 ```
 
-This example starts the following containers and exposes Xray on port 8000 (http)
+This example starts the containers and exposes Xray on port `8000` (http)
 
-## Run Xray with Traefik
+### Run Xray with Traefik + Let's Encrypt
 
-_TODO_
+[Traefik](https://traefik.io/) is a [Docker-aware reverse proxy](https://docs.traefik.io/basics/) that includes its own [monitoring dashboard](https://docs.traefik.io/configuration/api/). In its essence it is dynamic reverse proxy. It can connect to many popular deployment platforms (docker, swarm, mezos, kubernetes, etc.) and obtain information about services (containers).
+
+In this example, Traefik will act as a reverse proxy of Xray Server container through [labels](https://docs.docker.com/config/labels-custom-metadata/) and automatically [create/renew Let's Encrypt certificates](https://docs.traefik.io/configuration/acme/). 
+
+```bash
+$ sudo touch acme.json
+$ sudo chmod 600 acme.json
+$ sudo docker-compose -f xray-traefik-letsencrypt.yml up -d
+```
+
+This example starts the containers and exposes Traefik on ports `80` (http) and `443` (https) as a reverse proxy of Xray Server.
