@@ -70,7 +70,9 @@ This example starts the containers and exposes Xray on port `8000` (http)
 
 ### Run Xray with Traefik + Let's Encrypt
 
-Here, Traefik will act as a reverse proxy of Xray Server and automatically create/renew Let's Encrypt certificates.
+[Traefik](https://traefik.io/) is a [Docker-aware reverse proxy](https://docs.traefik.io/basics/) that includes its own [monitoring dashboard](https://docs.traefik.io/configuration/api/). In its essence it is dynamic reverse proxy. It can connect to many popular deployment platforms (docker, swarm, mezos, kubernetes, etc.) and obtain information about services (containers).
+
+In this example, Traefik will act as a reverse proxy of Xray Server container through [labels](https://docs.docker.com/config/labels-custom-metadata/) and automatically [create/renew Let's Encrypt certificates](https://docs.traefik.io/configuration/acme/). 
 
 ```bash
 $ sudo touch acme.json
@@ -78,4 +80,4 @@ $ sudo chmod 600 acme.json
 $ sudo docker-compose -f xray-traefik-letsencrypt.yml up -d
 ```
 
-This example starts the containers and exposes Traefik on ports 80 (http) and 443 (https) as a reverse proxy of Xray Server.
+This example starts the containers and exposes Traefik on ports `80` (http) and `443` (https) as a reverse proxy of Xray Server.
