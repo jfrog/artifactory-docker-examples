@@ -114,15 +114,15 @@ processOptions() {
 }
 
 cleanDataDir () {
-    if [ $CLEAN = "true" ] && [ -d ${ROOT_DATA_DIR} ]; then
+    if [ ${CLEAN} = "true" ] && [ -d ${ROOT_DATA_DIR} ]; then
         local sure='n'
 
-        if [ "$FORCE" = "true" ]; then
+        if [ "${FORCE}" = "true" ]; then
             sure='y'
         else
             read -p "Are you sure you want to remove existing ${ROOT_DATA_DIR} [y/n]: " sure
         fi
-        if [ "$sure" = "y" ]; then
+        if [ "${sure}" = "y" ]; then
             echo "Removing old ${ROOT_DATA_DIR}"
             rm -rf ${ROOT_DATA_DIR}
         fi
@@ -132,7 +132,13 @@ cleanDataDir () {
 createDirectories () {
     echo "Creating ${ROOT_DATA_DIR}"
     mkdir -p ${ROOT_DATA_DIR}/postgresql
-    
+
+    # Check if this is the first creation of the directories
+    if [ ! -d ${ROOT_DATA_DIR}/artifactory ]; then
+        echo "First setup. Setting FIRST_SETUP=true"
+        FIRST_SETUP=true
+    fi
+
     if [ "${TYPE}" = "pro" ] || [  "${TYPE}" == "oss" ]; then
         mkdir -p ${ROOT_DATA_DIR}/artifactory/etc
     else
@@ -151,22 +157,22 @@ copyFiles () {
 
     echo "Artifactory configuration files"
     if [ "${TYPE}" = "pro" ] || [ "${TYPE}" = "oss" ]; then
-        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/
+        cp -fr ${SCRIPT_DIR}/../../files/access ${ROOT_DATA_DIR}/artifactory/ || errorExit "Copy failed"
     else
-        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node1/
-        cp -fr ${SCRIPT_DIR}/../files/access ${ROOT_DATA_DIR}/artifactory/node2/
+        cp -fr ${SCRIPT_DIR}/../../files/access ${ROOT_DATA_DIR}/artifactory/node1/ || errorExit "Copy failed"
+        cp -fr ${SCRIPT_DIR}/../../files/access ${ROOT_DATA_DIR}/artifactory/node2/ || errorExit "Copy failed"
     fi
 
     # Copy the binarystore.xml which has configuration for no-shared storage
     if [ "${TYPE}" = "ha" ]; then
-        cp -f ${SCRIPT_DIR}/../files/binarystore.xml ${ROOT_DATA_DIR}/artifactory/node1/etc
+        cp -f ${SCRIPT_DIR}/../../files/binarystore.xml ${ROOT_DATA_DIR}/artifactory/node1/etc || errorExit "Copy failed"
     fi
 
     local type=${TYPE}
     if [ ${type} = "ha" ]; then type=ha; fi
 
     echo "Nginx Artifactory configuration"
-    cp -fr ${SCRIPT_DIR}/../files/nginx/conf.d/${type}/* ${ROOT_DATA_DIR}/nginx/conf.d/
+    cp -fr ${SCRIPT_DIR}/../../files/nginx/conf.d/${type}/* ${ROOT_DATA_DIR}/nginx/conf.d/ || errorExit "Copy failed"
 }
 
 setPermissions () {
@@ -176,57 +182,61 @@ setPermissions () {
         chown -R ${ARTIFACTORY_USER_ID}:${ARTIFACTORY_USER_ID} ${ROOT_DATA_DIR}/artifactory || errorExit "Setting ownership of ${ROOT_DATA_DIR}/artifactory to ${ARTIFACTORY_USER_ID} failed"
         chown -R ${NGINX_USER_ID}:${NGINX_GROUP_ID} ${ROOT_DATA_DIR}/nginx || errorExit "Setting ownership of ${ROOT_DATA_DIR}/nginx ${NGINX_USER_ID}:${NGINX_GROUP_ID} failed"
     fi
+
+    # Give wide permissions on Mac (to support the non-root Artifactory and Nginx containers)
+    if [ ${OS_NAME} == "Darwin" ] && [ "${FIRST_SETUP}" == "true" ]; then
+        echo "Setting 777 permissions on ${ROOT_DATA_DIR}/artifactory"
+        chmod -R 777 ${ROOT_DATA_DIR}/artifactory || errorExit "Setting 777 permissions on ${ROOT_DATA_DIR}/artifactory failed"
+    fi
 }
 
 showNotes () {
 
-if [ "${TYPE}" = "pro" ]; then
-    cat << PRO_NOTES
+    if [ "${TYPE}" = "pro" ]; then
+        cat << PRO_NOTES
 
 ======================================
 IMPORTANT
-* Before starting, it is recommended to place the license file(s) (artifactory.lic) in the Artifactory etc directory
+- Before starting, it is recommended to place the license file(s) (artifactory.lic) in the Artifactory etc directory
   - Artifactory pro:   ${ROOT_DATA_DIR}/artifactory/etc
-* The access keys used in these examples SHOULD NOT be used for production!
+- The access keys used in these examples SHOULD NOT be used for production!
 PRO_NOTES
-fi
+    fi
 
-if [ "${TYPE}" = "ha" ]; then
-
-cat <<HA_NOTES
+    if [ "${TYPE}" = "ha" ]; then
+        cat <<HA_NOTES
 ======================================
 IMPORTANT
-* Before starting, it is recommended to place the license file(s) (artifactory.lic) in the Artifactory etc directory of the primary node
+- Before starting, it is recommended to place the license file(s) (artifactory.lic) in the Artifactory etc directory of the primary node
   - Artifactory HA :   ${ROOT_DATA_DIR}/artifactory/node1/etc
                        ${ROOT_DATA_DIR}/artifactory/node2/etc
-* The access keys used in these examples SHOULD NOT be used for production!
+- The access keys used in these examples SHOULD NOT be used for production!
 HA_NOTES
-fi
+    fi
 
 
-if [ "${TYPE}" = "oss" ]; then
-    cat << OSS_NOTES
+    if [ "${TYPE}" = "oss" ]; then
+        cat << OSS_NOTES
 
 ======================================
 
 INSTALLATION DIRECTORY
   - Artifactory OSS:   ${ROOT_DATA_DIR}/artifactory/etc
-* The access keys used in these examples SHOULD NOT be used for production!
+- The access keys used in these examples SHOULD NOT be used for production!
 OSS_NOTES
-fi
-
-
+    fi
 
     local extra_msg=""
     if [ "$DEFAULT_ROOT_DATA_DIR" != "$ROOT_DATA_DIR" ]; then
-        extra_msg="* You changed the default root data directory to $ROOT_DATA_DIR, you have to update the docker-compose yaml file (replace $LINUX_ROOT_DATA_DIR with $ROOT_DATA_DIR)."$'\n'
+        extra_msg="- You changed the default root data directory to ${ROOT_DATA_DIR}, you have to update the docker-compose yaml file (replace ${LINUX_ROOT_DATA_DIR} with ${ROOT_DATA_DIR})."$'\n'
     fi
-    if [ "$OS_TYPE" = "Darwin" ]; then
-        extra_msg="$extra_msg* Since you are running on Mac, you have to update the docker-compose yaml file (replace $LINUX_ROOT_DATA_DIR with $ROOT_DATA_DIR)."
+    if [ "${OS_NAME}" = "Darwin" ]; then
+        extra_msg="${extra_msg}- Since you are running on Mac, you have to update the docker-compose yaml file (replace ${LINUX_ROOT_DATA_DIR} with ${ROOT_DATA_DIR}).\n"
+        extra_msg="${extra_msg}- Directory ${ROOT_DATA_DIR}/artifactory is created with wide permissions (777). SHOULD NOT be used like this in production!\n\tSee https://www.jfrog.com/confluence/display/RTF/Installing+with+Docker#InstallingwithDocker-ManagingDataPersistence"
     fi
     
-cat << END_NOTES2
-$extra_msg
+    cat << END_NOTES2
+$(echo -e ${extra_msg})
 ======================================
 
 END_NOTES2
