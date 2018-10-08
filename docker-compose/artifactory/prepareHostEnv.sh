@@ -169,7 +169,7 @@ copyFiles () {
     fi
 
     local type=${TYPE}
-    if [ ${type} = "ha" ]; then type=ha; fi
+    if [ ${type} = "ha-shared-data" ]; then type=ha; fi
 
     echo "Nginx Artifactory configuration"
     cp -fr ${SCRIPT_DIR}/../../files/nginx/conf.d/${type}/* ${ROOT_DATA_DIR}/nginx/conf.d/ || errorExit "Copy failed"
