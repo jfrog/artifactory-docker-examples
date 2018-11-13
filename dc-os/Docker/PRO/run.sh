@@ -32,7 +32,7 @@ setPorts() {
         export HA_MEMBERSHIP_PORT=$PORT1
     fi
     # Change the port
-    sed -i -e 's,Connector port="\(.*\)",Connector port="'"$INSTANCE_PORT"'",g' /opt/jfrog/artifactory/tomcat/conf/server.xml
+    sed -i -e 's,Connector port="8081",Connector port="'"$INSTANCE_PORT"'",g' /opt/jfrog/artifactory/tomcat/conf/server.xml
 }
 
 #Set initial configuration
