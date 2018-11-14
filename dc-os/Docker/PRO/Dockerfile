@@ -1,10 +1,10 @@
 # Dockerfile for a primary node
 FROM docker.bintray.io/jfrog/artifactory-pro:6.5.8
 
-MAINTAINER jainishs@jfrog.com
+LABEL MAINTAINER jainishs@jfrog.com
 
 # Will be filtered and copied in etc when first running
-ADD artifactory.config.xml /tmp/artifactory.config.xml
+COPY --chown=artifactory:artifactory artifactory.config.xml /tmp/artifactory.config.xml
 
 # We download all the usual JDBC drivers available so we can
 # configure them at runtime
@@ -14,10 +14,10 @@ RUN curl -L -o /opt/jfrog/artifactory/tomcat/lib/mysql-connector-java-5.1.38.jar
 # Copy the run script
 COPY run.sh /runArtifactory.sh
 
-# Still needed ?
-COPY server.xml /opt/jfrog/artifactory/tomcat/conf/server.xml
+# Customized server.xml
+COPY --chown=artifactory:artifactory server.xml /opt/jfrog/artifactory/tomcat/conf/server.xml
 
-# This should be mapped to a shared NFS mounted on the host
+# Expose HA Port
 EXPOSE 8081 10042
 
 ENTRYPOINT /runArtifactory.sh
