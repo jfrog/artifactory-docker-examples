@@ -51,7 +51,6 @@ function setInitialConfiguration {
     # This configuration doesn't exist on the first run
     if [ ! -f /var/opt/jfrog/artifactory/etc/artifactory.config.bootstrap.xml ]; then
         sed -i -e "s,\[SERVERNAME\],$ART_SERVER_NAME,g" /tmp/artifactory.config.xml
-        sed -i -e "s,\[ARTSERVICE\],${MARATHON_APP_ID:1},g" /tmp/artifactory.config.xml
         sed -i -e "s,\[RPMETHOD\],$ART_REVERSE_PROXY_METHOD,g" /tmp/artifactory.config.xml
         sed -i -e "s,\[PORT\],$INSTANCE_PORT,g" /tmp/artifactory.config.xml
         mv /tmp/artifactory.config.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
@@ -71,8 +70,8 @@ function setInitialConfiguration {
 #Set license
 function setLicense {
     logger "Setting up license."
-    [ ! -d /var/opt/jfrog/artifactory/etc ] && mkdir -p /var/opt/jfrog/artifactory/etc
     echo -n "$ART_LICENSES" | cut -d, -f1 > /var/opt/jfrog/artifactory/etc/artifactory.lic
+    chmod 777 /var/opt/jfrog/artifactory/etc/artifactory.lic
     echo "Added license"
 }
 
