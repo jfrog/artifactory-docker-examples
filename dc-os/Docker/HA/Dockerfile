@@ -14,12 +14,6 @@ COPY --chown=artifactory:artifactory server.xml /opt/jfrog/artifactory/tomcat/co
 COPY --chown=artifactory:artifactory binarystore.xml /tmp/binarystore.xml
 COPY --chown=artifactory:artifactory artifactory.config.xml /tmp/artifactory.config.xml
 
-# Pre-Populated keys
-RUN mkdir -p /var/opt/jfrog/artifactory/access/etc/keys/ /var/opt/jfrog/artifactory/etc/security/
-COPY --chown=artifactory:artifactory files/access/etc/keys/private.key /var/opt/jfrog/artifactory/access/etc/keys/private.key
-COPY --chown=artifactory:artifactory files/access/etc/keys/root.crt /var/opt/jfrog/artifactory/access/etc/keys/root.crt
-COPY --chown=artifactory:artifactory files/security/communication.key /var/opt/jfrog/artifactory/communication.key
-
 # Expose HA Port
 EXPOSE 8081 10042
 
