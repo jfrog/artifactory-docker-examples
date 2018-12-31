@@ -52,7 +52,6 @@ END_USAGE
 }
 
 setOS () {
-    
     if [ ${OS_NAME} != "Darwin" ] && [ ${OS_NAME} != "Linux" ]; then
         echo "This script can run on Mac or Linux only!"
     fi
@@ -108,13 +107,13 @@ processOptions() {
     fi
 
     # Set ROOT_DATA_DIR
-    if [ -z "$ROOT_DATA_DIR" ]; then
+    if [ -z "${ROOT_DATA_DIR}" ]; then
         ROOT_DATA_DIR=${DEFAULT_ROOT_DATA_DIR}
     fi
 }
 
 cleanDataDir () {
-    if [ ${CLEAN} = "true" ] && [ -d ${ROOT_DATA_DIR} ]; then
+    if [ "${CLEAN}" = "true" ] && [ -d ${ROOT_DATA_DIR} ]; then
         local sure='n'
 
         if [ "${FORCE}" = "true" ]; then
@@ -177,14 +176,14 @@ copyFiles () {
 
 setPermissions () {
     # Fix directories ownerships only on Linux
-    if [ ${OS_NAME} == "Linux" ]; then
+    if [ "${OS_NAME}" == "Linux" ]; then
         echo "Setting needed ownerships on ${ROOT_DATA_DIR}"
         chown -R ${ARTIFACTORY_USER_ID}:${ARTIFACTORY_USER_ID} ${ROOT_DATA_DIR}/artifactory || errorExit "Setting ownership of ${ROOT_DATA_DIR}/artifactory to ${ARTIFACTORY_USER_ID} failed"
         chown -R ${NGINX_USER_ID}:${NGINX_GROUP_ID} ${ROOT_DATA_DIR}/nginx || errorExit "Setting ownership of ${ROOT_DATA_DIR}/nginx ${NGINX_USER_ID}:${NGINX_GROUP_ID} failed"
     fi
 
     # Give wide permissions on Mac (to support the non-root Artifactory and Nginx containers)
-    if [ ${OS_NAME} == "Darwin" ] && [ "${FIRST_SETUP}" == "true" ]; then
+    if [ "${OS_NAME}" == "Darwin" ] && [ "${FIRST_SETUP}" == "true" ]; then
         echo "Setting 777 permissions on ${ROOT_DATA_DIR}/artifactory"
         chmod -R 777 ${ROOT_DATA_DIR}/artifactory || errorExit "Setting 777 permissions on ${ROOT_DATA_DIR}/artifactory failed"
     fi
