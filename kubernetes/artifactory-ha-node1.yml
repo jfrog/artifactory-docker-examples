@@ -14,7 +14,7 @@ spec:
       containers:
       - name: artifactory-ha-node1
         # Set your actual artifactory-pro image
-        image: <your-docker-reg>/jfrog/artifactory-pro-mysql:6.6.3
+        image: <your-docker-reg>/jfrog/artifactory-pro-mysql:6.6.5
         env:
         - name: DB_TYPE
           value: mysql
