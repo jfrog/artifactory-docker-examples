@@ -3,7 +3,7 @@ version: '3'
 services:
 
   postgresql:
-    image: docker.bintray.io/postgres:9.5.2
+    image: docker.bintray.io/postgres:9.6.11
     ports:
      - 5432:5432
     environment:

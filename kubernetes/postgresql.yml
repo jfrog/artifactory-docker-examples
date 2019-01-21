@@ -23,7 +23,7 @@ spec:
           name: postgresql-volume
       containers:
       - name: postgresql-k8s
-        image: docker.bintray.io/postgres:9.5.2
+        image: docker.bintray.io/postgres:9.6.11
         env:
         - name: POSTGRES_DB
           value: artifactory
