@@ -71,7 +71,7 @@ services:
     restart: always
 
   postgres:
-    image: $XRAYDB_DOCKER_REPO/xray-postgres:$POSTGRES_VERSION
+    image: postgres:$POSTGRES_VERSION
     container_name: xray-postgres
     environment:
       - "POSTGRES_USER=$POSTGRES_USER"
