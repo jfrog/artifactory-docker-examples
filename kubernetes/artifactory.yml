@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: artifactory-pro-k8s
-        image: docker.bintray.io/jfrog/artifactory-pro:6.8.4
+        image: docker.bintray.io/jfrog/artifactory-pro:6.8.6
         env:
         - name: DB_TYPE
           value: postgresql
