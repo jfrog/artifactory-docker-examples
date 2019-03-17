@@ -63,7 +63,7 @@ $ sudo cat createMongoUsers.js | docker exec -i xray-mongodb mongo
 ### Run Xray with RabbitMQ, PostgreSQL and MongoDB
 
 ```bash
-$ sudo docker-compose -f xray.yml up -d
+$ sudo docker-compose -f <compose_file> up -d
 ```
 
 This example starts the containers and exposes Xray on port `8000` (http)
