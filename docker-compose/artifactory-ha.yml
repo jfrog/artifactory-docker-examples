@@ -90,6 +90,8 @@ services:
     environment:
      - ART_BASE_URL=http://artifactory-node1:8081/artifactory
      - SSL=true
+     # Set SKIP_AUTO_UPDATE_CONFIG=true to disable auto loading of NGINX conf
+     #- SKIP_AUTO_UPDATE_CONFIG=true
     restart: always
     ulimits:
       nproc: 65535
