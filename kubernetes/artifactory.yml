@@ -10,6 +10,19 @@ spec:
         app: artifactory-pro-k8s
         group: artifactory-k8s-demo
     spec:
+      securityContext:
+        runAsUser: 1030
+        fsGroup: 1030
+      initContainers:
+      - name: "remove-lost-found"
+        image: "alpine:3.9"
+        command:
+        - 'sh'
+        - '-c'
+        - 'rm -rfv /var/opt/jfrog/artifactory/lost+found'
+        volumeMounts:
+        - name: artifactory-pro-volume
+          mountPath: "/var/opt/jfrog/artifactory"
       containers:
       - name: artifactory-pro-k8s
         image: docker.bintray.io/jfrog/artifactory-pro:6.9.1
