@@ -31,24 +31,6 @@ objects:
                 serviceAccountName: ${SERVICE_ACCOUNT}
 
                 initContainers:
-                  - name: set-volume-ownership
-                    image: ${INIT_CONTAINER_IMAGE}
-                    command: ["sh", "-c", "chown -R 1030:1030 /var/opt/jfrog/artifactory"]
-                    volumeMounts:
-                      - name: artifactory
-                        mountPath: /var/opt/jfrog/artifactory
-                  - name: set-data-volume-ownership
-                    image: ${INIT_CONTAINER_IMAGE}
-                    command: ["sh", "-c", "chown -R 1030:1030 /var/opt/jfrog/data"]
-                    volumeMounts:
-                      - name: artifactory-data
-                        mountPath: /var/opt/jfrog/data
-                  - name: set-backup-volume-ownership
-                    image: ${INIT_CONTAINER_IMAGE}
-                    command: ["sh", "-c", "chown -R 1030:1030 /var/opt/jfrog/backup"]
-                    volumeMounts:
-                      - name: artifactory-backup
-                        mountPath: /var/opt/jfrog/backup
                   - name: remove-lost-found
                     image: ${INIT_CONTAINER_IMAGE}
                     command: ["sh", "-c", "rm -rf /var/opt/jfrog/artifactory/lost+found"]
