@@ -1,3 +1,23 @@
+# DEPRECATED
+This page is now **deprecated**.<br>
+Kubernetes deployments of Artifactory and other JFrog products can be done with our official [Helm Charts](https://github.com/jfrog/charts).
+
+If you want to avoid using **Helm** and use only bare Kubernetes templates, you can use `helm template` to generate a full template from the chart and deploy with it
+```bash
+# Get the chart
+helm fetch jfrog/artifactory
+
+# Generate the Kubernetes template
+helm template artifactory-VERSION.tgz > artifactory-template.yaml
+
+# Deploy using the template
+kubectl apply -f artifactory-template.yaml
+```
+
+Read the chart's documentation on ways to customise the templates.
+
+---
+
 # Artifactory in Kubernetes examples
 This directory has some examples for setting up Artifactory running in a Kubernetes cluster.
  
