@@ -32,7 +32,7 @@ setPorts() {
         export HA_MEMBERSHIP_PORT=$PORT1
     fi
     # Change the port
-    sed -i -e 's,Connector port="\(.*\)",Connector port="'"$INSTANCE_PORT"'",g' /opt/jfrog/artifactory/tomcat/conf/server.xml
+    sed -i -e 's,Connector port="8081",Connector port="'"$INSTANCE_PORT"'",g' /opt/jfrog/artifactory/tomcat/conf/server.xml
 }
 
 #Set initial configuration
@@ -57,7 +57,7 @@ function setInitialConfiguration {
             cp -f /var/opt/jfrog/artifactory/etc/artifactory.config.latest.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
         else
         # If not we take the bootstrap one, and import it
-            cp -f  /var/opt/jfrog/artifactory/etc/artifactory.config.bootstrap.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
+            cp -f /var/opt/jfrog/artifactory/etc/artifactory.config.bootstrap.xml /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
         fi
         # Changing the instance port
         sed -i -e "s,<artifactoryPort>\(.*\)</artifactoryPort>,<artifactoryPort>$INSTANCE_PORT</artifactoryPort>,g" /var/opt/jfrog/artifactory/etc/artifactory.config.import.xml
@@ -67,8 +67,8 @@ function setInitialConfiguration {
 #Set license
 function setLicense {
     logger "Setting up license."
+    [ ! -d /var/opt/jfrog/artifactory/etc ] && mkdir -p /var/opt/jfrog/artifactory/etc
     echo -n "$ART_LICENSES" | cut -d, -f1 > /var/opt/jfrog/artifactory/etc/artifactory.lic
-    chmod 777 /var/opt/jfrog/artifactory/etc/artifactory.lic
     echo "Added license"
 }
 
