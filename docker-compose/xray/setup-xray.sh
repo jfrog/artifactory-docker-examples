@@ -29,4 +29,12 @@ if [ $(stat -c '%u' ${XRAY_MOUNT_ROOT}/xray) != "${XRAY_USER_ID}" ] || [ $(stat 
     chown -R ${XRAY_USER_ID}:${XRAY_USER_ID} ${XRAY_MOUNT_ROOT}/xray || errorExit "Setting ownership of ${XRAY_MOUNT_ROOT}/xray to ${XRAY_USER_ID} failed"
 fi
 
+# start mongodb
+docker-compose -f xray.yml up -d mongodb
+
+# create users in mongodb
+cat createMongoUsers.js | docker exec -i xray-mongodb mongo
+
+docker-compose -f xray.yml up -d
+
 echo "Done!"
