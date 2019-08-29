@@ -9,7 +9,7 @@ services:
      - /data/artifactory:/var/opt/jfrog/artifactory
 #    Add extra Java options by uncommenting the following lines
 #    environment:
-#     - EXTRA_JAVA_OPTIONS=-Xmx4g
+#     - EXTRA_JAVA_OPTIONS=-Xms512m -Xmx4g
     restart: always
     ulimits:
       nproc: 65535
