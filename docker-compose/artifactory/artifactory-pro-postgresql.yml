@@ -35,7 +35,7 @@ services:
      - DB_USER=artifactory
      - DB_PASSWORD=password
      # Add extra Java options by uncommenting the following line
-     #- EXTRA_JAVA_OPTIONS=-Xmx4g
+     #- EXTRA_JAVA_OPTIONS=-Xms512m -Xmx4g
     restart: always
     ulimits:
       nproc: 65535
