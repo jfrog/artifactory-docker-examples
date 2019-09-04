@@ -320,7 +320,7 @@
                 <propertySetRef>artifactory</propertySetRef>
             </propertySets>
             <archiveBrowsingEnabled>false</archiveBrowsingEnabled>
-            <url>http://jcenter.bintray.com</url>
+            <url>https://jcenter.bintray.com</url>
             <offline>false</offline>
             <hardFail>false</hardFail>
             <storeArtifactsLocally>true</storeArtifactsLocally>
