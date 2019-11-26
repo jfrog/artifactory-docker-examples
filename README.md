@@ -11,7 +11,7 @@ To learn more about Docker and how to set it up, please refer to the [Docker](ht
 The following examples are available
 - [Docker compose](docker-compose)
 - [Docker Swarm](swarm)
-- [Kubernetes](kubernetes)
+- [Kubernetes](kubernetes) (Deprecated)
 - [Helm Charts](https://github.com/jfrog/charts)
 - [DC/OS](dc-os)
 
