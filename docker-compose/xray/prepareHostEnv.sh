@@ -22,6 +22,9 @@ source ./.env
 if [ ! -d ${XRAY_MOUNT_ROOT}/xray ]; then
     echo "Creating ${XRAY_MOUNT_ROOT}/xray"
     mkdir -p ${XRAY_MOUNT_ROOT}/xray
+    mkdir -p ${XRAY_MOUNT_ROOT}/rabbitmq/conf
+    mkdir -p ${XRAY_MOUNT_ROOT}/rabbitmq/logs
+    cp rabbitmq.conf ${XRAY_MOUNT_ROOT}/rabbitmq/conf
 fi
 
 if [ $(stat -c '%u' ${XRAY_MOUNT_ROOT}/xray) != "${XRAY_USER_ID}" ] || [ $(stat -c '%g' ${XRAY_MOUNT_ROOT}/xray) != "${XRAY_USER_ID}" ]; then
