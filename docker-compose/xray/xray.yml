@@ -66,6 +66,8 @@ services:
     hostname: $DOCKER_SERVER_HOSTNAME
     volumes:
       - "$XRAY_MOUNT_ROOT/rabbitmq:/var/lib/rabbitmq"
+      - "$XRAY_MOUNT_ROOT/rabbitmq/conf:/etc/rabbitmq"
+      - "$XRAY_MOUNT_ROOT/rabbitmq/logs:/var/log/rabbitmq/logs"
     environment:
       - "RABBITMQ_ERLANG_COOKIE=$RABBITMQ_ERLANG_COOKIE"
     restart: always
