@@ -30,7 +30,6 @@ Supported options
        - oss            : Single OSS node
        - ha             : HA with two nodes
        - ha-shared-data : HA that uses a shared data mount
-       - oss            : Single OSS node
 -d   : Custom root data directory (defaults to /data)
 -c   : Clean local data directory. Delete the data directory on the host before creating the new ones
 -f   : Force removal if -c is passed (do not prompt)
