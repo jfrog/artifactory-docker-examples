@@ -12,6 +12,7 @@ The following examples are available
 - [Docker compose](docker-compose)
 - [Docker Swarm](swarm)
 - [Kubernetes](kubernetes) (Deprecated)
+- [OpenShift](openshift) (Deprecated)
 - [Helm Charts](https://github.com/jfrog/charts)
 - [DC/OS](dc-os)
 
