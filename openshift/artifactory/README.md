@@ -1,4 +1,4 @@
-# Artifactory HA templates for Openshift Container Platform #
+# Artifactory HA templates for Openshift Container Platform (DEPRECATED)#
 
 These templates can be used to deploy Artifactory HA on Openshift Container Platform.
 

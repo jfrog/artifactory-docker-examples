@@ -1,4 +1,4 @@
-# JFrog Xray templates for OpenShift Container Platform #
+# JFrog Xray templates for OpenShift Container Platform (DEPRECATED)#
 
 The templates part of this github project can be used to install JFrog Xray on OpenShift Container Platform.
 
