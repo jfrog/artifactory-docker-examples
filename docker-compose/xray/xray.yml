@@ -73,7 +73,7 @@ services:
     restart: always
 
   postgres:
-    image: postgres:$POSTGRES_VERSION
+    image: docker.bintray.io/postgres:$POSTGRES_VERSION
     container_name: xray-postgres
     environment:
       - "POSTGRES_USER=$POSTGRES_USER"
