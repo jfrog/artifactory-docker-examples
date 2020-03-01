@@ -1,3 +1,7 @@
+# DEPRECATED
+[JFrog Xray](https://jfrog.com/xray/) is now distributed with an [official Docker-compose installer](https://www.jfrog.com/confluence/display/JFROG/Installing+Xray).<br>
+The current Docker-compose examples will not be maintained anymore.
+
 # Xray Docker Compose Examples
 
 This directory provides some examples that show different ways to run Xray with Docker Compose.

@@ -1,3 +1,7 @@
+# DEPRECATED
+[JFrog Artifactory](https://jfrog.com/artifactory/) is now distributed with an [official Docker-compose installer](https://www.jfrog.com/confluence/display/JFROG/Installing+Artifactory).<br>
+The current Docker-compose examples will not be maintained anymore.
+
 # Artifactory Docker Compose Examples
 This directory provides some examples that show different ways to run Artifactory with Docker Compose.  
 To learn more about Docker and how to set it up, please refer to the [Docker](https://docs.docker.com) and [Docker Compose](https://docs.docker.com/compose/overview/) documentation.  
