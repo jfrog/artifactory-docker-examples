@@ -1,7 +1,7 @@
 version: '2'
 services:
   postgresql:
-    image: docker.bintray.io/postgres:9.6.11
+    image: docker.bintray.io/postgres:9.5.21
     container_name: postgresql
     ports:
      - 5432:5432
@@ -19,7 +19,7 @@ services:
         soft: 32000
         hard: 40000
   artifactory:
-    image: docker.bintray.io/jfrog/artifactory-pro:7.2.1
+    image: docker.bintray.io/jfrog/artifactory-pro:7.0.1
     container_name: artifactory
     ports:
      - 80:8081
