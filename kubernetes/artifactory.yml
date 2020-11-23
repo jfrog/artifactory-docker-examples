@@ -25,7 +25,7 @@ spec:
           mountPath: "/var/opt/jfrog/artifactory"
       containers:
       - name: artifactory-pro-k8s
-        image: docker.bintray.io/jfrog/artifactory-pro:6.23.1
+        image: docker.bintray.io/jfrog/artifactory-pro:6.23.3
         env:
         - name: DB_TYPE
           value: postgresql
