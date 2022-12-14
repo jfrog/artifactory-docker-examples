@@ -1,6 +1,6 @@
 # DEPRECATED
 This repository's examples are deprecated and are not maintained anymore.<br>
-You should now use the [official JFrog Platform distributions](https://www.jfrog.com/confluence/display/JFROG/Install).
+You should now use the [official JFrog Artifactory installers](https://www.jfrog.com/confluence/display/JFROG/Installing+Artifactory).
 
 # Artifactory Docker Examples
 This repository provides some examples that show different ways to run Artifactory with Docker orchestration tools.   
